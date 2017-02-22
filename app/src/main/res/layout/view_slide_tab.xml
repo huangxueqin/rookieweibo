@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.huangxueqin.rookieweibo.slide_tab_layout.SlideTabLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/slide_tab_nav"
+    android:background="@color/colorPrimary"
+    android:elevation="@dimen/toolbar_elevation"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/slide_tab_height" >
+    <LinearLayout
+        android:id="@+id/tab_container"
+        android:orientation="horizontal"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent" />
+</com.huangxueqin.rookieweibo.slide_tab_layout.SlideTabLayout>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">@color/white</color>
+    <color name="colorPrimaryDark">@color/half_transparent</color>
+    <color name="colorAccent">@color/white</color>
+    
+    <!-- color schemes -->
+    <color name="half_transparent">#40000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="grey1">#D4D4D4</color>
+    <color name="grey2">#646364</color>
+    <color name="pale_orange">#F7925D</color>
+    <color name="green1">#EFF1D3</color>
+    <color name="green2">#F4D8B2</color>
+    <color name="green3">#8DDB9A</color>
+    <color name="green4">#786964</color>
+
+    <color name="black">#0D0E09</color>
+    <!-- color schemes end -->
+
+    <color name="slide_tab_title">@color/black</color>
+</resources>

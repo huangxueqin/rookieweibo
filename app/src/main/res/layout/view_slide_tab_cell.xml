@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.huangxueqin.rookieweibo.slide_tab_layout.SlideTabCell xmlns:android="http://schemas.android.com/apk/res/android"
+    android:paddingLeft="@dimen/slide_tab_padding"
+    android:paddingRight="@dimen/slide_tab_padding"
+    android:background="?attr/selectableItemBackgroundBorderless"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent">
+    <TextView
+        android:layout_gravity="center_vertical"
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/slide_tab_title"
+        android:textSize="@dimen/slide_tab_title"/>
+</com.huangxueqin.rookieweibo.slide_tab_layout.SlideTabCell>
