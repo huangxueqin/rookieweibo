@@ -3,7 +3,6 @@ package com.huangxueqin.rookieweibo;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
 
 import com.huangxueqin.rookieweibo.slide_tab_layout.SlideTabLayout;
 
@@ -25,7 +24,7 @@ public class MainFragmentAdapter extends FragmentPagerAdapter implements SlideTa
             case AppConfiguration.Main.TabUser:
                 return new UserFragment();
         }
-        return null;
+        return new BlankFragment();
     }
 
     @Override

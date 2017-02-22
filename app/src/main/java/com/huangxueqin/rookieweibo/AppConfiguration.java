@@ -6,7 +6,7 @@ package com.huangxueqin.rookieweibo;
 
 public class AppConfiguration {
     public interface Main {
-        String[] TabNavTitles = {"首页", "我的"};
+        String[] TabNavTitles = {"首页", "消息", "发现", "我的"};
         int TabFrontPage = 0;
         int TabUser = 1;
 
