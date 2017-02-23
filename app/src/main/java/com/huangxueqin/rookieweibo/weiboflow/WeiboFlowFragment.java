@@ -1,4 +1,4 @@
-package com.huangxueqin.rookieweibo;
+package com.huangxueqin.rookieweibo.weiboflow;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -7,6 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.huangxueqin.rookieweibo.BaseFragment;
+import com.huangxueqin.rookieweibo.R;
 import com.huangxueqin.rookieweibo.auth.Constants;
 import com.sina.weibo.sdk.exception.WeiboException;
 import com.sina.weibo.sdk.net.RequestListener;

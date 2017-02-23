@@ -11,6 +11,7 @@ import com.huangxueqin.rookieweibo.auth.AccessTokenKeeper;
 import com.huangxueqin.rookieweibo.auth.UserKeeper;
 import com.huangxueqin.rookieweibo.interfaces.IFragmentCallback;
 import com.huangxueqin.rookieweibo.slide_tab_layout.SlideTabLayout;
+import com.huangxueqin.rookieweibo.weiboflow.WeiboFlowFragment;
 import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 import com.sina.weibo.sdk.openapi.models.User;
 
