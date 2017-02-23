@@ -4,9 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/RookieWeibo.iml" filepath="$PROJECT_DIR$/RookieWeibo.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/rookieweibo.iml" filepath="$PROJECT_DIR$/rookieweibo.iml" />
-      <module fileurl="file://$PROJECT_DIR$/weiboSDK/weiboSDK.iml" filepath="$PROJECT_DIR$/weiboSDK/weiboSDK.iml" />
       <module fileurl="file://$PROJECT_DIR$/weiboSDK/weiboSDK.iml" filepath="$PROJECT_DIR$/weiboSDK/weiboSDK.iml" />
     </modules>
   </component>

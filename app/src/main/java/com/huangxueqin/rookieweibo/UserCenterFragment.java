@@ -11,7 +11,7 @@ import android.view.ViewGroup;
  * Created by huangxueqin on 2017/2/22.
  */
 
-public class UserFragment extends Fragment {
+public class UserCenterFragment extends BaseFragment {
 
     @Nullable
     @Override

@@ -7,9 +7,12 @@ package com.huangxueqin.rookieweibo;
 public class AppConfiguration {
     public interface Main {
         String[] TabNavTitles = {"首页", "消息", "发现", "我的"};
-        int TabFrontPage = 0;
-        int TabUser = 1;
+        int TabCount = TabNavTitles.length;
+        int TabWeiboFlow = 0;
+        int TabMessage = 1;
+        int TabExplore = 2;
+        int TabUserCenter = 3;
 
-        int PrimaryTabNdx = Main.TabFrontPage;
+        int PrimaryTabNdx = Main.TabWeiboFlow;
     }
 }

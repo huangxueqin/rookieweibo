@@ -148,7 +148,7 @@ public class SlideTabLayout extends HorizontalScrollView implements ViewPager.On
         }
     }
 
-    public void attach(Callback callback) {
+    public void setCallback(Callback callback) {
         mCallback = callback;
         if (mCallback != null) {
             installTabs();
