@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
     android:orientation="vertical"
+    android:background="@color/grey0"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.huangxueqin.rookieweibo.MainActivity">
@@ -13,6 +14,5 @@
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="@dimen/toolbar_height"
         android:overScrollMode="never"/>
 </LinearLayout>

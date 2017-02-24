@@ -7,13 +7,15 @@ import android.view.View;
 
 import com.huangxueqin.rookieweibo.interfaces.IFragmentCallback;
 import com.sina.weibo.sdk.auth.Oauth2AccessToken;
+import com.sina.weibo.sdk.exception.WeiboException;
+import com.sina.weibo.sdk.net.RequestListener;
 import com.sina.weibo.sdk.openapi.models.User;
 
 /**
  * Created by huangxueqin on 2017/2/23.
  */
 
-public class BaseFragment extends Fragment {
+public class BaseFragment extends Fragment implements RequestListener {
     private IFragmentCallback mCallback;
     private boolean mDataPreparationPending = true;
 
@@ -58,5 +60,15 @@ public class BaseFragment extends Fragment {
 
     protected Oauth2AccessToken getAccessToken() {
         return mCallback.getAccessToken();
+    }
+
+    @Override
+    public void onComplete(String s) {
+
+    }
+
+    @Override
+    public void onWeiboException(WeiboException e) {
+
     }
 }

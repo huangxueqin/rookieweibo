@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:background="@color/white"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    card_view:cardElevation="@dimen/weibo_flow_list_card_elevation"
+    card_view:cardCornerRadius="@dimen/weibo_flow_list_card_corner_radius">
+    <LinearLayout
+        android:padding="@dimen/weibo_flow_list_card_padding"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+</android.support.v7.widget.CardView>

@@ -11,4 +11,11 @@
     <dimen name="slide_tab_title">14sp</dimen>
     <dimen name="slide_tab_height">@dimen/toolbar_height</dimen>
 
+    <!-- dimen for weibo flow list -->
+    <dimen name="weibo_flow_list_padding_between_item">8dp</dimen>
+    <dimen name="weibo_flow_list_padding_top">5dp</dimen>
+    <dimen name="weibo_flow_list_padding_left">5dp</dimen>
+    <dimen name="weibo_flow_list_card_padding">10dp</dimen>
+    <dimen name="weibo_flow_list_card_elevation">2dp</dimen>
+    <dimen name="weibo_flow_list_card_corner_radius">2dp</dimen>
 </resources>

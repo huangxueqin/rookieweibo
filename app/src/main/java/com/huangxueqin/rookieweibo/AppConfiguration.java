@@ -15,4 +15,9 @@ public class AppConfiguration {
 
         int PrimaryTabNdx = Main.TabWeiboFlow;
     }
+
+    public interface Status {
+        int COUNT = 20;
+        boolean BASE_APP = false;
+    }
 }

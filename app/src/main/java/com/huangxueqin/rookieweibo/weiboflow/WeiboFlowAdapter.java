@@ -34,7 +34,7 @@ public class WeiboFlowAdapter extends RecyclerView.Adapter<WeiboFlowAdapter.Weib
         notifyDataSetChanged();
     }
 
-    public void replace(ArrayList<Status> statuses) {
+    public void refresh(ArrayList<Status> statuses) {
         mStatusList.clear();
         mStatusList.addAll(statuses);
         notifyDataSetChanged();
@@ -43,7 +43,7 @@ public class WeiboFlowAdapter extends RecyclerView.Adapter<WeiboFlowAdapter.Weib
     @Override
     public WeiboFlowHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
-        View itemView = inflater.inflate(R.layout.view_weibo_flow_list_item, parent, false);
+        View itemView = inflater.inflate(R.layout.view_list_item_weibo_flow, parent, false);
         return new WeiboFlowHolder(itemView);
     }
 
