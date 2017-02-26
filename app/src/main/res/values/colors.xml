@@ -19,5 +19,5 @@
     <color name="black">#0D0E09</color>
     <!-- color schemes end -->
 
-    <color name="slide_tab_title">@color/black</color>
+    <color name="slide_tab_title">@color/grey2</color>
 </resources>

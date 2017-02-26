@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import com.huangxueqin.rookieweibo.AppConfiguration;
 import com.huangxueqin.rookieweibo.BaseFragment;
 import com.huangxueqin.rookieweibo.R;
+import com.huangxueqin.rookieweibo.RecyclerViewLoadingListener;
 import com.huangxueqin.rookieweibo.WeiboAPIWrapper;
 import com.huangxueqin.rookieweibo.auth.Constants;
 import com.huangxueqin.rookieweibo.itemdecoration.LinearLayoutPaddingDecoration;
@@ -41,6 +42,7 @@ public class WeiboFlowFragment extends BaseFragment implements SwipeRefreshLayou
 
     StatusAPIWrapper mStatusRequest;
     int mCurrentPage = 0;
+    boolean mLoadingComplete = false;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -61,6 +63,7 @@ public class WeiboFlowFragment extends BaseFragment implements SwipeRefreshLayou
         mWeiboFlowList.setLayoutManager(new LinearLayoutManager(getContext()));
         mWeiboFlowList.addItemDecoration(new LinearLayoutPaddingDecoration(paddingLeft, paddingTop, paddingBetweenItem));
         mWeiboFlowList.setAdapter(mFlowAdapter);
+        mWeiboFlowList.addOnScrollListener(mLoadingListener);
 
         mSwipeRefreshLayout.setOnRefreshListener(this);
         return root;
@@ -97,12 +100,37 @@ public class WeiboFlowFragment extends BaseFragment implements SwipeRefreshLayou
     }
 
     private void updateUIOnEndOfStatus() {
-
+        mFlowAdapter.setFooterType(WeiboFlowAdapter.FOOTER_TYPE_COMPLETE);
     }
 
     private void updateUIAfterRefresh() {
         mSwipeRefreshLayout.setRefreshing(false);
+        mFlowAdapter.setFooterType(WeiboFlowAdapter.FOOTER_TYPE_LOADING);
     }
+
+    private void updateUIAfterRefreshFail() {
+        mSwipeRefreshLayout.setRefreshing(false);
+    }
+
+    private void updateUIAfterLoading() {
+
+    }
+
+    private void updateUIAfterLoadingFail() {
+        mWeiboFlowList.scrollToPosition(mFlowAdapter.getItemCount()-1);
+    }
+
+    private RecyclerViewLoadingListener mLoadingListener = new RecyclerViewLoadingListener() {
+        @Override
+        public boolean allowLoading() {
+            return !mLoadingComplete && (mStatusRequest == null ||  !mStatusRequest.isValid());
+        }
+
+        @Override
+        public void performLoadingAction() {
+            nextFlow();
+        }
+    };
 
     private class StatusAPIWrapper extends WeiboAPIWrapper {
         int RETRY;
@@ -141,7 +169,9 @@ public class WeiboFlowFragment extends BaseFragment implements SwipeRefreshLayou
                 execute();
             } else {
                 if (isTypeRefresh()) {
-                    updateUIAfterRefresh();
+                    updateUIAfterRefreshFail();
+                } else {
+                    updateUIAfterLoadingFail();
                 }
                 mFinish = false;
             }
@@ -158,12 +188,15 @@ public class WeiboFlowFragment extends BaseFragment implements SwipeRefreshLayou
                     mFlowAdapter.append(statuses);
                 }
             }
-            if (statuses == null || statuses.size() < AppConfiguration.Status.COUNT) {
-                updateUIOnEndOfStatus();
-            }
             if (isTypeRefresh()) {
+                mLoadingComplete = false;
                 updateUIAfterRefresh();
             }
+            if (statuses == null || statuses.size() < AppConfiguration.Status.COUNT) {
+                mLoadingComplete = true;
+                updateUIOnEndOfStatus();
+            }
+
             mCurrentPage = PAGE;
             mFinish = false;
         }

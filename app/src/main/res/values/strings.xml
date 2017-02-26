@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">小牛微博</string>
     <string name="login_title">登录</string>
+
+    <string name="no_more_content">没有更多了</string>
 </resources>

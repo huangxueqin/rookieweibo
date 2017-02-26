@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.huangxueqin.rookieweibo.widget.WeiboStatusView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:background="@color/white"
+    android:padding="@dimen/weibo_flow_list_card_padding"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- header -->
+    <include layout="@layout/view_list_item_weibo_flow_card_header" />
+
+    <!-- weibo text -->
+    <TextView
+        android:id="@+id/weibo_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:textSize="@dimen/text2"
+        android:textColor="@color/black"/>
+
+    <!-- weibo extra content -->
+    <FrameLayout
+        android:id="@+id/weibo_extra_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </FrameLayout>
+
+    <!-- footer -->
+    <include layout="@layout/view_list_item_weibo_flow_card_footer" />
+
+</com.huangxueqin.rookieweibo.widget.WeiboStatusView>

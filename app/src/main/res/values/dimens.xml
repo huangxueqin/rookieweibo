@@ -6,16 +6,27 @@
     <dimen name="toolbar_height">44dp</dimen>
     <dimen name="toolbar_elevation">1dp</dimen>
 
+    <dimen name="text0">20sp</dimen>
+    <dimen name="text1">15sp</dimen>
+    <dimen name="text2">14sp</dimen>
+    <dimen name="text3">12sp</dimen>
+
 
     <dimen name="slide_tab_padding">10dp</dimen>
-    <dimen name="slide_tab_title">14sp</dimen>
+    <dimen name="slide_tab_title">@dimen/text1</dimen>
     <dimen name="slide_tab_height">@dimen/toolbar_height</dimen>
 
     <!-- dimen for weibo flow list -->
     <dimen name="weibo_flow_list_padding_between_item">8dp</dimen>
     <dimen name="weibo_flow_list_padding_top">5dp</dimen>
     <dimen name="weibo_flow_list_padding_left">5dp</dimen>
+    <dimen name="weibo_flow_list_load_next_height">44dp</dimen>
+    <dimen name="weibo_flow_list_footer_text">@dimen/text3</dimen>
+
     <dimen name="weibo_flow_list_card_padding">10dp</dimen>
-    <dimen name="weibo_flow_list_card_elevation">2dp</dimen>
-    <dimen name="weibo_flow_list_card_corner_radius">2dp</dimen>
+    <dimen name="weibo_flow_list_card_header_height">50dp</dimen>
+    <dimen name="weibo_flow_list_card_footer_height">40dp</dimen>
+    <dimen name="weibo_flow_list_card_elevation">0.5dp</dimen>
+    <dimen name="weibo_flow_list_card_corner_radius">0dp</dimen>
+    <dimen name="weibo_flow_list_card_header_avatar">40dp</dimen>
 </resources>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/weibo_card_header"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical">
+
+    <android.support.v7.widget.CardView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="@dimen/weibo_flow_list_card_header_avatar"
+        android:layout_height="@dimen/weibo_flow_list_card_header_avatar"
+        app:cardElevation="0dp"
+        app:cardCornerRadius="20dp">
+        <ImageView
+            android:id="@+id/user_avatar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </android.support.v7.widget.CardView>
+
+    <LinearLayout
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center_vertical"
+        android:paddingLeft="8dp">
+        <TextView
+            android:id="@+id/user_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text2"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:lines="1"/>
+        <TextView
+            android:id="@+id/weibo_create_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text3"
+            android:textColor="@color/grey1"
+            android:lines="1"/>
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/weibo_opt_menu"
+        android:layout_gravity="top|right"
+        android:foreground="?attr/selectableItemBackgroundBorderless"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_listitem_overflow_gray"/>
+    </FrameLayout>
+</LinearLayout>

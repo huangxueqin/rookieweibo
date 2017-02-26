@@ -34,4 +34,21 @@
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_weight">1</item>
     </style>
+
+    <style name="WeiboFlowCard">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="cardElevation">@dimen/weibo_flow_list_card_elevation</item>
+        <item name="cardCornerRadius">@dimen/weibo_flow_list_card_corner_radius</item>
+    </style>
+
+    <style name="WeiboFlowCardFooterText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:drawablePadding">5dp</item>
+        <item name="android:textSize">@dimen/text2</item>
+        <item name="android:textColor">@color/grey1</item>
+        <item name="android:layout_centerVertical">true</item>
+    </style>
 </resources>
