@@ -2,17 +2,10 @@ package com.huangxueqin.rookieweibo.auth;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.annotation.BoolRes;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.github.ybq.android.spinkit.SpinKitView;
 import com.huangxueqin.rookieweibo.BaseActivity;
 import com.huangxueqin.rookieweibo.MainActivity;
 import com.huangxueqin.rookieweibo.R;
@@ -22,7 +15,6 @@ import com.sina.weibo.sdk.auth.WeiboAuthListener;
 import com.sina.weibo.sdk.exception.WeiboException;
 import com.sina.weibo.sdk.net.RequestListener;
 import com.sina.weibo.sdk.openapi.UsersAPI;
-import com.sina.weibo.sdk.openapi.models.User;
 import com.sina.weibo.sdk.widget.LoginButton;
 
 import butterknife.BindView;
@@ -48,7 +40,7 @@ public class LoginActivity extends BaseActivity {
         ButterKnife.bind(this);
 
         mToolbarClose.setOnClickListener(mToolbarActionListener);
-        mLoginButton.setWeiboAuthInfo(new AuthInfo(this, Constants.APP_KEY, Constants.REDIRECT_URL, Constants.SCOPE)
+        mLoginButton.setWeiboAuthInfo(new AuthInfo(this, AuthConstants.APP_KEY, AuthConstants.REDIRECT_URL, AuthConstants.SCOPE)
                 , mAuthListener);
     }
 
@@ -63,7 +55,7 @@ public class LoginActivity extends BaseActivity {
     }
 
     private void requestUserAsync() {
-        UsersAPI usersAPI = new UsersAPI(this, Constants.APP_KEY, mAccessToken);
+        UsersAPI usersAPI = new UsersAPI(this, AuthConstants.APP_KEY, mAccessToken);
         long uid = Long.parseLong(mAccessToken.getUid());
         usersAPI.show(uid, new RequestListener() {
             @Override

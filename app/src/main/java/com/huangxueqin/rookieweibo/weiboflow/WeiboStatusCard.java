@@ -5,7 +5,6 @@ import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import com.huangxueqin.rookieweibo.R;
 import com.huangxueqin.rookieweibo.widget.WeiboStatusView;
@@ -16,7 +15,7 @@ import com.huangxueqin.rookieweibo.widget.WeiboStatusView;
 
 public class WeiboStatusCard extends CardView {
 
-    WeiboStatusView mStatusView;
+    private WeiboStatusView mStatusView;
 
     public WeiboStatusCard(Context context) {
         this(context, null);
@@ -30,11 +29,16 @@ public class WeiboStatusCard extends CardView {
         super(context, attrs, defStyleAttr);
     }
 
-    public static WeiboStatusCard get(Context context, ViewGroup parent, int viewType) {
+    public WeiboStatusView getStatusView() {
+        return mStatusView;
+    }
+
+    public static WeiboStatusCard get(Context context, ViewGroup parent, int statusType) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        WeiboStatusCard card = (WeiboStatusCard) inflater.inflate(R.layout.view_list_item_weibo_status_card,
-                parent, false);
-        WeiboStatusView statusView = WeiboStatusView.get(context, listItemTypeToStatusType(viewType), card);
+        WeiboStatusCard card = new WeiboStatusCard(context, null, R.style.WeiboFlowCard);
+
+        WeiboStatusView statusView = WeiboStatusView.get(context, listItemTypeToStatusType(st1),
+                listItemTypeToStatusType(st2), card);
         card.addView(statusView);
         card.mStatusView = statusView;
         return card;
@@ -42,17 +46,17 @@ public class WeiboStatusCard extends CardView {
 
     public static int listItemTypeToStatusType(int viewType) {
         switch (viewType) {
-            case WeiboFlowAdapter.TYPE_STATUS_IMAGE:
+            case WeiboFlowAdapter.TYPE_IMAGE:
                 return WeiboStatusView.TYPE_IMAGE;
-            case WeiboFlowAdapter.TYPE_STATUS_MUSIC:
+            case WeiboFlowAdapter.TYPE_MUSIC:
                 return WeiboStatusView.TYPE_MUSIC;
-            case WeiboFlowAdapter.TYPE_STATUS_VIDEO:
+            case WeiboFlowAdapter.TYPE_VIDEO:
                 return WeiboStatusView.TYPE_VIDEO;
-            case WeiboFlowAdapter.TYPE_STATUS_RETWEET:
+            case WeiboFlowAdapter.TYPE_RETWEET:
                 return WeiboStatusView.TYPE_RETWEET;
-            case WeiboFlowAdapter.TYPE_STATUS_SIMPLE:
+            case WeiboFlowAdapter.TYPE_SIMPLE:
                 return WeiboStatusView.TYPE_SIMPLE;
         }
-        throw new IllegalArgumentException("invalid list item type with raw value " + viewType);
+        return viewType;
     }
 }

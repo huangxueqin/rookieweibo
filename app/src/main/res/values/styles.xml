@@ -51,4 +51,16 @@
         <item name="android:textColor">@color/grey1</item>
         <item name="android:layout_centerVertical">true</item>
     </style>
+
+    <style name="StatusView">
+        <item name="android:orientation">vertical</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@color/white</item>
+    </style>
+
+    <style name="StatusView.Compat" parent="StatusView">
+        <item name="compactMode">true</item>
+    </style>
+
 </resources>

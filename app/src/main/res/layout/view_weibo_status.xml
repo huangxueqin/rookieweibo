@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.huangxueqin.rookieweibo.widget.WeiboStatusView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:background="@color/white"
-    android:padding="@dimen/weibo_flow_list_card_padding"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    style="@style/StatusView">
 
     <!-- header -->
-    <include layout="@layout/view_list_item_weibo_flow_card_header" />
+    <include layout="@layout/view_weibo_status_card_header" />
 
     <!-- weibo text -->
     <TextView
@@ -28,6 +24,6 @@
     </FrameLayout>
 
     <!-- footer -->
-    <include layout="@layout/view_list_item_weibo_flow_card_footer" />
+    <include layout="@layout/view_weibo_status_card_footer" />
 
 </com.huangxueqin.rookieweibo.widget.WeiboStatusView>

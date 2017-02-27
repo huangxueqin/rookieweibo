@@ -15,7 +15,7 @@ import com.huangxueqin.rookieweibo.BaseFragment;
 import com.huangxueqin.rookieweibo.R;
 import com.huangxueqin.rookieweibo.RecyclerViewLoadingListener;
 import com.huangxueqin.rookieweibo.WeiboAPIWrapper;
-import com.huangxueqin.rookieweibo.auth.Constants;
+import com.huangxueqin.rookieweibo.auth.AuthConstants;
 import com.huangxueqin.rookieweibo.itemdecoration.LinearLayoutPaddingDecoration;
 import com.sina.weibo.sdk.exception.WeiboException;
 import com.sina.weibo.sdk.openapi.StatusesAPI;
@@ -47,7 +47,7 @@ public class WeiboFlowFragment extends BaseFragment implements SwipeRefreshLayou
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mStatusAPI = new StatusesAPI(getContext(), Constants.APP_KEY, getAccessToken());
+        mStatusAPI = new StatusesAPI(getContext(), AuthConstants.APP_KEY, getAccessToken());
         mFlowAdapter = new WeiboFlowAdapter(getContext());
     }
 
@@ -100,12 +100,12 @@ public class WeiboFlowFragment extends BaseFragment implements SwipeRefreshLayou
     }
 
     private void updateUIOnEndOfStatus() {
-        mFlowAdapter.setFooterType(WeiboFlowAdapter.FOOTER_TYPE_COMPLETE);
+        mFlowAdapter.setDataComplete();
     }
 
     private void updateUIAfterRefresh() {
         mSwipeRefreshLayout.setRefreshing(false);
-        mFlowAdapter.setFooterType(WeiboFlowAdapter.FOOTER_TYPE_LOADING);
+        mFlowAdapter.setDataInComplete();
     }
 
     private void updateUIAfterRefreshFail() {
