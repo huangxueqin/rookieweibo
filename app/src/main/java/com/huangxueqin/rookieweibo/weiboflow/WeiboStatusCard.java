@@ -9,13 +9,18 @@ import android.view.ViewGroup;
 import com.huangxueqin.rookieweibo.R;
 import com.huangxueqin.rookieweibo.widget.WeiboStatusView;
 
+import butterknife.BindView;
+
 /**
  * Created by huangxueqin on 2017/2/26.
  */
 
 public class WeiboStatusCard extends CardView {
 
-    private WeiboStatusView mStatusView;
+    @BindView(R.id.weibo_card_header) ViewGroup mCardHeader;
+    @BindView(R.id.weibo_card_footer) ViewGroup mCardFooter;
+    @BindView(R.id.weibo_card_content) ViewGroup mCardContent;
+
 
     public WeiboStatusCard(Context context) {
         this(context, null);

@@ -8,7 +8,7 @@ import com.sina.weibo.sdk.openapi.models.Status;
  * Created by huangxueqin on 2017/2/27.
  */
 
-public class StatusUtils {
+public class StatusType {
     public static final int NONE = 0x0;
     public static final int SIMPLE = 0x1;
     public static final int IMAGE = 0x2;
