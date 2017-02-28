@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.huangxueqin.rookieweibo.weiboflow.WeiboStatusCard
+    style="@style/WeiboFlowCard">
+    <!--<LinearLayout-->
+        <!--android:orientation="vertical"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:padding="@dimen/weibo_flow_list_card_padding"-->
+        <!--android:background="@color/white">-->
+
+        <!--&lt;!&ndash; header &ndash;&gt;-->
+        <!--<include-->
+            <!--layout="@layout/view_weibo_status_card_header"-->
+            <!--android:id="@+id/weibo_card_header"/>-->
+
+        <!--&lt;!&ndash; weibo text &ndash;&gt;-->
+        <!--<TextView-->
+            <!--android:id="@+id/status_text"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginBottom="5dp"-->
+            <!--android:textSize="@dimen/text2"-->
+            <!--android:textColor="@color/black"/>-->
+
+        <!--<FrameLayout-->
+            <!--android:id="@+id/status_extra_content"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content">-->
+        <!--</FrameLayout>-->
+
+        <!--&lt;!&ndash; footer &ndash;&gt;-->
+        <!--<include-->
+            <!--layout="@layout/view_weibo_status_card_footer"-->
+            <!--android:id="@+id/weibo_card_footer"/>-->
+
+    <!--</LinearLayout>-->
+</com.huangxueqin.rookieweibo.weiboflow.WeiboStatusCard>

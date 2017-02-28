@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView
+<com.huangxueqin.rookieweibo.weiboflow.WeiboStatusCard
     xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/WeiboFlowCard">
     <LinearLayout
@@ -14,10 +14,20 @@
             layout="@layout/view_weibo_status_card_header"
             android:id="@+id/weibo_card_header"/>
 
-        <!-- content -->
-        <include
-            layout="@layout/view_weibo_status_content"
-            android:id="@+id/weibo_card_content"/>
+        <!-- weibo text -->
+        <TextView
+            android:id="@+id/status_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:textSize="@dimen/text2"
+            android:textColor="@color/black"/>
+
+        <FrameLayout
+            android:id="@+id/status_extra_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </FrameLayout>
 
         <!-- footer -->
         <include
@@ -25,4 +35,4 @@
             android:id="@+id/weibo_card_footer"/>
 
     </LinearLayout>
-</android.support.v7.widget.CardView>
+</com.huangxueqin.rookieweibo.weiboflow.WeiboStatusCard>
