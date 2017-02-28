@@ -2,17 +2,15 @@ package com.huangxueqin.rookieweibo.weiboflow;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.huangxueqin.rookieweibo.R;
+import com.huangxueqin.rookieweibo.ST;
 import com.huangxueqin.rookieweibo.StatusUtils;
 import com.huangxueqin.rookieweibo.widget.WeiboStatusView;
 import com.sina.weibo.sdk.openapi.models.Status;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -21,17 +19,20 @@ import java.util.ArrayList;
  */
 
 public class WeiboFlowAdapter extends RecyclerView.Adapter<WeiboFlowAdapter.WeiboFlowHolder> {
-    interface FooterType {
+    interface FT {
         int NONE = 0;
         int LOADING = 1;
         int COMPLETE = 2;
     }
 
-    private static final int VIEW_TYPE_FOOTER = 0xBABEBABE;
+    interface VT {
+        int Footer = 1;
+        int Card = 2;
+    }
 
     Context mContext;
     ArrayList<Status> mStatusList;
-    int mFooterType = FooterType.NONE;
+    int mFooterType = FT.NONE;
 
     public WeiboFlowAdapter(Context context) {
         mContext = context;
@@ -50,21 +51,21 @@ public class WeiboFlowAdapter extends RecyclerView.Adapter<WeiboFlowAdapter.Weib
     }
 
     public void setDataComplete() {
-        mFooterType = FooterType.COMPLETE;
+        mFooterType = FT.COMPLETE;
         notifyDataSetChanged();
     }
 
     public void setDataInComplete() {
-        mFooterType = FooterType.LOADING;
+        mFooterType = FT.LOADING;
         notifyDataSetChanged();
     }
 
     @Override
     public int getItemViewType(int position) {
         if (position >= mStatusList.size()) {
-            return VIEW_TYPE_FOOTER;
+            return VT.Footer;
         } else {
-            return StatusUtils.getType(mStatusList.get(position));
+            return VT.Card | (ST.getStatusType(mStatusList.get(position)) << 16);
         }
     }
 
@@ -76,11 +77,12 @@ public class WeiboFlowAdapter extends RecyclerView.Adapter<WeiboFlowAdapter.Weib
     @Override
     public WeiboFlowHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         final View itemView;
-        if (viewType == VIEW_TYPE_FOOTER) {
+        if (viewType == VT.Footer) {
             LayoutInflater inflater = LayoutInflater.from(mContext);
             itemView = inflater.inflate(R.layout.view_list_item_weibo_flow_footer, parent, false);
         } else {
-            itemView = WeiboStatusCard.get(mContext, parent, viewType);
+            final int statusType = (viewType >> 16);
+            itemView = WeiboStatusCard.get(mContext, parent, statusType);
         }
         return new WeiboFlowHolder(itemView, viewType);
     }
@@ -88,7 +90,7 @@ public class WeiboFlowAdapter extends RecyclerView.Adapter<WeiboFlowAdapter.Weib
     @Override
     public void onBindViewHolder(WeiboFlowHolder holder, int position) {
         final int viewType = getItemViewType(position);
-        if (viewType == VIEW_TYPE_FOOTER) {
+        if (viewType == VT.Footer) {
             onBindFooter(holder, position);
         } else {
             onBindStatus(holder, position, viewType);
@@ -101,8 +103,8 @@ public class WeiboFlowAdapter extends RecyclerView.Adapter<WeiboFlowAdapter.Weib
     }
 
     private void onBindFooter(WeiboFlowHolder holder, int position) {
-        holder.loadingView.setVisibility(mFooterType == FooterType.LOADING ? View.VISIBLE : View.GONE);
-        holder.noMoreView.setVisibility(mFooterType == FooterType.COMPLETE ? View.VISIBLE : View.GONE);
+        holder.loadingView.setVisibility(mFooterType == FT.LOADING ? View.VISIBLE : View.GONE);
+        holder.noMoreView.setVisibility(mFooterType == FT.COMPLETE ? View.VISIBLE : View.GONE);
     }
 
     public class WeiboFlowHolder extends RecyclerView.ViewHolder {
@@ -113,7 +115,7 @@ public class WeiboFlowAdapter extends RecyclerView.Adapter<WeiboFlowAdapter.Weib
 
         public WeiboFlowHolder(View itemView, int itemType) {
             super(itemView);
-            if (itemType == VIEW_TYPE_FOOTER) {
+            if (itemType == VT.Footer) {
                 loadingView = itemView.findViewById(R.id.loading_view);
                 noMoreView = itemView.findViewById(R.id.no_more_prompt);
             } else {

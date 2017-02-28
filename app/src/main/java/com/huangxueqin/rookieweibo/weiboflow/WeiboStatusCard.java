@@ -4,10 +4,17 @@ import android.content.Context;
 import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.huangxueqin.rookieweibo.R;
-import com.huangxueqin.rookieweibo.widget.WeiboStatusView;
+import com.huangxueqin.rookieweibo.ST;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * Created by huangxueqin on 2017/2/26.
@@ -15,48 +22,93 @@ import com.huangxueqin.rookieweibo.widget.WeiboStatusView;
 
 public class WeiboStatusCard extends CardView {
 
-    private WeiboStatusView mStatusView;
+    // header
+    @BindView(R.id.user_avatar)
+    ImageView mUserAvatar;
+    @BindView(R.id.user_name)
+    TextView mUserName;
+    @BindView(R.id.weibo_create_time)
+    TextView mCreateTime;
+    @BindView(R.id.weibo_opt_menu)
+    TextView mOptMenu;
 
-    public WeiboStatusCard(Context context) {
+    // body
+    @BindView(R.id.weibo_text)
+    TextView mStatusText;
+    @BindView(R.id.weibo_extra_content)
+    FrameLayout mExtraContentContainer;
+    View mExtraContentView;
+
+    // footer
+    @BindView(R.id.weibo_like_num)
+    TextView mLikeText;
+    @BindView(R.id.weibo_forward_num)
+    TextView mForwardCount;
+    @BindView(R.id.weibo_comment_num)
+    TextView mCommentCount;
+
+    private int mStatusType;
+
+    private WeiboStatusCard(Context context) {
         this(context, null);
     }
 
-    public WeiboStatusCard(Context context, AttributeSet attrs) {
+    private WeiboStatusCard(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public WeiboStatusCard(Context context, AttributeSet attrs, int defStyleAttr) {
+    private WeiboStatusCard(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
-    public WeiboStatusView getStatusView() {
-        return mStatusView;
+    @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+        ButterKnife.bind(this);
     }
 
     public static WeiboStatusCard get(Context context, ViewGroup parent, int statusType) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        WeiboStatusCard card = new WeiboStatusCard(context, null, R.style.WeiboFlowCard);
-
-        WeiboStatusView statusView = WeiboStatusView.get(context, listItemTypeToStatusType(st1),
-                listItemTypeToStatusType(st2), card);
-        card.addView(statusView);
-        card.mStatusView = statusView;
+        WeiboStatusCard card = (WeiboStatusCard) inflater.inflate(R.layout.view_weibo_status_card, parent, false);
+        card.mStatusType = statusType;
+        View extraContentView = extraContentViewForType(context, card.mExtraContentContainer, statusType);
+        if (extraContentView != null) {
+            card.mExtraContentContainer.addView(extraContentView);
+        } else {
+            card.mExtraContentContainer.setVisibility(View.GONE);
+        }
+        card.mExtraContentView = extraContentView;
         return card;
     }
 
-    public static int listItemTypeToStatusType(int viewType) {
-        switch (viewType) {
-            case WeiboFlowAdapter.TYPE_IMAGE:
-                return WeiboStatusView.TYPE_IMAGE;
-            case WeiboFlowAdapter.TYPE_MUSIC:
-                return WeiboStatusView.TYPE_MUSIC;
-            case WeiboFlowAdapter.TYPE_VIDEO:
-                return WeiboStatusView.TYPE_VIDEO;
-            case WeiboFlowAdapter.TYPE_RETWEET:
-                return WeiboStatusView.TYPE_RETWEET;
-            case WeiboFlowAdapter.TYPE_SIMPLE:
-                return WeiboStatusView.TYPE_SIMPLE;
+    private static View extraContentViewForType(Context context, ViewGroup parent, int statusType) {
+        final int layoutId;
+        switch (statusType) {
+            case ST.IMAGE:
+                layoutId = R.layout.view_weibo_status_extra_image;
+                break;
+            default:
+                layoutId = -1;
         }
-        return viewType;
+
+        View extraView = null;
+        if (layoutId > 0) {
+            extraView = LayoutInflater.from(context).inflate(layoutId, parent, false);
+        }
+        return extraView;
+    }
+
+    private static abstract class ExtraContentHolder {
+        View contentView;
+        ExtraContentHolder(View contentView) {
+            this.contentView = contentView;
+        }
+    }
+
+    private static class ImageContentHolder extends ExtraContentHolder {
+
+        ImageContentHolder(View contentView) {
+            super(contentView);
+        }
     }
 }
