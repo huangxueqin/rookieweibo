@@ -19,8 +19,9 @@
             android:id="@+id/status_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp"
-            android:textSize="@dimen/text2"
+            android:textSize="@dimen/weibo_flow_list_status_text"
             android:textColor="@color/black"/>
 
         <FrameLayout

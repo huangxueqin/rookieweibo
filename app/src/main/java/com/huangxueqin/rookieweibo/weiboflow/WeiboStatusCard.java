@@ -2,7 +2,7 @@ package com.huangxueqin.rookieweibo.weiboflow;
 
 import android.content.Context;
 import android.support.v7.widget.CardView;
-import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,11 +13,10 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.huangxueqin.rookieweibo.R;
-import com.huangxueqin.rookieweibo.ST;
+import com.huangxueqin.rookieweibo.cons.ST;
+import com.huangxueqin.rookieweibo.utils.StatusUtils;
 import com.huangxueqin.rookieweibo.widget.WeiboImageGrid;
 import com.sina.weibo.sdk.openapi.models.Status;
-
-import org.w3c.dom.Text;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -46,11 +45,11 @@ public class WeiboStatusCard extends CardView {
 
     // footer
     @BindView(R.id.weibo_like_num)
-    TextView mLikeNum;
+    TextView mAttitudesCount;
     @BindView(R.id.weibo_forward_num)
-    TextView mForwardNum;
+    TextView mRepostsCount;
     @BindView(R.id.weibo_comment_num)
-    TextView mCommentNum;
+    TextView mCommentsCount;
 
     private int mStatusType;
     private ExtraHolder mHolder;
@@ -72,24 +71,26 @@ public class WeiboStatusCard extends CardView {
     protected void onFinishInflate() {
         super.onFinishInflate();
         ButterKnife.bind(this);
+        mStatusText.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     public void setStatus(Status status) {
         mStatus = status;
         // header
         mUserName.setText(status.user.screen_name);
-        mCreateTime.setText(status.created_at);
+        mCreateTime.setText(StatusUtils.getReadableDate(status));
         Glide.with(getContext()).load(status.user.avatar_large).into(mUserAvatar);
+
         // body
-        mStatusText.setText(status.text);
+        mStatusText.setText(StatusUtils.getFormattedStatusText(getContext(), status));
         if (mHolder != null) {
             mHolder.setStatus(status.retweeted_status == null ? status : status.retweeted_status);
         }
 
         // footer
-        mLikeNum.setText("" + status.attitudes_count);
-        mForwardNum.setText("" + status.reposts_count);
-        mCommentNum.setText("" + status.comments_count);
+        mAttitudesCount.setText("" + status.attitudes_count);
+        mRepostsCount.setText("" + status.reposts_count);
+        mCommentsCount.setText("" + status.comments_count);
     }
 
     public static WeiboStatusCard get(Context context, ViewGroup parent, int statusType) {
@@ -152,11 +153,7 @@ public class WeiboStatusCard extends CardView {
 
         @Override
         public void setStatus(Status status) {
-            String[] imageUrls = new String[status.pic_urls.size()];
-            for (int i = 0; i < status.pic_urls.size(); i++) {
-                String str = status.pic_urls.get(i);
-                imageUrls[i] = str.replace("thumbnail", "large");
-            }
+            String[] imageUrls = StatusUtils.getMiddlePics(status);
             imageGrid.setImage(imageUrls);
         }
     }
@@ -167,11 +164,12 @@ public class WeiboStatusCard extends CardView {
         public RtSimpleExtraHolder(View view) {
             container = view;
             statusText = (TextView) view.findViewById(R.id.extra_rt_status_text);
+            statusText.setMovementMethod(LinkMovementMethod.getInstance());
         }
 
         @Override
         public void setStatus(Status status) {
-            statusText.setText("@" + status.user.screen_name + "：" + status.text);
+            statusText.setText(StatusUtils.getFormattedRtStatusText(statusText.getContext(), status));
         }
     }
 

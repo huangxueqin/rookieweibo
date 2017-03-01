@@ -7,7 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.huangxueqin.rookieweibo.R;
-import com.huangxueqin.rookieweibo.ST;
+import com.huangxueqin.rookieweibo.cons.ST;
 import com.sina.weibo.sdk.openapi.models.Status;
 
 import java.util.ArrayList;

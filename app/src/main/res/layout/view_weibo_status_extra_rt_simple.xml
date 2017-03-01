@@ -8,6 +8,7 @@
         android:id="@+id/quote_left"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginRight="5dp"
         android:src="@mipmap/ic_listitem_quote_left_grey"/>
     <TextView
         android:id="@+id/extra_rt_status_text"

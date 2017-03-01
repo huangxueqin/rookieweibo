@@ -1,4 +1,4 @@
-package com.huangxueqin.rookieweibo;
+package com.huangxueqin.rookieweibo.cons;
 
 import android.text.TextUtils;
 
