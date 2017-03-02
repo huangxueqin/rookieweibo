@@ -1,6 +1,7 @@
 package com.huangxueqin.rookieweibo.weiboflow;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.CardView;
 import android.text.method.LinkMovementMethod;
 import android.util.AttributeSet;
@@ -12,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.huangxueqin.rookieweibo.GalleryActivity;
 import com.huangxueqin.rookieweibo.R;
 import com.huangxueqin.rookieweibo.cons.ST;
 import com.huangxueqin.rookieweibo.utils.StatusUtils;
@@ -72,7 +74,27 @@ public class WeiboStatusCard extends CardView {
         super.onFinishInflate();
         ButterKnife.bind(this);
         mStatusText.setMovementMethod(LinkMovementMethod.getInstance());
+
     }
+
+    private static View.OnClickListener LISTENER = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            final Context context = v.getContext();
+            switch (v.getId()) {
+                case R.id.extra_image_grid:
+                case R.id.extra_rt_image_grid:
+                    WeiboImageGrid imageGrid = (WeiboImageGrid)v;
+                    final int index = imageGrid.getLastClickChildIndex();
+                    String[] urls = imageGrid.getImages();
+                    Intent galleryIntent = new Intent(context, GalleryActivity.class);
+                    galleryIntent.putExtra("images", urls);
+                    galleryIntent.putExtra("selected-index", index);
+                    context.startActivity(galleryIntent);
+                    break;
+            }
+        }
+    };
 
     public void setStatus(Status status) {
         mStatus = status;
@@ -100,7 +122,7 @@ public class WeiboStatusCard extends CardView {
         if (statusType != ST.SIMPLE) {
             View extraContentView = getExtraContentView(context, card.mStatusExtraContainer, statusType);
             card.mStatusExtraContainer.addView(extraContentView);
-            card.mHolder = ExtraHolder.get(extraContentView, statusType);
+            card.mHolder = ExtraHolder.get(extraContentView, statusType, LISTENER);
         } else {
             card.mStatusExtraContainer.setVisibility(View.GONE);
         }
@@ -132,14 +154,14 @@ public class WeiboStatusCard extends CardView {
     private static abstract class ExtraHolder {
         abstract public void setStatus(Status status);
 
-        public static ExtraHolder get(View view, int statusType) {
+        public static ExtraHolder get(View view, int statusType, OnClickListener listener) {
             switch (statusType) {
                 case ST.IMAGE:
-                    return new ImageExtraHolder(view);
+                    return new ImageExtraHolder(view, listener);
                 case ST.RT_SIMPLE:
-                    return new RtSimpleExtraHolder(view);
+                    return new RtSimpleExtraHolder(view, listener);
                 case ST.RT_IMAGE:
-                    return new RtImageExtraHolder(view);
+                    return new RtImageExtraHolder(view, listener);
             }
             return null;
         }
@@ -147,8 +169,9 @@ public class WeiboStatusCard extends CardView {
 
     private static class ImageExtraHolder extends ExtraHolder {
         WeiboImageGrid imageGrid;
-        public ImageExtraHolder(View view) {
+        public ImageExtraHolder(View view, OnClickListener listener) {
             imageGrid = (WeiboImageGrid) view;
+            imageGrid.setOnClickListener(listener);
         }
 
         @Override
@@ -161,7 +184,7 @@ public class WeiboStatusCard extends CardView {
     private static class RtSimpleExtraHolder extends ExtraHolder {
         View container;
         TextView statusText;
-        public RtSimpleExtraHolder(View view) {
+        public RtSimpleExtraHolder(View view, OnClickListener listener) {
             container = view;
             statusText = (TextView) view.findViewById(R.id.extra_rt_status_text);
             statusText.setMovementMethod(LinkMovementMethod.getInstance());
@@ -175,9 +198,10 @@ public class WeiboStatusCard extends CardView {
 
     private static class RtImageExtraHolder extends RtSimpleExtraHolder {
         WeiboImageGrid imageGrid;
-        public RtImageExtraHolder(View view) {
-            super(view);
+        public RtImageExtraHolder(View view, OnClickListener listener) {
+            super(view, listener);
             imageGrid = (WeiboImageGrid) view.findViewById(R.id.extra_rt_image_grid);
+            imageGrid.setOnClickListener(listener);
         }
 
         @Override

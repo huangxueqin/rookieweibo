@@ -1,19 +1,28 @@
 package com.huangxueqin.rookieweibo.utils;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.style.ClickableSpan;
+import android.text.style.ImageSpan;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.view.View;
+import android.widget.Toast;
 
+import com.huangxueqin.rookieweibo.BrowserActivity;
 import com.huangxueqin.rookieweibo.R;
 import com.huangxueqin.rookieweibo.cons.WeiboPattern;
+import com.huangxueqin.rookieweibo.interfaces.WeiboLinkHandler;
+import com.mikepenz.google_material_typeface_library.GoogleMaterial;
+import com.mikepenz.iconics.IconicsDrawable;
 import com.sina.weibo.sdk.openapi.models.Status;
 
+import java.lang.ref.WeakReference;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -38,6 +47,25 @@ public class StatusUtils {
     private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("EEE MMM d HH:mm:ss Z yyyy", Locale.US);
     private static final SimpleDateFormat SIMPLE_READABLE_FORMATTER = new SimpleDateFormat("HH:mm");
     private static final SimpleDateFormat READABLE_FORMATTER = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");
+
+    private static final WeiboLinkHandler LINK_HANDLER = new WeiboLinkHandler() {
+        @Override
+        public void handleTopic(Context context, String topic) {
+
+        }
+
+        @Override
+        public void handleURL(Context context, String url) {
+            Intent browser = new Intent(context, BrowserActivity.class);
+            browser.putExtra("content-url", url);
+            context.startActivity(browser);
+        }
+
+        @Override
+        public void handleAT(Context context, String user) {
+
+        }
+    };
 
     public static String[] getThumbnailPics(Status status) {
         if (status.pic_urls == null || status.pic_urls.size() == 0) return null;
@@ -143,7 +171,7 @@ public class StatusUtils {
         if (cache != null && cache.rtStatusText != null) {
             return cache.rtStatusText;
         }
-        SpannableStringBuilder ssb = formatWeiboStatusText(context, "@" + status.user.screen_name + ": " + status.text);
+        SpannableStringBuilder ssb = formatWeiboStatusText(context, "@"+status.user.screen_name+": "+status.text);
         if (cache == null) {
             cache = new StatusCache();
         }
@@ -152,7 +180,7 @@ public class StatusUtils {
         return ssb;
     }
 
-    private static SpannableStringBuilder formatWeiboStatusText(Context context, String source) {
+    private static SpannableStringBuilder formatWeiboStatusText(final Context context, String source) {
         final int textSize = context.getResources().getDimensionPixelSize(R.dimen.weibo_flow_list_status_text);
         final int spanColor = context.getResources().getColor(R.color.grey2);
         SpannableStringBuilder ssb = new SpannableStringBuilder(source);
@@ -161,28 +189,67 @@ public class StatusUtils {
         Linkify.addLinks(ssb, WeiboPattern.PATTERN_URL, WeiboPattern.SCHEME_URL);
         Linkify.addLinks(ssb, WeiboPattern.PATTER_AT, WeiboPattern.SCHEME_AT);
 
-        URLSpan[] urlSpans = ssb.getSpans(0, ssb.length(), URLSpan.class);
+        final URLSpan[] urlSpans = ssb.getSpans(0, ssb.length(), URLSpan.class);
         for (final URLSpan span : urlSpans) {
-            ClickableSpan clickableSpan = new ClickableSpan() {
-                @Override
-                public void onClick(View widget) {
-
-                }
-
-                @Override
-                public void updateDrawState(TextPaint ds) {
-                    super.updateDrawState(ds);
-                    ds.setColor(spanColor);
-                    ds.setTypeface(Typeface.DEFAULT_BOLD);
-                    ds.setUnderlineText(false);
-                }
-            };
+            ClickableSpan clickableSpan = new WeiboClickableSpan(span, spanColor);
             final int start = ssb.getSpanStart(span);
             final int end = ssb.getSpanEnd(span);
             ssb.removeSpan(span);
-            ssb.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            if (span.getURL().startsWith(WeiboPattern.SCHEME_URL)) {
+                Drawable linkIcon = new IconicsDrawable(context)
+                        .icon(GoogleMaterial.Icon.gmd_link)
+                        .color(spanColor)
+                        .sizePx(textSize);
+                ImageSpan imageSpan = new ImageSpan(linkIcon, ImageSpan.ALIGN_BASELINE);
+                SpannableStringBuilder replaced = new SpannableStringBuilder("  网页链接");
+                replaced.setSpan(imageSpan, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                ssb.replace(start, end, replaced);
+                ssb.setSpan(clickableSpan, start, start+replaced.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            } else {
+                ssb.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
         }
         return ssb;
+    }
+
+    static class WeiboClickableSpan extends ClickableSpan {
+        private final int spanColor;
+        private final String scheme;
+        private final String content;
+
+        public WeiboClickableSpan (URLSpan urlSpan, int spanColor) {
+            this.spanColor = spanColor;
+            String url = urlSpan.getURL();
+            if (url.startsWith(WeiboPattern.SCHEME_URL)) {
+                scheme = WeiboPattern.SCHEME_URL;
+            } else if (url.startsWith(WeiboPattern.SCHEME_AT)) {
+                scheme = WeiboPattern.SCHEME_AT;
+            } else {
+                scheme = WeiboPattern.SCHEME_TOPIC;
+            }
+            content = url.substring(scheme.length());
+        }
+
+        @Override
+        public void onClick(View widget) {
+            if (scheme.equals(WeiboPattern.SCHEME_URL)) {
+                final String url = content;
+                LINK_HANDLER.handleURL(widget.getContext(), url);
+            } else if (scheme.equals(WeiboPattern.SCHEME_TOPIC)) {
+                final String topic = content.substring(1, content.length()-1);
+                LINK_HANDLER.handleTopic(widget.getContext(), topic);
+            } else {
+                final String username = content.substring(1);
+                LINK_HANDLER.handleAT(widget.getContext(), username);
+            }
+        }
+
+        @Override
+        public void updateDrawState(TextPaint ds) {
+            super.updateDrawState(ds);
+            ds.setColor(spanColor);
+            ds.setUnderlineText(false);
+        }
     }
 
 }

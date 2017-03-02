@@ -1,8 +1,10 @@
 package com.huangxueqin.rookieweibo.widget;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -23,6 +25,10 @@ public class WeiboImageGrid extends ViewGroup {
     private int mImageWidth;
     private int mImageHeight;
 
+    private int mLastTouchDownX = -1;
+    private int mLastTouchDownY = -1;
+    private Rect mTempRect = new Rect();
+
     public WeiboImageGrid(Context context) {
         this(context, null);
     }
@@ -40,6 +46,10 @@ public class WeiboImageGrid extends ViewGroup {
             im.setVisibility(GONE);
             addView(im);
         }
+    }
+
+    public String[] getImages() {
+        return mImageUrls.clone();
     }
 
     public void setImage(String[] imageUrls) {
@@ -106,6 +116,30 @@ public class WeiboImageGrid extends ViewGroup {
                 im.layout(left, top, left + mImageWidth, top + mImageHeight);
             }
         }
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        final int action = ev.getActionMasked();
+        if (action == MotionEvent.ACTION_DOWN) {
+            mLastTouchDownX = (int) ev.getX();
+            mLastTouchDownY = (int) ev.getY();
+        }
+        return super.onInterceptTouchEvent(ev);
+    }
+
+    public int getLastClickChildIndex() {
+        if (mLastTouchDownY < 0 || mLastTouchDownX < 0) {
+            return 0;
+        }
+        for (int i = 0; i < getChildCount(); i++) {
+            View child = getChildAt(i);
+            child.getHitRect(mTempRect);
+            if (mTempRect.contains(mLastTouchDownX, mLastTouchDownY)) {
+                return i;
+            }
+        }
+        return 0;
     }
 
     private void D(String msg) {

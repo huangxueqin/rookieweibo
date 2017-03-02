@@ -27,6 +27,10 @@
 
         <activity android:name=".auth.LoginActivity" />
 
+        <activity android:name=".BrowserActivity" />
+
+        <activity android:name=".GalleryActivity" />
+
         <activity android:name="com.sina.weibo.sdk.component.WeiboSdkBrowser"
             android:configChanges="keyboardHidden|orientation"
             android:windowSoftInputMode="adjustResize"
