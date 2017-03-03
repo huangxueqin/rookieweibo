@@ -3,9 +3,11 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <com.bm.library.PhotoView
-        android:id="@+id/image"
+    <android.support.v7.widget.Toolbar
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="matrix"/>
+        android:layout_height="@dimen/toolbar_height"
+        android:elevation="@dimen/toolbar_elevation">
+        <include layout="@layout/view_weibo_status_card_header" />
+</android.support.v7.widget.Toolbar>
+
 </LinearLayout>

@@ -43,4 +43,7 @@ dependencies {
     compile 'com.mikepenz:material-design-iconic-typeface:2.2.0.2@aar'
     compile 'com.mikepenz:google-material-typeface:3.0.1.0.original@aar'
     compile 'com.github.lsjwzh.RecyclerViewPager:lib:v1.1.2'
+
+    compile 'com.bm.photoview:library:1.4.1'
+    compile 'com.google.code.gson:gson:2.8.0'
 }

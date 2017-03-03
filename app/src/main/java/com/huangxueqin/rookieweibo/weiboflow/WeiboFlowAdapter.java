@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import com.huangxueqin.rookieweibo.R;
 import com.huangxueqin.rookieweibo.cons.ST;
+import com.huangxueqin.rookieweibo.interfaces.WeiboLinkHandler;
 import com.sina.weibo.sdk.openapi.models.Status;
 
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ import java.util.ArrayList;
  * Created by huangxueqin on 2017/2/24.
  */
 
-public class WeiboFlowAdapter extends RecyclerView.Adapter<WeiboFlowAdapter.WeiboFlowHolder> {
+public class WeiboFlowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     interface FT {
         int NONE = 0;
         int LOADING = 1;
@@ -31,10 +32,20 @@ public class WeiboFlowAdapter extends RecyclerView.Adapter<WeiboFlowAdapter.Weib
     Context mContext;
     ArrayList<Status> mStatusList;
     int mFooterType = FT.NONE;
+    WeiboLinkHandler mLinkHandler;
+    StatusActionListener mStatusActionListener;
 
     public WeiboFlowAdapter(Context context) {
         mContext = context;
         mStatusList = new ArrayList<>();
+    }
+
+    public void setLinkHandler(WeiboLinkHandler linkHandler) {
+        mLinkHandler = linkHandler;
+    }
+
+    public void setStatusActionListener(StatusActionListener listener) {
+        mStatusActionListener = listener;
     }
 
     public void append(ArrayList<Status> statuses) {
@@ -75,49 +86,49 @@ public class WeiboFlowAdapter extends RecyclerView.Adapter<WeiboFlowAdapter.Weib
     }
 
     @Override
-    public WeiboFlowHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         final View itemView;
+        LayoutInflater inflater = LayoutInflater.from(mContext);
         if (viewType == VT.Footer) {
-            LayoutInflater inflater = LayoutInflater.from(mContext);
             itemView = inflater.inflate(R.layout.view_list_item_weibo_flow_footer, parent, false);
+            return new LoadingViewHolder(itemView);
         } else {
             final int statusType = viewType >> 16;
-            itemView = WeiboStatusCard.get(mContext, parent, statusType);
+            itemView = inflater.inflate(R.layout.view_weibo_status_card, parent, false);
+            return new StatusCardHolder(itemView, mContext, statusType);
         }
-        return new WeiboFlowHolder(itemView, viewType);
     }
 
     @Override
-    public void onBindViewHolder(WeiboFlowHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         final int viewType = getItemViewType(position);
         if (viewType == VT.Footer) {
-            onBindFooter(holder, position);
+            onBindFooter((LoadingViewHolder) holder, position);
         } else {
-            onBindStatus(holder, position, viewType);
+            onBindStatus((StatusCardHolder) holder, position);
         }
     }
 
-    private void onBindStatus(WeiboFlowHolder holder, int position, int type) {
+    private void onBindStatus(StatusCardHolder holder, int position) {
         Status status = mStatusList.get(position);
-        WeiboStatusCard card = (WeiboStatusCard) holder.itemView;
-        card.setStatus(status);
+        holder.setLinkHandler(mLinkHandler);
+        holder.setStatusActionListener(mStatusActionListener);
+        holder.setup(status);
     }
 
-    private void onBindFooter(WeiboFlowHolder holder, int position) {
+    private void onBindFooter(LoadingViewHolder holder, int position) {
         holder.loadingView.setVisibility(mFooterType == FT.LOADING ? View.VISIBLE : View.GONE);
         holder.noMoreView.setVisibility(mFooterType == FT.COMPLETE ? View.VISIBLE : View.GONE);
     }
 
-    public class WeiboFlowHolder extends RecyclerView.ViewHolder {
+    static class LoadingViewHolder extends RecyclerView.ViewHolder {
         View loadingView;
         View noMoreView;
 
-        public WeiboFlowHolder(View itemView, int itemType) {
+        public LoadingViewHolder(View itemView) {
             super(itemView);
-            if (itemType == VT.Footer) {
-                loadingView = itemView.findViewById(R.id.loading_view);
-                noMoreView = itemView.findViewById(R.id.no_more_prompt);
-            }
+            loadingView = itemView.findViewById(R.id.loading_view);
+            noMoreView = itemView.findViewById(R.id.no_more_prompt);
         }
     }
 

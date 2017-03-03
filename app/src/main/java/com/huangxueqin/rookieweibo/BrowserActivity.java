@@ -10,6 +10,8 @@ import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.huangxueqin.rookieweibo.cons.Cons;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -43,13 +45,25 @@ public class BrowserActivity extends BaseActivity {
         backButton.setOnClickListener(mToolbarButtonClickListener);
         closeButton.setOnClickListener(mToolbarButtonClickListener);
 
-        mBaseURL = getIntent().getStringExtra("content-url");
+        mBaseURL = getIntent().getStringExtra(Cons.IntentKey.URL);
 
         webView.setWebViewClient(mWebViewClient);
         webView.setWebChromeClient(mWebChromeClient);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
         webView.loadUrl(mBaseURL);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        webView.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        webView.destroy();
     }
 
     private View.OnClickListener mToolbarButtonClickListener = new View.OnClickListener() {

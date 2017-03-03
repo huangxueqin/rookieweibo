@@ -7,7 +7,7 @@ import android.content.Context;
  */
 
 public interface WeiboLinkHandler {
-    void handleTopic(Context context, String topic);
-    void handleURL(Context context, String url);
-    void handleAT(Context context, String user);
+    void handleTopic(String topic);
+    void handleURL(String url);
+    void handleAT(String user);
 }

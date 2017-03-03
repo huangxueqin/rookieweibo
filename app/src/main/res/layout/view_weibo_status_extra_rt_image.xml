@@ -9,7 +9,7 @@
         android:layout_marginRight="5dp"
         android:src="@mipmap/ic_listitem_quote_left_grey"/>
 
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    <com.huangxueqin.rookieweibo.widget.StatusTextView
         android:id="@+id/extra_rt_status_text"
         android:layout_toRightOf="@id/quote_left"
         android:layout_width="match_parent"

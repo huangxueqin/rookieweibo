@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.huangxueqin.rookieweibo.weiboflow.WeiboStatusCard
+<android.support.v7.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/WeiboFlowCard">
     <LinearLayout
+        android:id="@+id/weibo_card_content"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -15,7 +16,7 @@
             android:id="@+id/weibo_card_header"/>
 
         <!-- weibo text -->
-        <TextView
+        <com.huangxueqin.rookieweibo.widget.StatusTextView
             android:id="@+id/status_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -34,6 +35,5 @@
         <include
             layout="@layout/view_weibo_status_card_footer"
             android:id="@+id/weibo_card_footer"/>
-
     </LinearLayout>
-</com.huangxueqin.rookieweibo.weiboflow.WeiboStatusCard>
+</android.support.v7.widget.CardView>

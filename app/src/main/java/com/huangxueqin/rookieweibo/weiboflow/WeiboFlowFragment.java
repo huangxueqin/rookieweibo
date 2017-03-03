@@ -1,5 +1,6 @@
 package com.huangxueqin.rookieweibo.weiboflow;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -10,13 +11,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.gson.Gson;
 import com.huangxueqin.rookieweibo.AppConfiguration;
 import com.huangxueqin.rookieweibo.BaseFragment;
+import com.huangxueqin.rookieweibo.BrowserActivity;
+import com.huangxueqin.rookieweibo.GalleryActivity;
 import com.huangxueqin.rookieweibo.R;
 import com.huangxueqin.rookieweibo.RecyclerViewLoadingListener;
 import com.huangxueqin.rookieweibo.WeiboAPIWrapper;
+import com.huangxueqin.rookieweibo.WeiboActivity;
 import com.huangxueqin.rookieweibo.auth.AuthConstants;
+import com.huangxueqin.rookieweibo.cons.Cons;
+import com.huangxueqin.rookieweibo.interfaces.WeiboLinkHandler;
 import com.huangxueqin.rookieweibo.itemdecoration.LinearLayoutPaddingDecoration;
+import com.huangxueqin.rookieweibo.utils.StatusUtils;
+import com.huangxueqin.rookieweibo.widget.WeiboImageGrid;
 import com.sina.weibo.sdk.exception.WeiboException;
 import com.sina.weibo.sdk.openapi.StatusesAPI;
 import com.sina.weibo.sdk.openapi.models.Status;
@@ -49,6 +58,8 @@ public class WeiboFlowFragment extends BaseFragment implements SwipeRefreshLayou
         super.onCreate(savedInstanceState);
         mStatusAPI = new StatusesAPI(getContext(), AuthConstants.APP_KEY, getAccessToken());
         mFlowAdapter = new WeiboFlowAdapter(getContext());
+        mFlowAdapter.setLinkHandler(mLinkHandler);
+        mFlowAdapter.setStatusActionListener(mStatusActionListener);
     }
 
     @Nullable
@@ -201,6 +212,48 @@ public class WeiboFlowFragment extends BaseFragment implements SwipeRefreshLayou
             mFinish = false;
         }
     }
+
+    private WeiboLinkHandler mLinkHandler = new WeiboLinkHandler() {
+        @Override
+        public void handleTopic(String topic) {
+
+        }
+
+        @Override
+        public void handleURL(String url) {
+            Intent browser = new Intent(getActivity(), BrowserActivity.class);
+            browser.putExtra(Cons.IntentKey.URL, url);
+            startActivity(browser);
+        }
+
+        @Override
+        public void handleAT(String user) {
+
+        }
+    };
+
+    private StatusActionListener mStatusActionListener = new StatusActionListener() {
+        @Override
+        public void onStatusAction(View view, Status status, int action) {
+            switch (action) {
+                case StatusActionListener.ACTION_IMAGES:
+                    WeiboImageGrid imageGrid = (WeiboImageGrid) view;
+                    final int index = imageGrid.getLastClickChildIndex();
+                    final String[] images = StatusUtils.getLargePics(status);
+                    Intent intent = new Intent(getActivity(), GalleryActivity.class);
+                    intent.putExtra(Cons.IntentKey.IMAGE_LIST, images);
+                    intent.putExtra(Cons.IntentKey.SELECT_INDEX, index);
+                    startActivity(intent);
+                    break;
+                case StatusActionListener.ACTION_STATUS:
+                    String statusStr = new Gson().toJson(status);
+                    Intent intentWeibo = new Intent(getActivity(), WeiboActivity.class);
+                    intentWeibo.putExtra(Cons.IntentKey.STATUS, statusStr);
+                    startActivity(intentWeibo);
+                    break;
+            }
+        }
+    };
 
     private void D(String msg) {
         Log.d("TAG", msg);
