@@ -29,8 +29,6 @@ public class GalleryActivity extends BaseActivity {
     String[] mImageUrls;
     int mSelectedIndex;
 
-    @BindView(R.id.close)
-    View mCloseButton;
     @BindView(R.id.image_list)
     RecyclerViewPager mImageList;
 
@@ -43,7 +41,6 @@ public class GalleryActivity extends BaseActivity {
         setContentView(R.layout.activity_gallery);
         enterImmersiveMode();
         ButterKnife.bind(this);
-        mCloseButton.setOnClickListener(mToolbarActionListener);
         mImageList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mImageList.setAdapter(new ImageAdapter());
         mImageList.scrollToPosition(mSelectedIndex);

@@ -6,8 +6,8 @@
     <dimen name="toolbar_height">44dp</dimen>
     <dimen name="toolbar_elevation">1dp</dimen>
 
-    <dimen name="text0">20sp</dimen>
-    <dimen name="text1">15sp</dimen>
+    <dimen name="text0">18sp</dimen>
+    <dimen name="text1">16sp</dimen>
     <dimen name="text2">14sp</dimen>
     <dimen name="text3">12sp</dimen>
 

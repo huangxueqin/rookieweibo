@@ -25,12 +25,6 @@ public class BrowserActivity extends BaseActivity {
 
     @BindView(R.id.webview)
     WebView webView;
-    @BindView(R.id.toolbar)
-    LinearLayout toolbar;
-    @BindView(R.id.back)
-    View backButton;
-    @BindView(R.id.close)
-    View closeButton;
     @BindView(R.id.title)
     TextView toolbarTitle;
 
@@ -41,9 +35,6 @@ public class BrowserActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_browser);
         ButterKnife.bind(this);
-        toolbar.setBackgroundColor(getResources().getColor(R.color.white));
-        backButton.setOnClickListener(mToolbarButtonClickListener);
-        closeButton.setOnClickListener(mToolbarButtonClickListener);
 
         mBaseURL = getIntent().getStringExtra(Cons.IntentKey.URL);
 
@@ -66,24 +57,15 @@ public class BrowserActivity extends BaseActivity {
         webView.destroy();
     }
 
-    private View.OnClickListener mToolbarButtonClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.back:
-                    if (webView.canGoBack()) {
-                        closeButton.setVisibility(View.VISIBLE);
-                        webView.goBack();
-                    } else {
-                        finish();
-                    }
-                    break;
-                case R.id.close:
-                    finish();
-                    break;
-            }
+    @Override
+    protected void onToolbarBackPress() {
+        if (webView.canGoBack()) {
+            mCloseButton.setVisibility(View.VISIBLE);
+            webView.goBack();
+        } else {
+            finish();
         }
-    };
+    }
 
     private WebViewClient mWebViewClient = new WebViewClient() {
         @Override

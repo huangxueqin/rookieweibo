@@ -5,15 +5,32 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
+import butterknife.BindView;
+import butterknife.Optional;
+
 /**
  * Created by huangxueqin on 2017/2/22.
  */
 
 public abstract class BaseActivity extends AppCompatActivity {
 
+    @Nullable
+    @BindView(R.id.back)
+    View mBackButton;
+
+    @Nullable
+    @BindView(R.id.close)
+    View mCloseButton;
+
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        if (mBackButton != null) {
+            mBackButton.setOnClickListener(mToolbarActionListener);
+        }
+        if (mCloseButton != null) {
+            mCloseButton.setOnClickListener(mToolbarActionListener);
+        }
     }
 
     protected View.OnClickListener mToolbarActionListener = new View.OnClickListener() {
@@ -34,7 +51,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     };
 
     protected void onToolbarButtonPress() {
-        finish();
     }
 
     protected void onToolbarClosePress() {
@@ -42,6 +58,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     protected void onToolbarBackPress() {
-
+        finish();
     }
 }

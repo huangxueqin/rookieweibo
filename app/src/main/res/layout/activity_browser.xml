@@ -5,6 +5,7 @@
     android:layout_height="match_parent">
     <LinearLayout
         android:id="@+id/toolbar"
+        android:background="@color/white"
         style="@style/Toolbar">
 
         <include layout="@layout/view_toolbar_back_button_with_sep"
