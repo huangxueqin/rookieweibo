@@ -22,9 +22,10 @@ import com.huangxueqin.rookieweibo.WeiboAPIWrapper;
 import com.huangxueqin.rookieweibo.WeiboActivity;
 import com.huangxueqin.rookieweibo.auth.AuthConstants;
 import com.huangxueqin.rookieweibo.cons.Cons;
-import com.huangxueqin.rookieweibo.interfaces.WeiboLinkHandler;
+import com.huangxueqin.rookieweibo.weiboViewModel.WeiboLinkHandler;
 import com.huangxueqin.rookieweibo.itemdecoration.LinearLayoutPaddingDecoration;
 import com.huangxueqin.rookieweibo.utils.StatusUtils;
+import com.huangxueqin.rookieweibo.weiboViewModel.WeiboActionListener;
 import com.huangxueqin.rookieweibo.widget.WeiboImageGrid;
 import com.sina.weibo.sdk.exception.WeiboException;
 import com.sina.weibo.sdk.openapi.StatusesAPI;
@@ -232,11 +233,11 @@ public class WeiboFlowFragment extends BaseFragment implements SwipeRefreshLayou
         }
     };
 
-    private StatusActionListener mStatusActionListener = new StatusActionListener() {
+    private WeiboActionListener mStatusActionListener = new WeiboActionListener() {
         @Override
         public void onStatusAction(View view, Status status, int action) {
             switch (action) {
-                case StatusActionListener.ACTION_IMAGES:
+                case WeiboActionListener.ACTION_IMAGES:
                     WeiboImageGrid imageGrid = (WeiboImageGrid) view;
                     final int index = imageGrid.getLastClickChildIndex();
                     final String[] images = StatusUtils.getLargePics(status);
@@ -245,7 +246,7 @@ public class WeiboFlowFragment extends BaseFragment implements SwipeRefreshLayou
                     intent.putExtra(Cons.IntentKey.SELECT_INDEX, index);
                     startActivity(intent);
                     break;
-                case StatusActionListener.ACTION_STATUS:
+                case WeiboActionListener.ACTION_STATUS:
                     String statusStr = new Gson().toJson(status);
                     Intent intentWeibo = new Intent(getActivity(), WeiboActivity.class);
                     intentWeibo.putExtra(Cons.IntentKey.STATUS, statusStr);

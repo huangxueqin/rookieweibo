@@ -11,7 +11,7 @@
         android:layout_marginRight="5dp"
         android:src="@mipmap/ic_listitem_quote_left_grey"/>
     <com.huangxueqin.rookieweibo.widget.StatusTextView
-        android:id="@+id/extra_rt_status_text"
+        android:id="@+id/deco_rt_status_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="5dp"

@@ -1,4 +1,4 @@
-package com.huangxueqin.rookieweibo.weiboflow;
+package com.huangxueqin.rookieweibo.weiboViewModel;
 
 import android.view.View;
 
@@ -9,7 +9,7 @@ import com.sina.weibo.sdk.openapi.models.User;
  * Created by huangxueqin on 2017/3/3.
  */
 
-public interface StatusActionListener {
+public interface WeiboActionListener {
     int ACTION_USER = 0;
     int ACTION_STATUS = 1;
     int ACTION_OPT_MENU = 2;

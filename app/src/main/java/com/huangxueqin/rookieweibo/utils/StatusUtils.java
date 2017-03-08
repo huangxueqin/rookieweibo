@@ -1,7 +1,10 @@
 package com.huangxueqin.rookieweibo.utils;
 
 import android.text.SpannableStringBuilder;
+import android.text.TextUtils;
 import android.util.LruCache;
+
+import com.huangxueqin.rookieweibo.cons.ST;
 import com.sina.weibo.sdk.openapi.models.Status;
 
 import java.lang.reflect.Field;
@@ -27,6 +30,19 @@ public class StatusUtils {
     private static final SimpleDateFormat STATUS_TIME_FORMATTER = new SimpleDateFormat("EEE MMM d HH:mm:ss Z yyyy", Locale.US);
     private static final SimpleDateFormat SIMPLE_FORMATTER = new SimpleDateFormat("HH:mm");
     private static final SimpleDateFormat FULL_FORMATTER = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");
+
+    public static int getStatusType(Status status) {
+        if (!TextUtils.isEmpty(status.original_pic)) {
+            return ST.IMAGE;
+        }
+        if (status.retweeted_status != null) {
+            if (!TextUtils.isEmpty(status.retweeted_status.original_pic)) {
+                return ST.RT_IMAGE;
+            }
+            return ST.RT_SIMPLE;
+        }
+        return ST.SIMPLE;
+    }
 
     private static Object queryFromCache(String id, String fieldName) {
         CachedValue cv = CACHE.get(id);

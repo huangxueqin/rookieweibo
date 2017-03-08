@@ -2,7 +2,6 @@ package com.huangxueqin.rookieweibo.weiboflow;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -12,8 +11,9 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.huangxueqin.rookieweibo.R;
 import com.huangxueqin.rookieweibo.cons.ST;
-import com.huangxueqin.rookieweibo.interfaces.WeiboLinkHandler;
+import com.huangxueqin.rookieweibo.weiboViewModel.WeiboLinkHandler;
 import com.huangxueqin.rookieweibo.utils.StatusUtils;
+import com.huangxueqin.rookieweibo.weiboViewModel.WeiboActionListener;
 import com.huangxueqin.rookieweibo.weiboflow.extra.ImageExtra;
 import com.huangxueqin.rookieweibo.weiboflow.extra.RtImageExtra;
 import com.huangxueqin.rookieweibo.weiboflow.extra.RtSimpleExtra;
@@ -47,7 +47,7 @@ public class StatusCardHolder extends RecyclerView.ViewHolder implements View.On
     // body
     @BindView(R.id.status_text)
     StatusTextView statusText;
-    @BindView(R.id.status_extra_content)
+    @BindView(R.id.status_decorator)
     FrameLayout extraContainer;
 
     // footer
@@ -61,7 +61,7 @@ public class StatusCardHolder extends RecyclerView.ViewHolder implements View.On
     private final Context mContext;
     private final ViewExtra mViewExtra;
     private Status mCurrentStatus;
-    private StatusActionListener mStatusActionListener;
+    private WeiboActionListener mStatusActionListener;
     private WeiboLinkHandler mLinkHandler;
 
     public StatusCardHolder(View itemView, Context context, int statusType) {
@@ -96,7 +96,7 @@ public class StatusCardHolder extends RecyclerView.ViewHolder implements View.On
         }
     }
 
-    public void setStatusActionListener(StatusActionListener listener) {
+    public void setStatusActionListener(WeiboActionListener listener) {
         mStatusActionListener = listener;
     }
 
@@ -128,7 +128,7 @@ public class StatusCardHolder extends RecyclerView.ViewHolder implements View.On
     @OnClick({R.id.weibo_card_content,
             R.id.user_avatar,
             R.id.weibo_opt_menu,
-            R.id.status_extra_content,
+            R.id.status_decorator,
             R.id.weibo_like_num,
             R.id.weibo_forward_num,
             R.id.weibo_comment_num,
@@ -141,37 +141,37 @@ public class StatusCardHolder extends RecyclerView.ViewHolder implements View.On
         int action = -1;
         switch (v.getId()) {
             case R.id.weibo_card_content:
-                action = StatusActionListener.ACTION_STATUS;
+                action = WeiboActionListener.ACTION_STATUS;
                 break;
             case R.id.user_avatar:
-                action = StatusActionListener.ACTION_USER;
+                action = WeiboActionListener.ACTION_USER;
                 break;
             case R.id.weibo_opt_menu:
-                action = StatusActionListener.ACTION_OPT_MENU;
+                action = WeiboActionListener.ACTION_OPT_MENU;
                 break;
             case R.id.weibo_comment_num:
-                action = StatusActionListener.ACTION_COMMENTS;
+                action = WeiboActionListener.ACTION_COMMENTS;
                 break;
             case R.id.weibo_forward_num:
-                action = StatusActionListener.ACTION_REPOSTS;
+                action = WeiboActionListener.ACTION_REPOSTS;
                 break;
             case R.id.weibo_like_num:
-                action = StatusActionListener.ACTION_ATTITUDES;
+                action = WeiboActionListener.ACTION_ATTITUDES;
                 break;
-            case R.id.status_extra_content:
+            case R.id.status_decorator:
                 if (mCurrentStatus.retweeted_status != null) {
                     id = mCurrentStatus.retweeted_status.id;
                     status = mCurrentStatus.retweeted_status;
-                    action = StatusActionListener.ACTION_STATUS;
+                    action = WeiboActionListener.ACTION_STATUS;
                 }
                 break;
-            case R.id.extra_image_grid:
-                action = StatusActionListener.ACTION_IMAGES;
+            case R.id.deco_image_grid:
+                action = WeiboActionListener.ACTION_IMAGES;
                 break;
-            case R.id.extra_rt_image_grid:
+            case R.id.deco_rt_image_grid:
                 id = mCurrentStatus.retweeted_status.id;
                 status = mCurrentStatus.retweeted_status;
-                action = StatusActionListener.ACTION_IMAGES;
+                action = WeiboActionListener.ACTION_IMAGES;
                 break;
         }
         if (action >= 0) {

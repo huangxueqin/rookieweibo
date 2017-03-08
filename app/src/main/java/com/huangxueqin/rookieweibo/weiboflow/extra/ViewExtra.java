@@ -2,7 +2,7 @@ package com.huangxueqin.rookieweibo.weiboflow.extra;
 
 import android.view.View;
 
-import com.huangxueqin.rookieweibo.interfaces.WeiboLinkHandler;
+import com.huangxueqin.rookieweibo.weiboViewModel.WeiboLinkHandler;
 import com.sina.weibo.sdk.openapi.models.Status;
 
 /**

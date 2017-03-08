@@ -8,7 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import com.huangxueqin.rookieweibo.R;
 import com.huangxueqin.rookieweibo.cons.ST;
-import com.huangxueqin.rookieweibo.interfaces.WeiboLinkHandler;
+import com.huangxueqin.rookieweibo.weiboViewModel.WeiboLinkHandler;
+import com.huangxueqin.rookieweibo.weiboViewModel.WeiboActionListener;
 import com.sina.weibo.sdk.openapi.models.Status;
 
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public class WeiboFlowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     ArrayList<Status> mStatusList;
     int mFooterType = FT.NONE;
     WeiboLinkHandler mLinkHandler;
-    StatusActionListener mStatusActionListener;
+    WeiboActionListener mStatusActionListener;
 
     public WeiboFlowAdapter(Context context) {
         mContext = context;
@@ -44,7 +45,7 @@ public class WeiboFlowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         mLinkHandler = linkHandler;
     }
 
-    public void setStatusActionListener(StatusActionListener listener) {
+    public void setStatusActionListener(WeiboActionListener listener) {
         mStatusActionListener = listener;
     }
 

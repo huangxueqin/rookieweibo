@@ -1,12 +1,9 @@
 package com.huangxueqin.rookieweibo.weiboflow.extra;
 
-import android.text.method.LinkMovementMethod;
 import android.view.View;
-import android.widget.TextView;
 
 import com.huangxueqin.rookieweibo.R;
-import com.huangxueqin.rookieweibo.interfaces.WeiboLinkHandler;
-import com.huangxueqin.rookieweibo.utils.StatusUtils;
+import com.huangxueqin.rookieweibo.weiboViewModel.WeiboLinkHandler;
 import com.huangxueqin.rookieweibo.widget.StatusTextView;
 import com.sina.weibo.sdk.openapi.models.Status;
 
@@ -19,7 +16,7 @@ public class RtSimpleExtra extends ViewExtra {
 
     public RtSimpleExtra(View itemView) {
         super(itemView);
-        statusText = (StatusTextView) itemView.findViewById(R.id.extra_rt_status_text);
+        statusText = (StatusTextView) itemView.findViewById(R.id.deco_rt_status_text);
     }
 
     @Override

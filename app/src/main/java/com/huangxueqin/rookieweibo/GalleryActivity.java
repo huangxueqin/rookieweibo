@@ -58,19 +58,6 @@ public class GalleryActivity extends BaseActivity {
         public void onBindViewHolder(final ViewHolder holder, int position) {
             Glide.with(GalleryActivity.this)
                     .load(mImageUrls[position])
-                    .listener(new RequestListener<String, GlideDrawable>() {
-                        @Override
-                        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
-                            return false;
-                        }
-
-                        @Override
-                        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                            holder.image.enable();
-                            holder.image.setMaxScale(2);
-                            return false;
-                        }
-                    })
                     .into(holder.image);
         }
 

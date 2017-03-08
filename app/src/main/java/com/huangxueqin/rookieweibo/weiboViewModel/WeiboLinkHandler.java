@@ -1,4 +1,4 @@
-package com.huangxueqin.rookieweibo.interfaces;
+package com.huangxueqin.rookieweibo.weiboViewModel;
 
 import android.content.Context;
 

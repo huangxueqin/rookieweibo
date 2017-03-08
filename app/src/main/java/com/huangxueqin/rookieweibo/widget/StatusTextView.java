@@ -1,9 +1,7 @@
 package com.huangxueqin.rookieweibo.widget;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.TypedArray;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.SpannableStringBuilder;
@@ -15,20 +13,14 @@ import android.text.style.ImageSpan;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.util.Patterns;
 import android.view.View;
 import android.widget.TextView;
 
-import com.huangxueqin.rookieweibo.BrowserActivity;
 import com.huangxueqin.rookieweibo.R;
 import com.huangxueqin.rookieweibo.cons.WeiboPattern;
-import com.huangxueqin.rookieweibo.interfaces.WeiboLinkHandler;
-import com.huangxueqin.rookieweibo.utils.StatusUtils;
+import com.huangxueqin.rookieweibo.weiboViewModel.WeiboLinkHandler;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
 import com.mikepenz.iconics.IconicsDrawable;
-
-import static android.R.attr.textSize;
 
 /**
  * Created by huangxueqin on 2017/3/3.

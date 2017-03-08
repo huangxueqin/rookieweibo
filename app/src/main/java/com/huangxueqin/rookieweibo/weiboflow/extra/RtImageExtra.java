@@ -16,7 +16,7 @@ public class RtImageExtra extends RtSimpleExtra {
 
     public RtImageExtra(View itemView) {
         super(itemView);
-        imageGrid = (WeiboImageGrid) itemView.findViewById(R.id.extra_rt_image_grid);
+        imageGrid = (WeiboImageGrid) itemView.findViewById(R.id.deco_rt_image_grid);
     }
 
     @Override
