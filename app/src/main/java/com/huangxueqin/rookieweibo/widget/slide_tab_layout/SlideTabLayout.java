@@ -1,14 +1,17 @@
 package com.huangxueqin.rookieweibo.widget.slide_tab_layout;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 
@@ -21,13 +24,80 @@ import com.huangxueqin.rookieweibo.R;
 public class SlideTabLayout extends HorizontalScrollView implements ViewPager.OnPageChangeListener {
     private static final String TAG = SlideTabLayout.class.getSimpleName();
 
+    // cons for attr "tabGravity"
+    public static final int GRAVITY_LEFT = 1;
+    public static final int GRAVITY_RIGHT = 2;
+    public static final int GRAVITY_CENTER = 3;
+    public enum TabGravity {
+        LEFT(1),
+        RIGHT(2),
+        CENTER(3);
+
+        private final int id;
+
+        TabGravity(int id) {
+            this.id = id;
+        }
+
+        public int getValue() {
+            return id;
+        }
+    }
+
+    // cons for attr "tabMode"
+    public static final int MODE_FIT_WIDTH = 1;
+    public static final int MODE_FIT_SCREEN = 2;
+    public static final int MODE_FIX_WIDTH = 3;
+    public enum TabMode {
+        FIT_WIDTH(1),
+        FIT_SCREEN(2),
+        FIX_WIDTH(3);
+
+        private final int id;
+
+        TabMode(int id) {
+            this.id = id;
+        }
+
+        public int getValue() {
+            return id;
+        }
+    }
+
+    // cons for attr "tabStyle"
+    public static final int STYLE_PLAIN_TEXT = 1;
+    public static final int STYLE_PLAIN_ICON = 2;
+    public static final int STYLE_ICON_TEXT = 3;
+    public static final int STYLE_CUSTOM = 4;
+    public enum TabStyle {
+        PLAIN_TEXT(1),
+        PLAIN_ICON(2),
+        ICON_TEXT(3),
+        CUSTOM(4);
+
+        private final int id;
+
+        TabStyle(int id) {
+            this.id = id;
+        }
+
+        public int getValue() {
+            return id;
+        }
+    }
+
     private static final float INDICATOR_HEIGHT = 1.5f;
     private static final float INDICATOR_MARGIN_BOTTOM = 5;
 
-    private LinearLayout mTabContainer;
-    private LayoutInflater mTabItemInflater;
+    private LayoutInflater mTabCellInflater;
+    private LinearLayout mTabParent;
+    private int mTabGravity;
+    private int mTabMode;
+    private int mTabStyle;
+    // used in FIX_WIDTH mode
+    private int mTabWidth;
 
-    private Callback mCallback;
+    private Adapter mAdapter;
     private TabSelectListener mListener;
     private int mCurrentPosition = 0;
 
@@ -49,9 +119,71 @@ public class SlideTabLayout extends HorizontalScrollView implements ViewPager.On
 
     public SlideTabLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.SlideTabLayout);
+        mTabGravity = ta.getInt(R.styleable.SlideTabLayout_tabGravity, GRAVITY_CENTER);
+        mTabMode = ta.getInt(R.styleable.SlideTabLayout_tabMode, MODE_FIT_SCREEN);
+        mTabStyle = ta.getInt(R.styleable.SlideTabLayout_tabStyle, STYLE_PLAIN_TEXT);
+        mTabWidth = ta.getDimensionPixelSize(R.styleable.SlideTabLayout_tabWidth, 0);
+        ta.recycle();
+
+        mTabCellInflater = LayoutInflater.from(context);
+        // create {@link mTabParent}
+        mTabParent = new LinearLayout(context);
+        LayoutParams lp = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        if (mTabGravity == GRAVITY_LEFT) {
+            lp.gravity = Gravity.LEFT;
+        } else if (mTabGravity == GRAVITY_RIGHT) {
+            lp.gravity = Gravity.RIGHT;
+        } else {
+            lp.gravity = Gravity.CENTER;
+        }
+        addView(mTabParent, lp);
+
         initDimension(context);
-        mTabItemInflater = LayoutInflater.from(context);
         initScrollIndicatorPaint();
+    }
+
+    public void setTabGravity(int gravity) {
+        if (mTabGravity == gravity) return;
+        LayoutParams lp = (LayoutParams) mTabParent.getLayoutParams();
+        mTabGravity = gravity;
+        switch (mTabGravity) {
+            case GRAVITY_LEFT:
+                lp.gravity = Gravity.LEFT;
+                break;
+            case GRAVITY_RIGHT:
+                lp.gravity = Gravity.RIGHT;
+                break;
+            case GRAVITY_CENTER:
+                lp.gravity = Gravity.CENTER;
+                break;
+        }
+        mTabParent.setLayoutParams(lp);
+    }
+
+    public void setTabMode(int tabMode) {
+        if (mTabMode == tabMode) return;
+        mTabMode = tabMode;
+        for (int i = 0; i < mTabParent.getChildCount(); i++) {
+            View cell = mTabParent.getChildAt(i);
+            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) cell.getLayoutParams();
+            if (tabMode == MODE_FIT_SCREEN) {
+                lp.width = 0;
+                lp.weight = 1;
+            } else if (tabMode == MODE_FIX_WIDTH) {
+                lp.width = mTabWidth;
+            } else {
+                lp.width = ViewPager.LayoutParams.WRAP_CONTENT;
+            }
+            cell.setLayoutParams(lp);
+        }
+    }
+
+    public void setAdapter(Adapter adapter) {
+        if (mAdapter == adapter) return;
+        mAdapter = adapter;
+
+
     }
 
     private void initDimension(Context context) {
@@ -70,25 +202,23 @@ public class SlideTabLayout extends HorizontalScrollView implements ViewPager.On
     }
 
     @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
-        mTabContainer = (LinearLayout) findViewById(R.id.tab_container);
-        if (mTabContainer == null) {
-            mTabContainer = new LinearLayout(getContext());
-            mTabContainer.setOrientation(LinearLayout.HORIZONTAL);
-            addView(mTabContainer,
-                    new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT, Gravity.CENTER));
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        if (mTabWidth == 0) {
+            for (int i = 0; i < mTabParent.getChildCount(); i++) {
+                mTabWidth = Math.max(mTabWidth, getChildAt(i).getMeasuredWidth());
+            }
         }
     }
 
     private void drawIndicator(Canvas canvas) {
-        if (mTabContainer.getChildCount() <= 0) {
+        if (mTabParent.getChildCount() <= 0) {
             return;
         }
 
         final float h = getHeight();
-        final float tabW = (mTabContainer.getWidth()) / mCallback.getTabCount();
-        final float tabStart = (getWidth() - mTabContainer.getWidth()) / 2;
+        final float tabW = (mTabParent.getWidth()) / mCallback.getTabCount();
+        final float tabStart = (getWidth() - mTabParent.getWidth()) / 2;
         final float indicatorY =  h - mIndicatorMarginBottom;
         final float indicatorW = tabW / 4;
 
@@ -139,8 +269,8 @@ public class SlideTabLayout extends HorizontalScrollView implements ViewPager.On
 
     public void setCurrentItem(int position) {
         if (mCurrentPosition != position) {
-            SlideTabCell prevPrimaryItem = (SlideTabCell) mTabContainer.getChildAt(mCurrentPosition);
-            SlideTabCell currPrimaryItem = (SlideTabCell) mTabContainer.getChildAt(position);
+            SlideTabCell prevPrimaryItem = (SlideTabCell) mTabParent.getChildAt(mCurrentPosition);
+            SlideTabCell currPrimaryItem = (SlideTabCell) mTabParent.getChildAt(position);
             prevPrimaryItem.setSelected(false);
             currPrimaryItem.setSelected(true);
             mCurrentPosition = position;
@@ -159,15 +289,15 @@ public class SlideTabLayout extends HorizontalScrollView implements ViewPager.On
     }
 
     private void installTabs() {
-        mTabContainer.removeAllViews();
+        mTabParent.removeAllViews();
         final int tabCount = mCallback.getTabCount();
         for (int i = 0; i < tabCount; i++) {
-            SlideTabCell tabItem = (SlideTabCell) mTabItemInflater.inflate(R.layout.view_slide_tab_cell, null);
+            SlideTabCell tabItem = (SlideTabCell) mTabCellInflater.inflate(R.layout.view_slide_tab_cell, null);
             tabItem.setSelected(mCurrentPosition == i);
             tabItem.setTitle(mCallback.getTabTitle(i));
             tabItem.index = i;
             tabItem.setOnClickListener(mTabClickListener);
-            mTabContainer.addView(tabItem,
+            mTabParent.addView(tabItem,
                     new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
         }
     }
@@ -176,7 +306,7 @@ public class SlideTabLayout extends HorizontalScrollView implements ViewPager.On
         @Override
         public void onClick(View v) {
             SlideTabCell tabItem = (SlideTabCell) v;
-            SlideTabCell currentTabItem = (SlideTabCell) mTabContainer.getChildAt(mCurrentPosition);
+            SlideTabCell currentTabItem = (SlideTabCell) mTabParent.getChildAt(mCurrentPosition);
             if (tabItem != currentTabItem) {
                 mCurrentPosition = tabItem.index;
                 currentTabItem.setSelected(false);
@@ -211,9 +341,24 @@ public class SlideTabLayout extends HorizontalScrollView implements ViewPager.On
         }
     }
 
-    public interface Callback {
-        int getTabCount();
-        String getTabTitle(int tabNdx);
+    public static abstract class Adapter {
+        public abstract int getTabCount();
+
+        public String getTabTitle(int tabNdx) {
+            return null;
+        }
+
+        public int getTabIcon(int tabNdx) {
+            return -1;
+        }
+
+        public Drawable getTabIconDrawable(int tabNdx) {
+            return null;
+        }
+
+        public View getTabView(int tabNdx) {
+            return null;
+        }
     }
 
     public interface TabSelectListener {

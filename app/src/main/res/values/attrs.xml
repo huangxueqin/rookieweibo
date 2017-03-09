@@ -3,4 +3,28 @@
     <declare-styleable name="StatusTextView">
         <attr name="linkColor" format="color" />
     </declare-styleable>
+    
+    
+    <declare-styleable name="SlideTabLayout">
+        <attr name="tabGravity">
+            <enum name="left" value="1" />
+            <enum name="right" value="2" />
+            <enum name="center" value="3" />
+        </attr>
+
+        <attr name="tabMode">
+            <enum name="fit_width" value="1" />
+            <enum name="fit_screen" value="2" />
+            <enum name="fix_width" value="3" />
+        </attr>
+
+        <attr name="tabStyle">
+            <enum name="plain_text" value="1" />
+            <enum name="plain_icon" value="2" />
+            <enum name="icon_text" value="3" />
+            <enum name="custom" value="4" />
+        </attr>
+
+        <attr name="tabWidth" format="dimension" />
+    </declare-styleable>
 </resources>
