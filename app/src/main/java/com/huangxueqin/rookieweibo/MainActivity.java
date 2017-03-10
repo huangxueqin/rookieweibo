@@ -6,11 +6,12 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.WindowManager;
 
 import com.huangxueqin.rookieweibo.auth.AccessTokenKeeper;
 import com.huangxueqin.rookieweibo.auth.UserKeeper;
 import com.huangxueqin.rookieweibo.interfaces.IFragmentCallback;
-import com.huangxueqin.rookieweibo.widget.slide_tab_layout.SlideTabLayout;
+import com.huangxueqin.rookieweibo.widget.SlideTabLayout;
 import com.huangxueqin.rookieweibo.weiboflow.WeiboFlowFragment;
 import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 import com.sina.weibo.sdk.openapi.models.User;
@@ -21,7 +22,6 @@ import butterknife.ButterKnife;
 public class MainActivity extends AppCompatActivity implements
         ViewPager.OnPageChangeListener,
         SlideTabLayout.TabSelectListener,
-        SlideTabLayout.Callback,
         IFragmentCallback {
 
     @BindView(R.id.slide_tab_nav) SlideTabLayout mSlideTabNav;
@@ -42,7 +42,8 @@ public class MainActivity extends AppCompatActivity implements
 
         createMainFragments();
         initFragmentPager();
-        mSlideTabNav.setCallback(this);
+
+        mSlideTabNav.setAdapter(mSlideTabAdapter);
         mSlideTabNav.setTabSelectListener(this);
         mSlideTabNav.setCurrentItem(AppConfiguration.Main.PrimaryTabNdx);
     }
@@ -99,16 +100,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public int getTabCount() {
-        return mFragments.length;
-    }
-
-    @Override
-    public String getTabTitle(int tabNdx) {
-        return AppConfiguration.Main.TabNavTitles[tabNdx];
-    }
-
-    @Override
     public User getUser() {
         return mUser;
     }
@@ -117,4 +108,16 @@ public class MainActivity extends AppCompatActivity implements
     public Oauth2AccessToken getAccessToken() {
         return mAccessToken;
     }
+
+    private SlideTabLayout.Adapter mSlideTabAdapter = new SlideTabLayout.Adapter() {
+        @Override
+        public int getTabCount() {
+            return mFragments.length;
+        }
+
+        @Override
+        public String getTabTitle(int tabNdx) {
+            return AppConfiguration.Main.TabNavTitles[tabNdx];
+        }
+    };
 }

@@ -1,4 +1,4 @@
-package com.huangxueqin.rookieweibo.widget.slide_tab_layout;
+package com.huangxueqin.rookieweibo.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -13,7 +13,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.huangxueqin.rookieweibo.R;
 
@@ -119,6 +121,7 @@ public class SlideTabLayout extends HorizontalScrollView implements ViewPager.On
 
     public SlideTabLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+
         TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.SlideTabLayout);
         mTabGravity = ta.getInt(R.styleable.SlideTabLayout_tabGravity, GRAVITY_CENTER);
         mTabMode = ta.getInt(R.styleable.SlideTabLayout_tabMode, MODE_FIT_SCREEN);
@@ -129,61 +132,97 @@ public class SlideTabLayout extends HorizontalScrollView implements ViewPager.On
         mTabCellInflater = LayoutInflater.from(context);
         // create {@link mTabParent}
         mTabParent = new LinearLayout(context);
-        LayoutParams lp = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        if (mTabGravity == GRAVITY_LEFT) {
-            lp.gravity = Gravity.LEFT;
-        } else if (mTabGravity == GRAVITY_RIGHT) {
-            lp.gravity = Gravity.RIGHT;
-        } else {
-            lp.gravity = Gravity.CENTER;
-        }
-        addView(mTabParent, lp);
+        addView(mTabParent, new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        updateLayoutConstraints();
 
         initDimension(context);
         initScrollIndicatorPaint();
     }
 
+    private void updateLayoutConstraints() {
+        setFillViewport(mTabMode == MODE_FIT_SCREEN);
+
+        LayoutParams tabParentLp = (LayoutParams)mTabParent.getLayoutParams();
+        tabParentLp.gravity = getTabParentGravity(mTabGravity);
+        mTabParent.setLayoutParams(tabParentLp);
+
+        for (int i = 0; i < mTabParent.getChildCount(); i++) {
+            View cell = mTabParent.getChildAt(i);
+            LinearLayout.LayoutParams cellLp = (LinearLayout.LayoutParams) cell.getLayoutParams();
+            setTabCellLayout(cellLp, mTabMode);
+            cell.setLayoutParams(cellLp);
+        }
+    }
+
+    private int getTabParentGravity(int tabGravity) {
+        if (tabGravity == GRAVITY_CENTER) {
+            return Gravity.CENTER;
+        } else if (tabGravity == GRAVITY_RIGHT) {
+            return Gravity.RIGHT;
+        } else {
+            return Gravity.LEFT;
+        }
+    }
+
+    private void setTabCellLayout(LinearLayout.LayoutParams lp, int tabMode) {
+        lp.height = ViewGroup.LayoutParams.MATCH_PARENT;
+        if (tabMode == MODE_FIT_SCREEN) {
+            lp.width = 0;
+            lp.weight = 1;
+        } else if (tabMode == MODE_FIX_WIDTH) {
+            lp.width = mTabWidth;
+        }
+    }
+
+    public void updateDataSet() {
+        for (int i = 0; i < mTabParent.getChildCount(); i++) {
+            View view = ((CellLayout) getChildAt(i)).getChildAt(0);
+            if (mTabStyle == STYLE_CUSTOM) {
+                mAdapter.bindTabView(view, i);
+            } else {
+                bindDefaultTabView(i, view);
+            }
+        }
+    }
+
     public void setTabGravity(int gravity) {
         if (mTabGravity == gravity) return;
-        LayoutParams lp = (LayoutParams) mTabParent.getLayoutParams();
         mTabGravity = gravity;
-        switch (mTabGravity) {
-            case GRAVITY_LEFT:
-                lp.gravity = Gravity.LEFT;
-                break;
-            case GRAVITY_RIGHT:
-                lp.gravity = Gravity.RIGHT;
-                break;
-            case GRAVITY_CENTER:
-                lp.gravity = Gravity.CENTER;
-                break;
-        }
-        mTabParent.setLayoutParams(lp);
+        updateLayoutConstraints();
     }
 
     public void setTabMode(int tabMode) {
         if (mTabMode == tabMode) return;
         mTabMode = tabMode;
-        for (int i = 0; i < mTabParent.getChildCount(); i++) {
-            View cell = mTabParent.getChildAt(i);
-            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) cell.getLayoutParams();
-            if (tabMode == MODE_FIT_SCREEN) {
-                lp.width = 0;
-                lp.weight = 1;
-            } else if (tabMode == MODE_FIX_WIDTH) {
-                lp.width = mTabWidth;
-            } else {
-                lp.width = ViewPager.LayoutParams.WRAP_CONTENT;
-            }
-            cell.setLayoutParams(lp);
-        }
+        updateLayoutConstraints();
     }
 
     public void setAdapter(Adapter adapter) {
         if (mAdapter == adapter) return;
         mAdapter = adapter;
 
+        mTabParent.removeAllViews();
+        installTabs();
+        updateLayoutConstraints();
+    }
 
+    private void installTabs() {
+        final int tabCount = mAdapter.getTabCount();
+        for (int i = 0; i < tabCount; i++) {
+            CellLayout cellLayout = new CellLayout(getContext(), i);
+            final View tabView;
+            if (mTabStyle == STYLE_CUSTOM) {
+                tabView = mAdapter.getTabView(i, mTabCellInflater, cellLayout);
+                mAdapter.bindTabView(tabView, i);
+            } else {
+                tabView = getDefaultTabView(cellLayout);
+                bindDefaultTabView(i, tabView);
+            }
+            cellLayout.addView(tabView);
+            cellLayout.setOnClickListener(mTabClickListener);
+            mTabParent.addView(cellLayout);
+        }
     }
 
     private void initDimension(Context context) {
@@ -204,11 +243,6 @@ public class SlideTabLayout extends HorizontalScrollView implements ViewPager.On
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        if (mTabWidth == 0) {
-            for (int i = 0; i < mTabParent.getChildCount(); i++) {
-                mTabWidth = Math.max(mTabWidth, getChildAt(i).getMeasuredWidth());
-            }
-        }
     }
 
     private void drawIndicator(Canvas canvas) {
@@ -217,7 +251,7 @@ public class SlideTabLayout extends HorizontalScrollView implements ViewPager.On
         }
 
         final float h = getHeight();
-        final float tabW = (mTabParent.getWidth()) / mCallback.getTabCount();
+        final float tabW = (mTabParent.getWidth()) / mAdapter.getTabCount();
         final float tabStart = (getWidth() - mTabParent.getWidth()) / 2;
         final float indicatorY =  h - mIndicatorMarginBottom;
         final float indicatorW = tabW / 4;
@@ -269,18 +303,11 @@ public class SlideTabLayout extends HorizontalScrollView implements ViewPager.On
 
     public void setCurrentItem(int position) {
         if (mCurrentPosition != position) {
-            SlideTabCell prevPrimaryItem = (SlideTabCell) mTabParent.getChildAt(mCurrentPosition);
-            SlideTabCell currPrimaryItem = (SlideTabCell) mTabParent.getChildAt(position);
+            CellLayout prevPrimaryItem = (CellLayout) mTabParent.getChildAt(mCurrentPosition);
+            CellLayout currPrimaryItem = (CellLayout) mTabParent.getChildAt(position);
             prevPrimaryItem.setSelected(false);
             currPrimaryItem.setSelected(true);
             mCurrentPosition = position;
-        }
-    }
-
-    public void setCallback(Callback callback) {
-        mCallback = callback;
-        if (mCallback != null) {
-            installTabs();
         }
     }
 
@@ -288,29 +315,14 @@ public class SlideTabLayout extends HorizontalScrollView implements ViewPager.On
         mListener = listener;
     }
 
-    private void installTabs() {
-        mTabParent.removeAllViews();
-        final int tabCount = mCallback.getTabCount();
-        for (int i = 0; i < tabCount; i++) {
-            SlideTabCell tabItem = (SlideTabCell) mTabCellInflater.inflate(R.layout.view_slide_tab_cell, null);
-            tabItem.setSelected(mCurrentPosition == i);
-            tabItem.setTitle(mCallback.getTabTitle(i));
-            tabItem.index = i;
-            tabItem.setOnClickListener(mTabClickListener);
-            mTabParent.addView(tabItem,
-                    new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        }
-    }
-
     private OnClickListener mTabClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            SlideTabCell tabItem = (SlideTabCell) v;
-            SlideTabCell currentTabItem = (SlideTabCell) mTabParent.getChildAt(mCurrentPosition);
-            if (tabItem != currentTabItem) {
-                mCurrentPosition = tabItem.index;
-                currentTabItem.setSelected(false);
-                tabItem.setSelected(true);
+            CellLayout currentCell = (CellLayout) mTabParent.getChildAt(mCurrentPosition);
+            if (v != currentCell) {
+                mCurrentPosition = ((CellLayout)v).index;
+                currentCell.setSelected(false);
+                v.setSelected(true);
                 if (mListener != null) {
                     mListener.onTabSelected(mCurrentPosition);
                 }
@@ -341,6 +353,39 @@ public class SlideTabLayout extends HorizontalScrollView implements ViewPager.On
         }
     }
 
+    private View getDefaultTabView(ViewGroup parent) {
+        int layoutId = 0;
+        if (mTabStyle == STYLE_PLAIN_TEXT) {
+            layoutId = R.layout.view_slide_tab_plain_text;
+        } else if (mTabStyle == STYLE_PLAIN_ICON) {
+            layoutId = R.layout.view_slide_tab_plain_icon;
+        } else if (mTabStyle == STYLE_ICON_TEXT) {
+            layoutId = R.layout.view_slide_tab_icon_text;
+        }
+
+        if (layoutId > 0) {
+            return mTabCellInflater.inflate(layoutId, parent, false);
+        } else {
+            return null;
+        }
+    }
+
+    private void bindDefaultTabView(int tabNdx, View tabView) {
+        ImageView icon = (ImageView) tabView.findViewById(R.id.slide_tab_icon);
+        TextView text = (TextView) tabView.findViewById(R.id.slide_tab_text);
+        if (text != null) {
+            text.setText(mAdapter.getTabTitle(tabNdx));
+        }
+        if (icon != null) {
+            int iconRes = mAdapter.getTabIcon(tabNdx);
+            if (iconRes > 0) {
+                icon.setImageResource(iconRes);
+            } else {
+                icon.setImageDrawable(mAdapter.getTabIconDrawable(tabNdx));
+            }
+        }
+    }
+
     public static abstract class Adapter {
         public abstract int getTabCount();
 
@@ -356,12 +401,23 @@ public class SlideTabLayout extends HorizontalScrollView implements ViewPager.On
             return null;
         }
 
-        public View getTabView(int tabNdx) {
+        public View getTabView(int tabNdx, LayoutInflater inflater, ViewGroup parent) {
             return null;
         }
+
+        public void bindTabView(View tabView, int tabNdx) {}
     }
 
     public interface TabSelectListener {
         void onTabSelected(int tabNdx);
+    }
+
+    public static class CellLayout extends FrameLayout {
+        final int index;
+
+        public CellLayout(Context context, int index) {
+            super(context);
+            this.index = index;
+        }
     }
 }

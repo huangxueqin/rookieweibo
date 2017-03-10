@@ -45,17 +45,4 @@
 
     </LinearLayout>
 
-    <FrameLayout
-        android:id="@+id/weibo_opt_menu"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:foreground="?attr/selectableItemBackgroundBorderless"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@mipmap/ic_listitem_overflow_gray"/>
-    </FrameLayout>
-
 </RelativeLayout>
