@@ -1,4 +1,4 @@
-package com.huangxueqin.rookieweibo.weiboflow;
+package com.huangxueqin.rookieweibo.ui.status;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,22 +11,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.gson.Gson;
 import com.huangxueqin.rookieweibo.AppConfiguration;
 import com.huangxueqin.rookieweibo.BaseFragment;
 import com.huangxueqin.rookieweibo.BrowserActivity;
-import com.huangxueqin.rookieweibo.GalleryActivity;
 import com.huangxueqin.rookieweibo.R;
-import com.huangxueqin.rookieweibo.RecyclerViewLoadingListener;
+import com.huangxueqin.rookieweibo.common.list.LoadingListener;
 import com.huangxueqin.rookieweibo.WeiboAPIWrapper;
-import com.huangxueqin.rookieweibo.WeiboActivity;
 import com.huangxueqin.rookieweibo.auth.AuthConstants;
 import com.huangxueqin.rookieweibo.cons.Cons;
-import com.huangxueqin.rookieweibo.weiboViewModel.WeiboLinkHandler;
-import com.huangxueqin.rookieweibo.itemdecoration.LinearLayoutPaddingDecoration;
-import com.huangxueqin.rookieweibo.utils.StatusUtils;
-import com.huangxueqin.rookieweibo.weiboViewModel.WeiboActionListener;
-import com.huangxueqin.rookieweibo.widget.WeiboImageGrid;
+import com.huangxueqin.rookieweibo.cons.StatusAction;
+import com.huangxueqin.rookieweibo.interfaces.StatusLinkHandler;
+import com.huangxueqin.rookieweibo.interfaces.StatusListener;
+import com.huangxueqin.rookieweibo.common.list.LinearLayoutPaddingDecoration;
+import com.huangxueqin.rookieweibo.widget.StatusTextView;
 import com.sina.weibo.sdk.exception.WeiboException;
 import com.sina.weibo.sdk.openapi.StatusesAPI;
 import com.sina.weibo.sdk.openapi.models.Status;
@@ -59,8 +56,8 @@ public class WeiboFlowFragment extends BaseFragment implements SwipeRefreshLayou
         super.onCreate(savedInstanceState);
         mStatusAPI = new StatusesAPI(getContext(), AuthConstants.APP_KEY, getAccessToken());
         mFlowAdapter = new WeiboFlowAdapter(getContext());
+        mFlowAdapter.setStatusActionListener(mStatusListener);
         mFlowAdapter.setLinkHandler(mLinkHandler);
-        mFlowAdapter.setStatusActionListener(mStatusActionListener);
     }
 
     @Nullable
@@ -132,7 +129,7 @@ public class WeiboFlowFragment extends BaseFragment implements SwipeRefreshLayou
         mWeiboFlowList.scrollToPosition(mFlowAdapter.getItemCount()-1);
     }
 
-    private RecyclerViewLoadingListener mLoadingListener = new RecyclerViewLoadingListener() {
+    private LoadingListener mLoadingListener = new LoadingListener() {
         @Override
         public boolean allowLoading() {
             return !mLoadingComplete && (mStatusRequest == null ||  !mStatusRequest.isValid());
@@ -214,45 +211,39 @@ public class WeiboFlowFragment extends BaseFragment implements SwipeRefreshLayou
         }
     }
 
-    private WeiboLinkHandler mLinkHandler = new WeiboLinkHandler() {
+    private StatusListener mStatusListener = new StatusListener() {
         @Override
-        public void handleTopic(String topic) {
-
-        }
-
-        @Override
-        public void handleURL(String url) {
-            Intent browser = new Intent(getActivity(), BrowserActivity.class);
-            browser.putExtra(Cons.IntentKey.URL, url);
-            startActivity(browser);
-        }
-
-        @Override
-        public void handleAT(String user) {
-
+        public void performAction(int action, Object... args) {
+            switch (action) {
+                case StatusAction.GO_GALLERY:
+                    final String[] images = (String[]) args[0];
+                    final int index = (Integer) args[1];
+                    StatusActionHelper.goGallery(getContext(), images, index);
+                    break;
+                case StatusAction.GO_STATUS:
+                    final Status status = (Status) args[0];
+                    StatusActionHelper.goStatusPage(getContext(), status);
+                    break;
+            }
         }
     };
 
-    private WeiboActionListener mStatusActionListener = new WeiboActionListener() {
+    private StatusLinkHandler mLinkHandler = new StatusLinkHandler() {
         @Override
-        public void onStatusAction(View view, Status status, int action) {
-            switch (action) {
-                case WeiboActionListener.ACTION_IMAGES:
-                    WeiboImageGrid imageGrid = (WeiboImageGrid) view;
-                    final int index = imageGrid.getLastClickChildIndex();
-                    final String[] images = StatusUtils.getLargePics(status);
-                    Intent intent = new Intent(getActivity(), GalleryActivity.class);
-                    intent.putExtra(Cons.IntentKey.IMAGE_LIST, images);
-                    intent.putExtra(Cons.IntentKey.SELECT_INDEX, index);
-                    startActivity(intent);
-                    break;
-                case WeiboActionListener.ACTION_STATUS:
-                    String statusStr = new Gson().toJson(status);
-                    Intent intentWeibo = new Intent(getActivity(), WeiboActivity.class);
-                    intentWeibo.putExtra(Cons.IntentKey.STATUS, statusStr);
-                    startActivity(intentWeibo);
-                    break;
-            }
+        public void handleURL(StatusTextView view, String url) {
+            Intent intent = new Intent(getContext(), BrowserActivity.class);
+            intent.putExtra(Cons.IntentKey.URL, url);
+            startActivity(intent);
+        }
+
+        @Override
+        public void handleAt(StatusTextView view, String at) {
+
+        }
+
+        @Override
+        public void handleTopic(StatusTextView view, String topic) {
+
         }
     };
 

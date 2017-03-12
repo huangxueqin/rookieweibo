@@ -30,63 +30,17 @@ public class SlideTabLayout extends HorizontalScrollView implements ViewPager.On
     public static final int GRAVITY_LEFT = 1;
     public static final int GRAVITY_RIGHT = 2;
     public static final int GRAVITY_CENTER = 3;
-    public enum TabGravity {
-        LEFT(1),
-        RIGHT(2),
-        CENTER(3);
-
-        private final int id;
-
-        TabGravity(int id) {
-            this.id = id;
-        }
-
-        public int getValue() {
-            return id;
-        }
-    }
 
     // cons for attr "tabMode"
     public static final int MODE_FIT_WIDTH = 1;
     public static final int MODE_FIT_SCREEN = 2;
     public static final int MODE_FIX_WIDTH = 3;
-    public enum TabMode {
-        FIT_WIDTH(1),
-        FIT_SCREEN(2),
-        FIX_WIDTH(3);
-
-        private final int id;
-
-        TabMode(int id) {
-            this.id = id;
-        }
-
-        public int getValue() {
-            return id;
-        }
-    }
 
     // cons for attr "tabStyle"
     public static final int STYLE_PLAIN_TEXT = 1;
     public static final int STYLE_PLAIN_ICON = 2;
     public static final int STYLE_ICON_TEXT = 3;
     public static final int STYLE_CUSTOM = 4;
-    public enum TabStyle {
-        PLAIN_TEXT(1),
-        PLAIN_ICON(2),
-        ICON_TEXT(3),
-        CUSTOM(4);
-
-        private final int id;
-
-        TabStyle(int id) {
-            this.id = id;
-        }
-
-        public int getValue() {
-            return id;
-        }
-    }
 
     private static final float INDICATOR_HEIGHT = 1.5f;
     private static final float INDICATOR_MARGIN_BOTTOM = 5;

@@ -14,11 +14,11 @@ import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.TextView;
 
 import com.huangxueqin.rookieweibo.R;
 import com.huangxueqin.rookieweibo.cons.WeiboPattern;
-import com.huangxueqin.rookieweibo.weiboViewModel.WeiboLinkHandler;
+import com.huangxueqin.rookieweibo.interfaces.StatusLinkHandler;
+import com.huangxueqin.rookieweibo.ui.status.StatusActionHelper;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
 import com.mikepenz.iconics.IconicsDrawable;
 
@@ -26,9 +26,9 @@ import com.mikepenz.iconics.IconicsDrawable;
  * Created by huangxueqin on 2017/3/3.
  */
 
-public class StatusTextView extends TextView {
+public class StatusTextView extends android.support.v7.widget.AppCompatTextView {
     private int mLinkColor;
-    private WeiboLinkHandler mLinkHandler;
+    private StatusLinkHandler mLinkHandler;
 
     public StatusTextView(Context context) {
         this(context, null);
@@ -38,7 +38,7 @@ public class StatusTextView extends TextView {
         this(context, attrs, 0);
     }
 
-    public StatusTextView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public StatusTextView(final Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.StatusTextView);
         mLinkColor = ta.getColor(R.styleable.StatusTextView_linkColor, 0xFF636463);
@@ -46,8 +46,8 @@ public class StatusTextView extends TextView {
         setMovementMethod(LinkMovementMethod.getInstance());
     }
 
-    public void setLinkHandler(WeiboLinkHandler handler) {
-        mLinkHandler = handler;
+    public void setLinkHandler(StatusLinkHandler linkHandler) {
+        mLinkHandler = linkHandler;
     }
 
     @Override
@@ -94,11 +94,11 @@ public class StatusTextView extends TextView {
         public void onClick(View widget) {
             if (mLinkHandler == null) return;
             if (spanURL.startsWith(WeiboPattern.SCHEME_URL)) {
-                mLinkHandler.handleURL(spanURL.substring(WeiboPattern.SCHEME_URL.length()));
+                mLinkHandler.handleURL(StatusTextView.this, spanURL.substring(WeiboPattern.SCHEME_URL.length()));
             } else if (spanURL.startsWith(WeiboPattern.SCHEME_AT)) {
-                mLinkHandler.handleAT(spanURL.substring(WeiboPattern.SCHEME_AT.length()));
+                mLinkHandler.handleAt(StatusTextView.this, spanURL.substring(WeiboPattern.SCHEME_AT.length()));
             } else if (spanURL.startsWith(WeiboPattern.SCHEME_TOPIC)) {
-                mLinkHandler.handleTopic(spanURL.substring(WeiboPattern.SCHEME_TOPIC.length())
+                mLinkHandler.handleTopic(StatusTextView.this, spanURL.substring(WeiboPattern.SCHEME_TOPIC.length())
                         .substring(1, spanURL.length()-1));
             }
         }

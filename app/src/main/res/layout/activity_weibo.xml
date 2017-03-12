@@ -25,79 +25,73 @@
             android:textSize="@dimen/text1" />
     </LinearLayout>
 
-    <ScrollView
-        android:id="@+id/scrollview"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+        <android.support.v7.widget.CardView
+            android:id="@+id/weibo_content"
+            style="@style/WeiboFlowCard">
 
-            <android.support.v7.widget.CardView style="@style/WeiboFlowCard"
-                android:id="@+id/weibo_content">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/weibo_flow_list_card_padding">
 
-                <LinearLayout
+                <!-- header -->
+                <include layout="@layout/view_user_info_without_opt_menu" />
+
+                <!-- weibo text -->
+                <com.huangxueqin.rookieweibo.widget.StatusTextView
+                    android:id="@+id/status_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="@dimen/weibo_flow_list_card_padding">
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginTop="5dp"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/weibo_flow_list_status_text" />
 
-                    <!-- header -->
-                    <include layout="@layout/view_weibo_status_card_header_without_opt_menu" />
+                <!-- decoration image grid -->
+                <ViewStub
+                    android:id="@+id/stub_status_content_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout="@layout/view_status_content_image" />
 
-                    <!-- weibo text -->
-                    <com.huangxueqin.rookieweibo.widget.StatusTextView
-                        android:id="@+id/status_text"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="5dp"
-                        android:layout_marginTop="5dp"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/weibo_flow_list_status_text" />
+                <!-- decoration plain text retweet -->
+                <ViewStub
+                    android:id="@+id/stub_status_conent_simple_retweet"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout="@layout/view_status_content_simple_retweet" />
 
-                    <!-- decoration image grid -->
-                    <ViewStub
-                        android:id="@+id/stub_deco_image_grid"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout="@layout/view_weibo_status_extra_image" />
+                <!-- decoration retweet with image -->
+                <ViewStub
+                    android:id="@+id/stub_status_content_image_retweet"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout="@layout/view_status_content_image_retweet" />
+            </LinearLayout>
 
-                    <!-- decoration plain text retweet -->
-                    <ViewStub
-                        android:id="@+id/stub_deco_rt_simple"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout="@layout/view_weibo_status_extra_rt_simple" />
+        </android.support.v7.widget.CardView>
 
-                    <!-- decoration retweet with image -->
-                    <ViewStub
-                        android:id="@+id/stub_deco_rt_image"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout="@layout/view_weibo_status_extra_rt_image" />
-                </LinearLayout>
+        <com.huangxueqin.rookieweibo.widget.SlideTabLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/slide_tabs"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:background="@color/white"
+            android:elevation="0.5dp"
+            app:tabMode="fit_screen"
+            app:tabStyle="icon_text" />
 
-            </android.support.v7.widget.CardView>
+        <android.support.v4.view.ViewPager
+            android:id="@+id/view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
-            <com.huangxueqin.rookieweibo.widget.SlideTabLayout xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/slide_tabs"
-                android:layout_width="match_parent"
-                android:layout_height="44dp"
-                android:background="@color/white"
-                android:elevation="0.5dp"
-                app:tabMode="fit_screen"
-                app:tabStyle="icon_text" />
-
-            <android.support.v4.view.ViewPager
-                android:id="@+id/view_pager"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-        </LinearLayout>
-    </ScrollView>
+    </LinearLayout>
 
 </LinearLayout>
 

@@ -1,4 +1,4 @@
-package com.huangxueqin.rookieweibo.utils;
+package com.huangxueqin.rookieweibo.common.utils;
 
 import java.util.Calendar;
 import java.util.Date;

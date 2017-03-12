@@ -1,17 +1,15 @@
-package com.huangxueqin.rookieweibo.utils;
+package com.huangxueqin.rookieweibo.common.utils;
 
-import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.util.LruCache;
 
-import com.huangxueqin.rookieweibo.cons.ST;
+import com.huangxueqin.rookieweibo.cons.StatusType;
 import com.sina.weibo.sdk.openapi.models.Status;
 
 import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 /**
@@ -33,15 +31,15 @@ public class StatusUtils {
 
     public static int getStatusType(Status status) {
         if (!TextUtils.isEmpty(status.original_pic)) {
-            return ST.IMAGE;
+            return StatusType.IMAGE;
         }
         if (status.retweeted_status != null) {
             if (!TextUtils.isEmpty(status.retweeted_status.original_pic)) {
-                return ST.RT_IMAGE;
+                return StatusType.RT_IMAGE;
             }
-            return ST.RT_SIMPLE;
+            return StatusType.RT_SIMPLE;
         }
-        return ST.SIMPLE;
+        return StatusType.SIMPLE;
     }
 
     private static Object queryFromCache(String id, String fieldName) {
@@ -109,10 +107,10 @@ public class StatusUtils {
         return pics;
     }
 
-    public static String parseCreateTime(Status status) {
+    public static String parseCreateTime(String createTimeStr) {
         try {
             Date now = new Date();
-            Date date = STATUS_TIME_FORMATTER.parse(status.created_at);
+            Date date = STATUS_TIME_FORMATTER.parse(createTimeStr);
             long diffMills = now.getTime() - date.getTime();
             long diffMinutes = diffMills / (1000 * 60);
             if (diffMinutes < 1) {
@@ -130,5 +128,9 @@ public class StatusUtils {
             e.printStackTrace();
         }
         return "";
+    }
+
+    public static String parseCreateTime(Status status) {
+        return parseCreateTime(status.created_at);
     }
 }

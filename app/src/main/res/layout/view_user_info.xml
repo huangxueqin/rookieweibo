@@ -28,7 +28,7 @@
 
         <TextView
             android:id="@+id/user_name"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="@dimen/text2"
             android:textStyle="bold"
@@ -37,7 +37,7 @@
 
         <TextView
             android:id="@+id/weibo_create_time"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="@dimen/text3"
             android:textColor="@color/grey1"
@@ -46,7 +46,7 @@
     </LinearLayout>
 
     <FrameLayout
-        android:id="@+id/weibo_opt_menu"
+        android:id="@+id/status_opt_menu"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:foreground="?attr/selectableItemBackgroundBorderless"

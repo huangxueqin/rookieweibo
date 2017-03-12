@@ -2,21 +2,15 @@ package com.huangxueqin.rookieweibo;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.ImageView;
 
 import com.bm.library.PhotoView;
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.huangxueqin.rookieweibo.cons.Cons;
 import com.lsjwzh.widget.recyclerviewpager.RecyclerViewPager;
 
@@ -51,7 +45,7 @@ public class GalleryActivity extends BaseActivity {
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             LayoutInflater inflater = LayoutInflater.from(GalleryActivity.this);
-            View itemView = inflater.inflate(R.layout.view_gallery_image, parent, false);
+            View itemView = inflater.inflate(R.layout.view_page_image, parent, false);
             return new ViewHolder(itemView);
         }
 

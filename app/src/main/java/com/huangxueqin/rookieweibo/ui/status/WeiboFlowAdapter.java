@@ -1,4 +1,4 @@
-package com.huangxueqin.rookieweibo.weiboflow;
+package com.huangxueqin.rookieweibo.ui.status;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -7,9 +7,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.huangxueqin.rookieweibo.R;
-import com.huangxueqin.rookieweibo.cons.ST;
-import com.huangxueqin.rookieweibo.weiboViewModel.WeiboLinkHandler;
-import com.huangxueqin.rookieweibo.weiboViewModel.WeiboActionListener;
+import com.huangxueqin.rookieweibo.common.utils.StatusUtils;
+import com.huangxueqin.rookieweibo.interfaces.StatusLinkHandler;
+import com.huangxueqin.rookieweibo.interfaces.StatusListener;
 import com.sina.weibo.sdk.openapi.models.Status;
 
 import java.util.ArrayList;
@@ -33,20 +33,20 @@ public class WeiboFlowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     Context mContext;
     ArrayList<Status> mStatusList;
     int mFooterType = FT.NONE;
-    WeiboLinkHandler mLinkHandler;
-    WeiboActionListener mStatusActionListener;
+    StatusListener mStatusListener;
+    StatusLinkHandler mLinkHandler;
 
     public WeiboFlowAdapter(Context context) {
         mContext = context;
         mStatusList = new ArrayList<>();
     }
 
-    public void setLinkHandler(WeiboLinkHandler linkHandler) {
-        mLinkHandler = linkHandler;
+    public void setStatusActionListener(StatusListener listener) {
+        mStatusListener = listener;
     }
 
-    public void setStatusActionListener(WeiboActionListener listener) {
-        mStatusActionListener = listener;
+    public void setLinkHandler(StatusLinkHandler handler) {
+        mLinkHandler = handler;
     }
 
     public void append(ArrayList<Status> statuses) {
@@ -76,7 +76,7 @@ public class WeiboFlowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             return VT.Footer;
         } else {
             final Status status = mStatusList.get(position);
-            final int statusType = ST.getTypeForStatus(status);
+            final int statusType = StatusUtils.getStatusType(status);
             return VT.Card | (statusType << 16);
         }
     }
@@ -88,15 +88,13 @@ public class WeiboFlowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        final View itemView;
         LayoutInflater inflater = LayoutInflater.from(mContext);
         if (viewType == VT.Footer) {
-            itemView = inflater.inflate(R.layout.view_list_item_weibo_flow_footer, parent, false);
+            final View itemView = inflater.inflate(R.layout.view_default_list_footer, parent, false);
             return new LoadingViewHolder(itemView);
         } else {
-            final int statusType = viewType >> 16;
-            itemView = inflater.inflate(R.layout.view_weibo_status_card, parent, false);
-            return new StatusCardHolder(itemView, mContext, statusType);
+            final View itemView = inflater.inflate(R.layout.view_list_status_item, parent, false);
+            return new StatusHolder(itemView, (viewType >> 16), mStatusListener, mLinkHandler);
         }
     }
 
@@ -106,15 +104,13 @@ public class WeiboFlowAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         if (viewType == VT.Footer) {
             onBindFooter((LoadingViewHolder) holder, position);
         } else {
-            onBindStatus((StatusCardHolder) holder, position);
+            onBindStatus((StatusHolder) holder, position);
         }
     }
 
-    private void onBindStatus(StatusCardHolder holder, int position) {
+    private void onBindStatus(StatusHolder holder, int position) {
         Status status = mStatusList.get(position);
-        holder.setLinkHandler(mLinkHandler);
-        holder.setStatusActionListener(mStatusActionListener);
-        holder.setup(status);
+        holder.setStatus(status);
     }
 
     private void onBindFooter(LoadingViewHolder holder, int position) {

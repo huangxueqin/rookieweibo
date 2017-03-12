@@ -1,4 +1,4 @@
-package com.huangxueqin.rookieweibo;
+package com.huangxueqin.rookieweibo.common.list;
 
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -7,7 +7,7 @@ import android.support.v7.widget.RecyclerView;
  * Created by huangxueqin on 2017/2/24.
  */
 
-public abstract class RecyclerViewLoadingListener extends RecyclerView.OnScrollListener {
+public abstract class LoadingListener extends RecyclerView.OnScrollListener {
     @Override
     public final void onScrolled(RecyclerView recyclerView, int dx, int dy) {
         if (dy > 0 && allowLoading()) {

@@ -1,11 +1,11 @@
 [
     {
-        "merged": "/Users/huangxueqin/Documents/workspace/Android/rookieweibo/weiboSDK/build/intermediates/res/merged/release/drawable-mdpi-v4/ic_com_sina_weibo_sdk_logo.png",
-        "source": "/Users/huangxueqin/Documents/workspace/Android/rookieweibo/weiboSDK/src/main/res/drawable-mdpi/ic_com_sina_weibo_sdk_logo.png"
-    },
-    {
         "merged": "/Users/huangxueqin/Documents/workspace/Android/rookieweibo/weiboSDK/build/intermediates/res/merged/release/drawable-mdpi-v4/ic_com_sina_weibo_sdk_button_grey_normal.9.png",
         "source": "/Users/huangxueqin/Documents/workspace/Android/rookieweibo/weiboSDK/src/main/res/drawable-mdpi/ic_com_sina_weibo_sdk_button_grey_normal.9.png"
+    },
+    {
+        "merged": "/Users/huangxueqin/Documents/workspace/Android/rookieweibo/weiboSDK/build/intermediates/res/merged/release/drawable-mdpi-v4/ic_com_sina_weibo_sdk_logo.png",
+        "source": "/Users/huangxueqin/Documents/workspace/Android/rookieweibo/weiboSDK/src/main/res/drawable-mdpi/ic_com_sina_weibo_sdk_logo.png"
     },
     {
         "merged": "/Users/huangxueqin/Documents/workspace/rookieweibo/weiboSDK/build/intermediates/res/merged/release/drawable-mdpi-v4/ic_com_sina_weibo_sdk_button_blue_normal.9.png",

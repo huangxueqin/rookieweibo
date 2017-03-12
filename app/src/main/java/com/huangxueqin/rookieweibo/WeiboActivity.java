@@ -1,21 +1,22 @@
 package com.huangxueqin.rookieweibo;
 
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.ImageView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
+import com.huangxueqin.rookieweibo.ui.comments.CommentFragment;
 import com.huangxueqin.rookieweibo.cons.Cons;
-import com.huangxueqin.rookieweibo.cons.ST;
-import com.huangxueqin.rookieweibo.utils.StatusUtils;
+import com.huangxueqin.rookieweibo.cons.StatusType;
+import com.huangxueqin.rookieweibo.common.utils.StatusUtils;
 import com.huangxueqin.rookieweibo.widget.StatusTextView;
 import com.huangxueqin.rookieweibo.widget.WeiboImageGrid;
 import com.huangxueqin.rookieweibo.widget.SlideTabLayout;
@@ -33,9 +34,6 @@ public class WeiboActivity extends BaseActivity {
     @BindView(R.id.title)
     TextView mToolbarTitle;
 
-    @BindView(R.id.scrollview)
-    ScrollView mScrollView;
-
     @BindView(R.id.weibo_content)
     ViewGroup mStatusContent;
 
@@ -47,11 +45,11 @@ public class WeiboActivity extends BaseActivity {
     TextView mWeiboCreateTime;
     @BindView(R.id.status_text)
     StatusTextView mStatusText;
-    @Nullable @BindView(R.id.deco_image_grid)
+    @Nullable @BindView(R.id.image_grid)
     WeiboImageGrid mDecoImages;
-    @Nullable @BindView(R.id.deco_rt_image_grid)
+    @Nullable @BindView(R.id.rt_image_grid)
     WeiboImageGrid mDecoRtImages;
-    @Nullable @BindView(R.id.deco_rt_status_text)
+    @Nullable @BindView(R.id.rt_content_text)
     StatusTextView mDecoRtStatusText;
 
     @BindView(R.id.slide_tabs)
@@ -72,12 +70,12 @@ public class WeiboActivity extends BaseActivity {
 
         final int statusType = StatusUtils.getStatusType(mStatus);
         int viewStubId = -1;
-        if (statusType == ST.IMAGE) {
-            viewStubId = R.id.stub_deco_image_grid;
-        } else if (statusType == ST.RT_SIMPLE) {
-            viewStubId = R.id.stub_deco_rt_simple;
-        } else if (statusType == ST.RT_IMAGE) {
-            viewStubId = R.id.stub_deco_rt_image;
+        if (statusType == StatusType.IMAGE) {
+            viewStubId = R.id.stub_status_content_image;
+        } else if (statusType == StatusType.RT_SIMPLE) {
+            viewStubId = R.id.stub_status_conent_simple_retweet;
+        } else if (statusType == StatusType.RT_IMAGE) {
+            viewStubId = R.id.stub_status_content_image_retweet;
         }
         if (viewStubId > 0) {
             ViewStub stub = (ViewStub) findViewById(viewStubId);
@@ -98,16 +96,34 @@ public class WeiboActivity extends BaseActivity {
         mWeiboCreateTime.setText(StatusUtils.parseCreateTime(mStatus));
         mStatusText.setText(mStatus.text);
         final int statusType = StatusUtils.getStatusType(mStatus);
-        if (statusType == ST.IMAGE) {
+        if (statusType == StatusType.IMAGE) {
             mDecoImages.setImage(StatusUtils.getLargePics(mStatus));
-        } else if (statusType == ST.RT_SIMPLE) {
+        } else if (statusType == StatusType.RT_SIMPLE) {
             mDecoRtStatusText.setText(mStatus.retweeted_status.text);
-        } else if (statusType == ST.RT_IMAGE) {
+        } else if (statusType == StatusType.RT_IMAGE) {
             mDecoRtStatusText.setText(mStatus.retweeted_status.text);
             mDecoRtImages.setImage(StatusUtils.getLargePics(mStatus.retweeted_status));
         }
 
         mSlideTabs.setAdapter(mSlideTabAdapter);
+        mViewPager.setOffscreenPageLimit(3);
+        mViewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
+            @Override
+            public Fragment getItem(int position) {
+                if (position == 0) {
+                    CommentFragment fragment = new CommentFragment();
+                    fragment.mStatus = mStatus;
+                    return fragment;
+                } else {
+                    return new BlankFragment();
+                }
+            }
+
+            @Override
+            public int getCount() {
+                return 3;
+            }
+        });
     }
 
     @Override
@@ -143,5 +159,4 @@ public class WeiboActivity extends BaseActivity {
             }
         }
     };
-
 }

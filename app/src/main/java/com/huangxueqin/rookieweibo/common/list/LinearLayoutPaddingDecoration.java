@@ -1,4 +1,4 @@
-package com.huangxueqin.rookieweibo.itemdecoration;
+package com.huangxueqin.rookieweibo.common.list;
 
 import android.graphics.Rect;
 import android.support.v7.widget.LinearLayoutManager;
