@@ -12,7 +12,7 @@ import com.bumptech.glide.Glide;
 import com.huangxueqin.rookieweibo.common.list.EndlessAdapter;
 import com.huangxueqin.rookieweibo.R;
 import com.huangxueqin.rookieweibo.common.utils.StatusUtils;
-import com.huangxueqin.rookieweibo.widget.StatusTextView;
+import com.huangxueqin.rookieweibo.ui.widget.StatusTextView;
 import com.sina.weibo.sdk.openapi.models.Comment;
 
 import java.util.ArrayList;
@@ -66,7 +66,7 @@ public class CommentListAdapter extends EndlessAdapter<CommentListAdapter.Commen
 
     @Override
     public FooterHolder onCreateFooterHolder(ViewGroup parent) {
-        return FooterHolder.createInstance(mContext);
+        return FooterHolder.createInstance(mContext, parent);
     }
 
     @Override

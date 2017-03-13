@@ -1,8 +1,6 @@
 package com.huangxueqin.rookieweibo.interfaces;
 
-import android.view.View;
-
-import com.huangxueqin.rookieweibo.widget.StatusTextView;
+import com.huangxueqin.rookieweibo.ui.widget.StatusTextView;
 
 /**
  * Created by huangxueqin on 2017/3/13.

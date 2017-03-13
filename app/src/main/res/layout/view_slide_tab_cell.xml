@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.huangxueqin.rookieweibo.widget.slide_tab_layout.SlideTabCell xmlns:android="http://schemas.android.com/apk/res/android"
+<com.huangxueqin.rookieweibo.ui.widget.slide_tab_layout.SlideTabCell xmlns:android="http://schemas.android.com/apk/res/android"
     android:paddingLeft="@dimen/slide_tab_padding"
     android:paddingRight="@dimen/slide_tab_padding"
     android:background="?attr/selectableItemBackgroundBorderless"
@@ -12,4 +12,4 @@
         android:layout_height="wrap_content"
         android:textColor="@color/slide_tab_title"
         android:textSize="@dimen/slide_tab_title"/>
-</com.huangxueqin.rookieweibo.widget.slide_tab_layout.SlideTabCell>
+</com.huangxueqin.rookieweibo.ui.widget.slide_tab_layout.SlideTabCell>

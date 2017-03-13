@@ -15,9 +15,10 @@
     <color name="green2">#F4D8B2</color>
     <color name="green3">#8DDB9A</color>
     <color name="green4">#786964</color>
-
     <color name="black">#0D0E09</color>
     <!-- color schemes end -->
 
     <color name="slide_tab_title">@color/grey2</color>
+
+    <color name="comment_list_line_sep">@color/grey1</color>
 </resources>

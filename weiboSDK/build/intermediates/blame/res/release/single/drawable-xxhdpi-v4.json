@@ -1,13 +1,5 @@
 [
     {
-        "merged": "/Users/huangxueqin/Documents/workspace/Android/rookieweibo/weiboSDK/build/intermediates/res/merged/release/drawable-xxhdpi-v4/ic_com_sina_weibo_sdk_login_button_with_frame_logo_normal.png",
-        "source": "/Users/huangxueqin/Documents/workspace/Android/rookieweibo/weiboSDK/src/main/res/drawable-xxhdpi/ic_com_sina_weibo_sdk_login_button_with_frame_logo_normal.png"
-    },
-    {
-        "merged": "/Users/huangxueqin/Documents/workspace/Android/rookieweibo/weiboSDK/build/intermediates/res/merged/release/drawable-xxhdpi-v4/ic_com_sina_weibo_sdk_login_with_account_text_focused.png",
-        "source": "/Users/huangxueqin/Documents/workspace/Android/rookieweibo/weiboSDK/src/main/res/drawable-xxhdpi/ic_com_sina_weibo_sdk_login_with_account_text_focused.png"
-    },
-    {
         "merged": "/Users/huangxueqin/Documents/workspace/rookieweibo/weiboSDK/build/intermediates/res/merged/release/drawable-xxhdpi-v4/ic_com_sina_weibo_sdk_login_with_account_text_pressed.png",
         "source": "/Users/huangxueqin/Documents/workspace/rookieweibo/weiboSDK/src/main/res/drawable-xxhdpi/ic_com_sina_weibo_sdk_login_with_account_text_pressed.png"
     },
@@ -20,20 +12,8 @@
         "source": "/Users/huangxueqin/Documents/workspace/rookieweibo/weiboSDK/src/main/res/drawable-xxhdpi/ic_com_sina_weibo_sdk_login_with_account_text_focused.png"
     },
     {
-        "merged": "/Users/huangxueqin/Documents/workspace/Android/rookieweibo/weiboSDK/build/intermediates/res/merged/release/drawable-xxhdpi-v4/ic_com_sina_weibo_sdk_login_button_with_frame_logo_focused.png",
-        "source": "/Users/huangxueqin/Documents/workspace/Android/rookieweibo/weiboSDK/src/main/res/drawable-xxhdpi/ic_com_sina_weibo_sdk_login_button_with_frame_logo_focused.png"
-    },
-    {
-        "merged": "/Users/huangxueqin/Documents/workspace/Android/rookieweibo/weiboSDK/build/intermediates/res/merged/release/drawable-xxhdpi-v4/ic_com_sina_weibo_sdk_login_button_with_frame_logo_pressed.png",
-        "source": "/Users/huangxueqin/Documents/workspace/Android/rookieweibo/weiboSDK/src/main/res/drawable-xxhdpi/ic_com_sina_weibo_sdk_login_button_with_frame_logo_pressed.png"
-    },
-    {
         "merged": "/Users/huangxueqin/Documents/workspace/rookieweibo/weiboSDK/build/intermediates/res/merged/release/drawable-xxhdpi-v4/ic_com_sina_weibo_sdk_login_button_with_frame_logo_focused.png",
         "source": "/Users/huangxueqin/Documents/workspace/rookieweibo/weiboSDK/src/main/res/drawable-xxhdpi/ic_com_sina_weibo_sdk_login_button_with_frame_logo_focused.png"
-    },
-    {
-        "merged": "/Users/huangxueqin/Documents/workspace/Android/rookieweibo/weiboSDK/build/intermediates/res/merged/release/drawable-xxhdpi-v4/ic_com_sina_weibo_sdk_login_with_account_text_pressed.png",
-        "source": "/Users/huangxueqin/Documents/workspace/Android/rookieweibo/weiboSDK/src/main/res/drawable-xxhdpi/ic_com_sina_weibo_sdk_login_with_account_text_pressed.png"
     },
     {
         "merged": "/Users/huangxueqin/Documents/workspace/rookieweibo/weiboSDK/build/intermediates/res/merged/release/drawable-xxhdpi-v4/ic_com_sina_weibo_sdk_login_button_with_frame_logo_normal.png",
@@ -42,9 +22,5 @@
     {
         "merged": "/Users/huangxueqin/Documents/workspace/rookieweibo/weiboSDK/build/intermediates/res/merged/release/drawable-xxhdpi-v4/ic_com_sina_weibo_sdk_login_button_with_frame_logo_pressed.png",
         "source": "/Users/huangxueqin/Documents/workspace/rookieweibo/weiboSDK/src/main/res/drawable-xxhdpi/ic_com_sina_weibo_sdk_login_button_with_frame_logo_pressed.png"
-    },
-    {
-        "merged": "/Users/huangxueqin/Documents/workspace/Android/rookieweibo/weiboSDK/build/intermediates/res/merged/release/drawable-xxhdpi-v4/ic_com_sina_weibo_sdk_login_with_account_text_normal.png",
-        "source": "/Users/huangxueqin/Documents/workspace/Android/rookieweibo/weiboSDK/src/main/res/drawable-xxhdpi/ic_com_sina_weibo_sdk_login_with_account_text_normal.png"
     }
 ]

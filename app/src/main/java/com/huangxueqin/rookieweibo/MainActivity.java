@@ -10,7 +10,7 @@ import android.os.Bundle;
 import com.huangxueqin.rookieweibo.auth.AccessTokenKeeper;
 import com.huangxueqin.rookieweibo.auth.UserKeeper;
 import com.huangxueqin.rookieweibo.interfaces.IFragmentCallback;
-import com.huangxueqin.rookieweibo.widget.SlideTabLayout;
+import com.huangxueqin.rookieweibo.ui.widget.SlideTabLayout;
 import com.huangxueqin.rookieweibo.ui.status.WeiboFlowFragment;
 import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 import com.sina.weibo.sdk.openapi.models.User;

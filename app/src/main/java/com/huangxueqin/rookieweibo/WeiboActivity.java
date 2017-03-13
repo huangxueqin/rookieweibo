@@ -17,9 +17,9 @@ import com.huangxueqin.rookieweibo.ui.comments.CommentFragment;
 import com.huangxueqin.rookieweibo.cons.Cons;
 import com.huangxueqin.rookieweibo.cons.StatusType;
 import com.huangxueqin.rookieweibo.common.utils.StatusUtils;
-import com.huangxueqin.rookieweibo.widget.StatusTextView;
-import com.huangxueqin.rookieweibo.widget.WeiboImageGrid;
-import com.huangxueqin.rookieweibo.widget.SlideTabLayout;
+import com.huangxueqin.rookieweibo.ui.widget.StatusTextView;
+import com.huangxueqin.rookieweibo.ui.widget.WeiboImageGrid;
+import com.huangxueqin.rookieweibo.ui.widget.SlideTabLayout;
 import com.sina.weibo.sdk.openapi.models.Status;
 
 import butterknife.BindView;

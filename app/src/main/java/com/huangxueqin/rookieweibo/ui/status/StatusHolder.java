@@ -9,14 +9,13 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.huangxueqin.rookieweibo.R;
-import com.huangxueqin.rookieweibo.cons.Cons;
 import com.huangxueqin.rookieweibo.cons.StatusAction;
 import com.huangxueqin.rookieweibo.cons.StatusType;
 import com.huangxueqin.rookieweibo.common.utils.StatusUtils;
 import com.huangxueqin.rookieweibo.interfaces.StatusLinkHandler;
 import com.huangxueqin.rookieweibo.interfaces.StatusListener;
-import com.huangxueqin.rookieweibo.widget.StatusTextView;
-import com.huangxueqin.rookieweibo.widget.WeiboImageGrid;
+import com.huangxueqin.rookieweibo.ui.widget.StatusTextView;
+import com.huangxueqin.rookieweibo.ui.widget.WeiboImageGrid;
 import com.sina.weibo.sdk.openapi.models.Status;
 
 import butterknife.BindView;

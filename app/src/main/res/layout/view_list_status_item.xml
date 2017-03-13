@@ -15,7 +15,7 @@
             android:id="@+id/weibo_card_header"/>
 
         <!-- weibo text -->
-        <com.huangxueqin.rookieweibo.widget.StatusTextView
+        <com.huangxueqin.rookieweibo.ui.widget.StatusTextView
             android:id="@+id/status_content_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

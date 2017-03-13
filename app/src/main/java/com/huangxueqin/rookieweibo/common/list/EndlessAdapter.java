@@ -80,9 +80,9 @@ public abstract class EndlessAdapter<VH extends RecyclerView.ViewHolder,
             completeView = itemView.findViewById(R.id.no_more_prompt);
         }
 
-        public static FooterHolder createInstance(Context context) {
+        public static FooterHolder createInstance(Context context, ViewGroup parent) {
             LayoutInflater inflater = LayoutInflater.from(context);
-            return new FooterHolder(inflater.inflate(R.layout.view_default_list_footer, null, false));
+            return new FooterHolder(inflater.inflate(R.layout.view_default_list_footer, parent, false));
         }
 
         public void bind(boolean complete) {

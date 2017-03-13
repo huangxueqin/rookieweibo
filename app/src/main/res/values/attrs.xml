@@ -6,25 +6,25 @@
     
     
     <declare-styleable name="SlideTabLayout">
-        <attr name="tabGravity">
+        <attr name="tab_gravity">
             <enum name="left" value="1" />
             <enum name="right" value="2" />
             <enum name="center" value="3" />
         </attr>
 
-        <attr name="tabMode">
+        <attr name="tab_mode">
             <enum name="fit_width" value="1" />
             <enum name="fit_screen" value="2" />
             <enum name="fix_width" value="3" />
         </attr>
 
-        <attr name="tabStyle">
+        <attr name="tab_style">
             <enum name="plain_text" value="1" />
             <enum name="plain_icon" value="2" />
             <enum name="icon_text" value="3" />
             <enum name="custom" value="4" />
         </attr>
 
-        <attr name="tabWidth" format="dimension" />
+        <attr name="tab_width" format="dimension" />
     </declare-styleable>
 </resources>

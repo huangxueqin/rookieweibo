@@ -3,11 +3,12 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/white"
     android:padding="15dp">
 
     <include layout="@layout/view_user_info" />
 
-    <com.huangxueqin.rookieweibo.widget.StatusTextView
+    <com.huangxueqin.rookieweibo.ui.widget.StatusTextView
         android:id="@+id/comment_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />

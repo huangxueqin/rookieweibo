@@ -12,6 +12,7 @@ import com.huangxueqin.rookieweibo.BaseFragment;
 import com.huangxueqin.rookieweibo.R;
 import com.huangxueqin.rookieweibo.auth.AccessTokenKeeper;
 import com.huangxueqin.rookieweibo.auth.AuthConstants;
+import com.huangxueqin.rookieweibo.common.list.LinearLineDecoration;
 import com.huangxueqin.rookieweibo.ui.comments.CommentListAdapter;
 import com.sina.weibo.sdk.exception.WeiboException;
 import com.sina.weibo.sdk.net.RequestListener;
@@ -46,7 +47,9 @@ public class CommentFragment extends BaseFragment {
         mCommentListView = (RecyclerView) view.findViewById(R.id.comment_list_view);
         mCommentListView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
         mCommentListAdapter = new CommentListAdapter(getContext());
+        mCommentListView.addItemDecoration(new LinearLineDecoration(getResources().getColor(R.color.comment_list_line_sep)));
         mCommentListView.setAdapter(mCommentListAdapter);
+        mCommentListView.setNestedScrollingEnabled(true);
         return view;
     }
 
@@ -59,6 +62,9 @@ public class CommentFragment extends BaseFragment {
                 CommentList commentList = CommentList.parse(s);
                 if (commentList != null && commentList.commentList != null) {
                     mCommentListAdapter.appendComment(commentList.commentList);
+                }
+                if (commentList.commentList == null) {
+                    mCommentListAdapter.setDataComplete(true);
                 }
             }
 

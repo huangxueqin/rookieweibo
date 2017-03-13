@@ -22,8 +22,8 @@ import com.huangxueqin.rookieweibo.cons.Cons;
 import com.huangxueqin.rookieweibo.cons.StatusAction;
 import com.huangxueqin.rookieweibo.interfaces.StatusLinkHandler;
 import com.huangxueqin.rookieweibo.interfaces.StatusListener;
-import com.huangxueqin.rookieweibo.common.list.LinearLayoutPaddingDecoration;
-import com.huangxueqin.rookieweibo.widget.StatusTextView;
+import com.huangxueqin.rookieweibo.common.list.LinearPaddingDecoration;
+import com.huangxueqin.rookieweibo.ui.widget.StatusTextView;
 import com.sina.weibo.sdk.exception.WeiboException;
 import com.sina.weibo.sdk.openapi.StatusesAPI;
 import com.sina.weibo.sdk.openapi.models.Status;
@@ -70,7 +70,7 @@ public class WeiboFlowFragment extends BaseFragment implements SwipeRefreshLayou
         final int paddingLeft = getResources().getDimensionPixelSize(R.dimen.weibo_flow_list_padding_left);
         final int paddingTop = getResources().getDimensionPixelSize(R.dimen.weibo_flow_list_padding_top);
         mWeiboFlowList.setLayoutManager(new LinearLayoutManager(getContext()));
-        mWeiboFlowList.addItemDecoration(new LinearLayoutPaddingDecoration(paddingLeft, paddingTop, paddingBetweenItem));
+        mWeiboFlowList.addItemDecoration(new LinearPaddingDecoration(paddingLeft, paddingTop, paddingBetweenItem));
         mWeiboFlowList.setAdapter(mFlowAdapter);
         mWeiboFlowList.addOnScrollListener(mLoadingListener);
 
