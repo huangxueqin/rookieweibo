@@ -1,10 +1,12 @@
 package com.huangxueqin.rookieweibo;
 
 import android.os.Bundle;
+import android.provider.SyncStateContract;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
@@ -13,13 +15,21 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
+import com.huangxueqin.rookieweibo.auth.AccessTokenKeeper;
+import com.huangxueqin.rookieweibo.auth.AuthConstants;
+import com.huangxueqin.rookieweibo.common.list.LinearLineDecoration;
 import com.huangxueqin.rookieweibo.ui.comments.CommentFragment;
 import com.huangxueqin.rookieweibo.cons.Cons;
 import com.huangxueqin.rookieweibo.cons.StatusType;
 import com.huangxueqin.rookieweibo.common.utils.StatusUtils;
+import com.huangxueqin.rookieweibo.ui.comments.CommentListAdapter;
 import com.huangxueqin.rookieweibo.ui.widget.StatusTextView;
 import com.huangxueqin.rookieweibo.ui.widget.WeiboImageGrid;
 import com.huangxueqin.rookieweibo.ui.widget.SlideTabLayout;
+import com.sina.weibo.sdk.exception.WeiboException;
+import com.sina.weibo.sdk.net.RequestListener;
+import com.sina.weibo.sdk.openapi.CommentsAPI;
+import com.sina.weibo.sdk.openapi.models.CommentList;
 import com.sina.weibo.sdk.openapi.models.Status;
 
 import butterknife.BindView;
@@ -52,13 +62,21 @@ public class WeiboActivity extends BaseActivity {
     @Nullable @BindView(R.id.rt_content_text)
     StatusTextView mDecoRtStatusText;
 
+    @Nullable
     @BindView(R.id.slide_tabs)
     SlideTabLayout mSlideTabs;
 
+    @Nullable
     @BindView(R.id.view_pager)
     ViewPager mViewPager;
 
+    @Nullable
+    @BindView(R.id.comment_list)
+    RecyclerView mCommentList;
+
     private Status mStatus;
+    private CommentsAPI mCommentAPI;
+    private CommentListAdapter mAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -67,6 +85,7 @@ public class WeiboActivity extends BaseActivity {
 
         String statusStr = getIntent().getStringExtra(Cons.IntentKey.STATUS);
         mStatus = new Gson().fromJson(statusStr, Status.class);
+
 
         final int statusType = StatusUtils.getStatusType(mStatus);
         int viewStubId = -1;
@@ -84,6 +103,35 @@ public class WeiboActivity extends BaseActivity {
         ButterKnife.bind(this);
 
         setupViews();
+
+        mAdapter = new CommentListAdapter(this);
+        mCommentList.addItemDecoration(new LinearLineDecoration(getResources().getColor(R.color.comment_list_line_sep)));
+        mCommentList.setAdapter(mAdapter);
+
+        mCommentAPI = new CommentsAPI(this, AuthConstants.APP_KEY, AccessTokenKeeper.readAccessToken(this));
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mCommentAPI.show(Long.parseLong(mStatus.id), 0, 0, 20, 1, 0, new RequestListener() {
+                    @Override
+                    public void onComplete(String s) {
+                        CommentList commentList = CommentList.parse(s);
+                        if (commentList != null && commentList.commentList != null) {
+                            mAdapter.appendComment(commentList.commentList);
+                        }
+                        if (commentList.commentList == null) {
+                            mAdapter.setDataComplete(true);
+                        }
+                    }
+
+                    @Override
+                    public void onWeiboException(WeiboException e) {
+
+                    }
+                });
+            }
+        }).start();
+
     }
 
     private void setupViews() {

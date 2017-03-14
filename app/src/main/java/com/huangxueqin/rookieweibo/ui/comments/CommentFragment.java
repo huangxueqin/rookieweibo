@@ -49,7 +49,6 @@ public class CommentFragment extends BaseFragment {
         mCommentListAdapter = new CommentListAdapter(getContext());
         mCommentListView.addItemDecoration(new LinearLineDecoration(getResources().getColor(R.color.comment_list_line_sep)));
         mCommentListView.setAdapter(mCommentListAdapter);
-        mCommentListView.setNestedScrollingEnabled(true);
         return view;
     }
 

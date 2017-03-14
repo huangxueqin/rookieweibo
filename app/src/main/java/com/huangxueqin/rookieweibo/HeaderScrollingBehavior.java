@@ -3,105 +3,141 @@ package com.huangxueqin.rookieweibo;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.view.NestedScrollingChild;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.ViewPager;
+import android.support.v4.widget.NestedScrollView;
+import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.Scroller;
 
 /**
  * Created by huangxueqin on 2017/3/13.
  */
 
-public class HeaderScrollingBehavior extends CoordinatorLayout.Behavior<LinearLayout> {
+public class HeaderScrollingBehavior extends CoordinatorLayout.Behavior<RecyclerView> {
 
-    private boolean isHeadHide = false;
-    private boolean isAnimating = false;
-    private final int SCROOL_VALUE = 50;
-    private int childHeight;
-    private final int animationDuration = 500;
+    View headerView;
+    int headerBottom;
 
-    private View dependency;
+    Scroller scroller;
+
+    public HeaderScrollingBehavior(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        scroller = new Scroller(context);
+    }
 
     @Override
-    public boolean layoutDependsOn(CoordinatorLayout parent, LinearLayout child, View dependency) {
+    public boolean layoutDependsOn(CoordinatorLayout parent, RecyclerView child, View dependency) {
         if (dependency.getId() == R.id.weibo_content) {
-            this.dependency = dependency;
+            this.headerView = dependency;
+            return true;
+        }
+        return super.layoutDependsOn(parent, child, dependency);
+    }
+
+    @Override
+    public boolean onLayoutChild(CoordinatorLayout parent, RecyclerView child, int layoutDirection) {
+        headerBottom = headerView.getBottom();
+        child.layout(0, headerBottom, parent.getMeasuredWidth(), parent.getMeasuredHeight()+headerBottom);
+        return true;
+    }
+
+    @Override
+    public boolean onDependentViewChanged(CoordinatorLayout parent, RecyclerView child, View dependency) {
+        Log.d("TAG", "onDependentViewChanged...");
+        child.setTranslationY(headerView.getTranslationY());
+        return true;
+    }
+
+    @Override
+    public boolean onStartNestedScroll(CoordinatorLayout coordinatorLayout, RecyclerView child, View directTargetChild, View target, int nestedScrollAxes) {
+        Log.d("TAG", "onStartNestedScroll");
+        Log.d("TAG", "directTargetChild = " + directTargetChild.toString());
+        Log.d("TAG", "target = " + target.toString());
+        Log.d("TAG", "nestedScrollAxes & VERTICAL = " + (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) + ", " +
+                "nestedScrollAxes & Horizontal = " + (nestedScrollAxes & ViewCompat.SCROLL_AXIS_HORIZONTAL));
+        if (target instanceof RecyclerView && (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0) {
             return true;
         }
         return false;
     }
 
-    public HeaderScrollingBehavior(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-
-
     @Override
-    public boolean onLayoutChild(CoordinatorLayout parent, LinearLayout child, int layoutDirection) {
-        child.layout(0, dependency.getMeasuredHeight(), parent.getMeasuredWidth(), parent.getMeasuredHeight());
-        return true;
+    public void onNestedScrollAccepted(CoordinatorLayout coordinatorLayout, RecyclerView child, View directTargetChild, View target, int nestedScrollAxes) {
+        Log.d("TAG", "onNestedScrollAccepted");
+        if (!scroller.isFinished()) {
+            scroller.abortAnimation();
+        }
     }
 
     @Override
-    public boolean onStartNestedScroll(CoordinatorLayout coordinatorLayout, LinearLayout child, View directTargetChild, View target, int nestedScrollAxes) {
-        if (target.getId() == R.id.scroll_body) {
-            if (childHeight == 0) {
-                childHeight = child.getHeight();
-            }
-            return true;
+    public void onNestedPreScroll(CoordinatorLayout coordinatorLayout, RecyclerView child, View target, int dx, int dy, int[] consumed) {
+        Log.d("TAG", "dy = " + dy + ", consumed[0] = " + consumed[0] + ", consumed[1] = " + consumed[1]);
+        if (dy < 0) return;
+        float minTranslationY = -headerBottom;
+        float newTranslationY = headerView.getTranslationY() - dy;
+        if (newTranslationY <= minTranslationY) {
+            consumed[1] = (int) (dy-(minTranslationY-newTranslationY));
+            newTranslationY = minTranslationY;
         } else {
-            return false;
+            consumed[1] = dy;
         }
+        headerView.setTranslationY(newTranslationY);
     }
 
     @Override
-    public void onNestedPreScroll(CoordinatorLayout coordinatorLayout, LinearLayout child, View target, int dx, int dy, int[] consumed) {
-        super.onNestedPreScroll(coordinatorLayout, child, target, dx, dy, consumed);
-        if (isAnimating) {
-            return;
-        }
-        if (dy > SCROOL_VALUE && !isHeadHide) {
-            hide(child, target);
-        } else if (dy < -SCROOL_VALUE && isHeadHide) {
-            show(child, target);
-        }
+    public void onNestedScroll(CoordinatorLayout coordinatorLayout, RecyclerView child, View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
+        Log.d("TAG", "onNestedScroll");
+        if (dyUnconsumed > 0) return;
+        final float newTranslationY = headerView.getTranslationY() - dyUnconsumed;
+        headerView.setTranslationY(Math.min(0, newTranslationY));
     }
 
-    public void hide(final View child, final View target) {
-        isHeadHide = true;
-        ValueAnimator valueAnimator = new ValueAnimator();
-        valueAnimator.setIntValues(0, childHeight);
-        valueAnimator.setDuration(animationDuration);
-        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+    @Override
+    public void onStopNestedScroll(CoordinatorLayout coordinatorLayout, RecyclerView child, View target) {
+        Log.d("TAG", "onStopNestedScroll");
+        Log.d("TAG", "target is " + target.toString());
+        onUserStopDrag(child, 800);
+    }
+
+    @Override
+    public boolean onNestedPreFling(CoordinatorLayout coordinatorLayout, RecyclerView child, View target, float velocityX, float velocityY) {
+        Log.d("TAG", "onNestedPreFling");
+        return onUserStopDrag(child, velocityY);
+    }
+
+    private boolean onUserStopDrag(final View view, float velocity) {
+        final float currentTranslationY = headerView.getTranslationY();
+        final float minTranslationY = -headerBottom;
+        final float targetTranslationY;
+        if (velocity <= 800) {
+            targetTranslationY = (currentTranslationY < minTranslationY/2) ? minTranslationY : 0;
+            velocity = 800;
+        } else {
+            targetTranslationY = (velocity > 0) ? minTranslationY : 0;
+        }
+
+        scroller.startScroll(0, (int) (currentTranslationY), 0, (int) (targetTranslationY-currentTranslationY), (int) (100000/Math.abs(velocity)));
+        view.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                if (child.getBottom() > 0) {
-                    int value = (int) animation.getAnimatedValue();
-                    isAnimating = value != childHeight;
-                    child.layout(child.getLeft(), -value, child.getRight(), -value + childHeight);
-                    target.layout(target.getLeft(), -value + childHeight, target.getRight(), target.getBottom());
+            public boolean onPreDraw() {
+                if (scroller.computeScrollOffset()) {
+                    headerView.setTranslationY(scroller.getCurrY());
+                    view.postInvalidate();
+                    return true;
+                } else {
+                    view.getViewTreeObserver().removeOnPreDrawListener(this);
+                    return false;
                 }
             }
         });
-        valueAnimator.start();
-    }
-
-    public void show(final View child, final View target) {
-        isHeadHide = false;
-        ValueAnimator valueAnimator = new ValueAnimator();
-        valueAnimator.setIntValues(0, childHeight);
-        valueAnimator.setDuration(animationDuration);
-        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                if (child.getBottom() < childHeight) {
-                    int value = (int) animation.getAnimatedValue();
-                    isAnimating = value != childHeight;
-                    child.layout(child.getLeft(), value - childHeight, child.getRight(), value);
-                    target.layout(target.getLeft(), value, target.getRight(), target.getBottom());
-                }
-            }
-        });
-        valueAnimator.start();
+        view.invalidate();
+        return true;
     }
 }

@@ -4,6 +4,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/grey0"
     android:orientation="vertical">
 
@@ -78,29 +79,47 @@
 
         </android.support.v7.widget.CardView>
 
-        <LinearLayout
-            android:id="@+id/scroll_body"
-            android:orientation="vertical"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/comment_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_behavior="@string/header_scrolling_behavior">
-            <com.huangxueqin.rookieweibo.ui.widget.SlideTabLayout
-                android:id="@+id/slide_tabs"
-                android:layout_width="match_parent"
-                android:layout_height="44dp"
-                android:background="@color/white"
-                android:elevation="0.5dp"
-                app:tab_mode="fit_screen"
-                app:tab_style="icon_text" />
+            app:layout_behavior="@string/header_scrolling_behavior"
+            app:layoutManager="LinearLayoutManager"/>
+
+    </android.support.design.widget.CoordinatorLayout>
+
+    <LinearLayout
+        android:visibility="gone"
+        android:id="@+id/scroll_body"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_behavior="@string/header_scrolling_behavior">
+
+        <com.huangxueqin.rookieweibo.ui.widget.SlideTabLayout
+            android:id="@+id/slide_tabs"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:background="@color/white"
+            android:elevation="0.5dp"
+            android:visibility="gone"
+            app:tab_mode="fit_screen"
+            app:tab_style="icon_text" />
+
+        <android.support.v4.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:visibility="gone">
 
             <android.support.v4.view.ViewPager
                 android:id="@+id/view_pager"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-        </LinearLayout>
+                android:layout_height="match_parent" />
+        </android.support.v4.widget.NestedScrollView>
 
+    </LinearLayout>
 
-    </android.support.design.widget.CoordinatorLayout>
 
 </LinearLayout>
 
