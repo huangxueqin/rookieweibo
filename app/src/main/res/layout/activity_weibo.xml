@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/grey0"
     android:orientation="vertical">
 
@@ -24,103 +22,85 @@
             android:layout_weight="1"
             android:textColor="@color/grey2"
             android:textSize="@dimen/text1" />
+
     </LinearLayout>
 
-    <android.support.design.widget.CoordinatorLayout
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fitsSystemWindows="false">
 
-        <android.support.v7.widget.CardView
-            android:id="@+id/weibo_content"
-            style="@style/WeiboFlowCard">
+        <LinearLayout
+            android:id="@+id/scroll_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_behavior="@string/header_float_behavior">
 
-            <LinearLayout
+            <android.support.v7.widget.CardView
+                android:id="@+id/weibo_content"
+                style="@style/WeiboFlowCard">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/weibo_flow_list_card_padding">
+
+                    <!-- header -->
+                    <include layout="@layout/view_user_info_without_opt_menu" />
+
+                    <!-- weibo text -->
+                    <com.huangxueqin.rookieweibo.ui.widget.StatusTextView
+                        android:id="@+id/status_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
+                        android:layout_marginTop="5dp"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/weibo_flow_list_status_text" />
+
+                    <!-- decoration image grid -->
+                    <ViewStub
+                        android:id="@+id/stub_status_content_image"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout="@layout/view_status_content_image" />
+
+                    <!-- decoration plain text retweet -->
+                    <ViewStub
+                        android:id="@+id/stub_status_conent_simple_retweet"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout="@layout/view_status_content_simple_retweet" />
+
+                    <!-- decoration retweet with image -->
+                    <ViewStub
+                        android:id="@+id/stub_status_content_image_retweet"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout="@layout/view_status_content_image_retweet" />
+                </LinearLayout>
+
+            </android.support.v7.widget.CardView>
+
+            <com.huangxueqin.rookieweibo.ui.widget.SlideTabLayout
+                android:id="@+id/slide_tabs"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="@dimen/weibo_flow_list_card_padding">
+                android:layout_height="@dimen/toolbar_height"
+                android:background="@color/white"
+                android:elevation="0.5dp"
+                app:tab_mode="fit_screen"
+                app:tab_style="icon_text" />
 
-                <!-- header -->
-                <include layout="@layout/view_user_info_without_opt_menu" />
+        </LinearLayout>
 
-                <!-- weibo text -->
-                <com.huangxueqin.rookieweibo.ui.widget.StatusTextView
-                    android:id="@+id/status_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
-                    android:layout_marginTop="5dp"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/weibo_flow_list_status_text" />
-
-                <!-- decoration image grid -->
-                <ViewStub
-                    android:id="@+id/stub_status_content_image"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout="@layout/view_status_content_image" />
-
-                <!-- decoration plain text retweet -->
-                <ViewStub
-                    android:id="@+id/stub_status_conent_simple_retweet"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout="@layout/view_status_content_simple_retweet" />
-
-                <!-- decoration retweet with image -->
-                <ViewStub
-                    android:id="@+id/stub_status_content_image_retweet"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout="@layout/view_status_content_image_retweet" />
-            </LinearLayout>
-
-        </android.support.v7.widget.CardView>
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/comment_list"
+        <android.support.v4.view.ViewPager
+            android:id="@+id/view_pager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_behavior="@string/header_scrolling_behavior"
-            app:layoutManager="LinearLayoutManager"/>
+            app:layout_behavior="@string/header_scrolling_behavior" />
 
     </android.support.design.widget.CoordinatorLayout>
 
-    <LinearLayout
-        android:visibility="gone"
-        android:id="@+id/scroll_body"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        app:layout_behavior="@string/header_scrolling_behavior">
-
-        <com.huangxueqin.rookieweibo.ui.widget.SlideTabLayout
-            android:id="@+id/slide_tabs"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:background="@color/white"
-            android:elevation="0.5dp"
-            android:visibility="gone"
-            app:tab_mode="fit_screen"
-            app:tab_style="icon_text" />
-
-        <android.support.v4.widget.NestedScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fillViewport="true"
-            android:visibility="gone">
-
-            <android.support.v4.view.ViewPager
-                android:id="@+id/view_pager"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </android.support.v4.widget.NestedScrollView>
-
-    </LinearLayout>
-
-
 </LinearLayout>
-
-

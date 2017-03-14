@@ -5,7 +5,7 @@ import android.content.Intent;
 
 import com.google.gson.Gson;
 import com.huangxueqin.rookieweibo.GalleryActivity;
-import com.huangxueqin.rookieweibo.WeiboActivity;
+import com.huangxueqin.rookieweibo.weibodetail.WeiboActivity;
 import com.huangxueqin.rookieweibo.cons.Cons;
 import com.sina.weibo.sdk.openapi.models.Status;
 import com.sina.weibo.sdk.openapi.models.User;

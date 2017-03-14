@@ -4,5 +4,6 @@
 
     <string name="no_more_content">没有更多了</string>
 
-    <string name="header_scrolling_behavior">com.huangxueqin.rookieweibo.HeaderScrollingBehavior</string>
+    <string name="header_scrolling_behavior">com.huangxueqin.rookieweibo.weibodetail.HeaderScrollingBehavior</string>
+    <string name="header_float_behavior">com.huangxueqin.rookieweibo.weibodetail.HeaderFloatBehavior</string>
 </resources>

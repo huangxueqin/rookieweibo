@@ -3,8 +3,9 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white"
-    android:padding="15dp">
+    android:background="?attr/selectableItemBackground"
+    android:padding="15dp"
+    android:clickable="true">
 
     <include layout="@layout/view_user_info" />
 

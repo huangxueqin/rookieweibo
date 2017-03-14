@@ -1,4 +1,4 @@
-package com.huangxueqin.rookieweibo;
+package com.huangxueqin.rookieweibo.weibodetail;
 
 import android.os.Bundle;
 import android.provider.SyncStateContract;
@@ -15,6 +15,9 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
+import com.huangxueqin.rookieweibo.BaseActivity;
+import com.huangxueqin.rookieweibo.BlankFragment;
+import com.huangxueqin.rookieweibo.R;
 import com.huangxueqin.rookieweibo.auth.AccessTokenKeeper;
 import com.huangxueqin.rookieweibo.auth.AuthConstants;
 import com.huangxueqin.rookieweibo.common.list.LinearLineDecoration;
@@ -70,9 +73,9 @@ public class WeiboActivity extends BaseActivity {
     @BindView(R.id.view_pager)
     ViewPager mViewPager;
 
-    @Nullable
-    @BindView(R.id.comment_list)
-    RecyclerView mCommentList;
+//    @Nullable
+//    @BindView(R.id.comment_list)
+//    RecyclerView mCommentList;
 
     private Status mStatus;
     private CommentsAPI mCommentAPI;
@@ -104,33 +107,33 @@ public class WeiboActivity extends BaseActivity {
 
         setupViews();
 
-        mAdapter = new CommentListAdapter(this);
-        mCommentList.addItemDecoration(new LinearLineDecoration(getResources().getColor(R.color.comment_list_line_sep)));
-        mCommentList.setAdapter(mAdapter);
-
-        mCommentAPI = new CommentsAPI(this, AuthConstants.APP_KEY, AccessTokenKeeper.readAccessToken(this));
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                mCommentAPI.show(Long.parseLong(mStatus.id), 0, 0, 20, 1, 0, new RequestListener() {
-                    @Override
-                    public void onComplete(String s) {
-                        CommentList commentList = CommentList.parse(s);
-                        if (commentList != null && commentList.commentList != null) {
-                            mAdapter.appendComment(commentList.commentList);
-                        }
-                        if (commentList.commentList == null) {
-                            mAdapter.setDataComplete(true);
-                        }
-                    }
-
-                    @Override
-                    public void onWeiboException(WeiboException e) {
-
-                    }
-                });
-            }
-        }).start();
+//        mAdapter = new CommentListAdapter(this);
+//        mCommentList.addItemDecoration(new LinearLineDecoration(getResources().getColor(R.color.comment_list_line_sep)));
+//        mCommentList.setAdapter(mAdapter);
+//
+//        mCommentAPI = new CommentsAPI(this, AuthConstants.APP_KEY, AccessTokenKeeper.readAccessToken(this));
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                mCommentAPI.show(Long.parseLong(mStatus.id), 0, 0, 20, 1, 0, new RequestListener() {
+//                    @Override
+//                    public void onComplete(String s) {
+//                        CommentList commentList = CommentList.parse(s);
+//                        if (commentList != null && commentList.commentList != null) {
+//                            mAdapter.appendComment(commentList.commentList);
+//                        }
+//                        if (commentList.commentList == null) {
+//                            mAdapter.setDataComplete(true);
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onWeiboException(WeiboException e) {
+//
+//                    }
+//                });
+//            }
+//        }).start();
 
     }
 
