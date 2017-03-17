@@ -31,7 +31,7 @@
 
         <activity android:name=".GalleryActivity" />
 
-        <activity android:name=".weibodetail.WeiboActivity" />
+        <activity android:name=".WeiboActivity" />
 
         <activity android:name="com.sina.weibo.sdk.component.WeiboSdkBrowser"
             android:configChanges="keyboardHidden|orientation"

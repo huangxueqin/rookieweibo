@@ -1,4 +1,4 @@
-package com.huangxueqin.rookieweibo.weibodetail;
+package com.huangxueqin.rookieweibo;
 
 import android.os.Bundle;
 import android.provider.SyncStateContract;
@@ -6,11 +6,14 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -44,6 +47,7 @@ import butterknife.ButterKnife;
 
 public class WeiboActivity extends BaseActivity {
 
+    @Nullable
     @BindView(R.id.title)
     TextView mToolbarTitle;
 
@@ -73,13 +77,7 @@ public class WeiboActivity extends BaseActivity {
     @BindView(R.id.view_pager)
     ViewPager mViewPager;
 
-//    @Nullable
-//    @BindView(R.id.comment_list)
-//    RecyclerView mCommentList;
-
     private Status mStatus;
-    private CommentsAPI mCommentAPI;
-    private CommentListAdapter mAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -106,35 +104,6 @@ public class WeiboActivity extends BaseActivity {
         ButterKnife.bind(this);
 
         setupViews();
-
-//        mAdapter = new CommentListAdapter(this);
-//        mCommentList.addItemDecoration(new LinearLineDecoration(getResources().getColor(R.color.comment_list_line_sep)));
-//        mCommentList.setAdapter(mAdapter);
-//
-//        mCommentAPI = new CommentsAPI(this, AuthConstants.APP_KEY, AccessTokenKeeper.readAccessToken(this));
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                mCommentAPI.show(Long.parseLong(mStatus.id), 0, 0, 20, 1, 0, new RequestListener() {
-//                    @Override
-//                    public void onComplete(String s) {
-//                        CommentList commentList = CommentList.parse(s);
-//                        if (commentList != null && commentList.commentList != null) {
-//                            mAdapter.appendComment(commentList.commentList);
-//                        }
-//                        if (commentList.commentList == null) {
-//                            mAdapter.setDataComplete(true);
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onWeiboException(WeiboException e) {
-//
-//                    }
-//                });
-//            }
-//        }).start();
-
     }
 
     private void setupViews() {

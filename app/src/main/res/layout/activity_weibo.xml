@@ -1,45 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/grey0"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <LinearLayout
-        android:id="@+id/toolbar"
-        style="@style/Toolbar">
-
-        <include
-            android:id="@+id/close"
-            layout="@layout/view_toolbar_close_button" />
-
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"
-            android:textColor="@color/grey2"
-            android:textSize="@dimen/text1" />
-
-    </LinearLayout>
-
-    <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="false">
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
 
-        <LinearLayout
-            android:id="@+id/scroll_header"
+        <android.support.design.widget.CollapsingToolbarLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_behavior="@string/header_float_behavior">
+            android:layout_height="match_parent"
+            android:minHeight="@dimen/toolbar_height"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <android.support.v7.widget.CardView
                 android:id="@+id/weibo_content"
-                style="@style/WeiboFlowCard">
+                style="@style/WeiboFlowCard"
+                android:layout_marginTop="@dimen/toolbar_height">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -84,23 +63,41 @@
 
             </android.support.v7.widget.CardView>
 
-            <com.huangxueqin.rookieweibo.ui.widget.SlideTabLayout
-                android:id="@+id/slide_tabs"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/toolbar_height"
-                android:background="@color/white"
-                android:elevation="0.5dp"
-                app:tab_mode="fit_screen"
-                app:tab_style="icon_text" />
+            <LinearLayout
+                android:id="@+id/toolbar"
+                style="@style/Toolbar"
+                app:layout_collapseMode="pin">
 
-        </LinearLayout>
+                <include
+                    android:id="@+id/close"
+                    layout="@layout/view_toolbar_close_button" />
 
-        <android.support.v4.view.ViewPager
-            android:id="@+id/view_pager"
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:textColor="@color/grey2"
+                    android:textSize="@dimen/text1" />
+            </LinearLayout>
+
+        </android.support.design.widget.CollapsingToolbarLayout>
+
+        <com.huangxueqin.rookieweibo.ui.widget.SlideTabLayout
+            android:id="@+id/slide_tabs"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior="@string/header_scrolling_behavior" />
+            android:layout_height="@dimen/toolbar_height"
+            android:background="@color/white"
+            android:elevation="0.5dp"
+            app:tab_mode="fit_screen"
+            app:tab_style="icon_text" />
+    </android.support.design.widget.AppBarLayout>
 
-    </android.support.design.widget.CoordinatorLayout>
+    <android.support.v4.view.ViewPager
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-</LinearLayout>
+</android.support.design.widget.CoordinatorLayout>
