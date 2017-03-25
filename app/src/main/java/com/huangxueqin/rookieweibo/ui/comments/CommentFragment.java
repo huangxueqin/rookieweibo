@@ -34,7 +34,6 @@ public class CommentFragment extends BaseFragment {
     public Status mStatus;
     private CommentsAPI mCommentAPI;
 
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,7 +65,6 @@ public class CommentFragment extends BaseFragment {
                 if (commentList.commentList == null) {
                     mCommentListAdapter.setDataComplete(true);
                 }
-                Log.d("TAG", "list height = " + mCommentListView.getMeasuredHeight());
             }
 
             @Override

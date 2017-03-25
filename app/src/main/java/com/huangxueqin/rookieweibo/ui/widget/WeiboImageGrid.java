@@ -48,10 +48,6 @@ public class WeiboImageGrid extends ViewGroup {
         }
     }
 
-    public String[] getImages() {
-        return mImageUrls.clone();
-    }
-
     public void setImage(String[] imageUrls) {
         mImageUrls = imageUrls;
         for (int i = 0; i < MAX_IMAGE_COUNT; i++) {

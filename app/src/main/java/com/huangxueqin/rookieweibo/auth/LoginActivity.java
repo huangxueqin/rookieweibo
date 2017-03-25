@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.huangxueqin.rookieweibo.BaseActivity;
@@ -12,6 +13,7 @@ import com.huangxueqin.rookieweibo.R;
 import com.sina.weibo.sdk.auth.AuthInfo;
 import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 import com.sina.weibo.sdk.auth.WeiboAuthListener;
+import com.sina.weibo.sdk.auth.sso.SsoHandler;
 import com.sina.weibo.sdk.exception.WeiboException;
 import com.sina.weibo.sdk.net.RequestListener;
 import com.sina.weibo.sdk.openapi.UsersAPI;
@@ -28,10 +30,11 @@ import butterknife.ButterKnife;
 public class LoginActivity extends BaseActivity {
 
     @BindView(R.id.close) View mToolbarClose;
-    @BindView(R.id.login_button) LoginButton mLoginButton;
+    @BindView(R.id.login_button) Button mLoginButton;
     @BindView(R.id.dim_view) View mDimVim;
 
     Oauth2AccessToken mAccessToken;
+    SsoHandler mSsoHandler;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -40,8 +43,13 @@ public class LoginActivity extends BaseActivity {
         ButterKnife.bind(this);
 
         mToolbarClose.setOnClickListener(mToolbarActionListener);
-        mLoginButton.setWeiboAuthInfo(new AuthInfo(this, AuthConstants.APP_KEY, AuthConstants.REDIRECT_URL, AuthConstants.SCOPE)
-                , mAuthListener);
+        mSsoHandler = new SsoHandler(this, new AuthInfo(this, AuthConstants.APP_KEY, AuthConstants.REDIRECT_URL, AuthConstants.SCOPE));
+        mLoginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSsoHandler.authorize(mAuthListener);
+            }
+        });
     }
 
     @Override
@@ -104,8 +112,8 @@ public class LoginActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (mLoginButton != null) {
-            mLoginButton.onActivityResult(resultCode, resultCode, data);
+        if (mSsoHandler != null) {
+            mSsoHandler.authorizeCallBack(requestCode, resultCode, data);
         }
     }
 }

@@ -105,19 +105,12 @@ public class ScrollableLayout extends FrameLayout implements NestedScrollingPare
             totalContentHeight += getChildAt(i).getMeasuredHeight();
         }
         mMinOffset = Math.min(0, getMeasuredHeight()-totalContentHeight);
-
-        D("parent height = " + getMeasuredHeight());
-        for (int i = 0; i < getChildCount(); i++) {
-            View child = getChildAt(i);
-            D("child " + i + " height = " + child.getMeasuredHeight());
-        }
-        D("mMinOffset = " + mMinOffset);
     }
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         final int count = getChildCount();
-        int childTop = getPaddingTop();
+        int childTop = getPaddingTop() + mCurrentOffset;
         for (int i = 0; i < count; i++) {
             View v = getChildAt(i);
             FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) v.getLayoutParams();
@@ -182,9 +175,7 @@ public class ScrollableLayout extends FrameLayout implements NestedScrollingPare
                 for (int i = 0; i < count; i++) {
                     getChildAt(i).offsetTopAndBottom(deltaOffset);
                 }
-                mCurrentOffset += deltaOffset;
-
-                D("offset content by: " + deltaOffset);
+                mCurrentOffset = Math.min(0, Math.max(mMinOffset, mCurrentOffset+deltaOffset));
             }
         }
     }
@@ -199,7 +190,7 @@ public class ScrollableLayout extends FrameLayout implements NestedScrollingPare
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         final int action = ev.getActionMasked();
 
-        if (mTouchInNestedChild) {
+        if (action == MotionEvent.ACTION_MOVE && mTouchInNestedChild) {
             return false;
         }
 
@@ -219,6 +210,8 @@ public class ScrollableLayout extends FrameLayout implements NestedScrollingPare
                         mTouchInNestedChild = true;
                         break;
                     }
+                } else {
+                    mTouchInNestedChild = false;
                 }
 
                 mLastMotionY = y;
@@ -352,8 +345,12 @@ public class ScrollableLayout extends FrameLayout implements NestedScrollingPare
     @Override
     public void onNestedScrollAccepted(View child, View target, int axes) {
         D("onNestedScrollAccepted");
-        if (!mScroller.isFinished()) {
-            mScroller.abortAnimation();
+//        if (!mScroller.isFinished()) {
+//            mScroller.abortAnimation();
+//        }
+        if (mFlingRunnable != null) {
+            removeCallbacks(mFlingRunnable);
+            mFlingRunnable = null;
         }
 
         mFlingTracker.unRegisterFromTarget();
@@ -367,7 +364,6 @@ public class ScrollableLayout extends FrameLayout implements NestedScrollingPare
     @Override
     public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
         D("target: " + target.toString() + ", dyConsumed = " + dyConsumed + ", dyUnconsumed = " + dyUnconsumed);
-        D("mCurrentOffset = " + mCurrentOffset);
         if (dyUnconsumed < 0 && canScrollUp()) {
             offsetContent(-dyUnconsumed);
         }
@@ -376,10 +372,8 @@ public class ScrollableLayout extends FrameLayout implements NestedScrollingPare
     @Override
     public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
         D("target: " + target.toString() + ", dy = " + dy);
-        D("mCurrentOffset = " + mCurrentOffset);
         if (dy > 0 && canScrollDown()) {
             final int consumedY = Math.min(dy, mCurrentOffset-mMinOffset);
-            D("consumedY = " + consumedY);
             if (consumedY != 0) {
                 offsetContent(-consumedY);
             }
@@ -389,6 +383,7 @@ public class ScrollableLayout extends FrameLayout implements NestedScrollingPare
 
     @Override
     public boolean onNestedFling(final View target, final float velocityX, float velocityY, boolean consumed) {
+        D("onNestedFling velocityY = " + velocityY + ", consumed = " + consumed + ", canScrollUp = " + canScrollUp());
         if (!consumed || !target.canScrollVertically(-1)) {
             fling(-velocityY);
         } else if (velocityY < 0 && canScrollUp()) {
@@ -399,6 +394,7 @@ public class ScrollableLayout extends FrameLayout implements NestedScrollingPare
 
     @Override
     public boolean onNestedPreFling(View target, float velocityX, float velocityY) {
+        D("onNestedPreFling velocityY = " + velocityY);
         if (canScrollDown() && velocityY > 0) {
             fling(-velocityY);
             return true;
@@ -441,6 +437,7 @@ public class ScrollableLayout extends FrameLayout implements NestedScrollingPare
         public void unRegisterFromTarget() {
             if (mTarget != null) {
                 mTarget.getViewTreeObserver().removeOnScrollChangedListener(this);
+                mTarget = null;
             }
             if (!mTrackerScroller.isFinished()) {
                 mTrackerScroller.abortAnimation();
@@ -453,10 +450,13 @@ public class ScrollableLayout extends FrameLayout implements NestedScrollingPare
 
         @Override
         public void run() {
+            D("start computer mScroller");
             if (mScroller.computeScrollOffset()) {
+                D("fling, currY = " + mScroller.getCurrY());
                 final int currY = mScroller.getCurrY();
                 final int dy = currY-mLastY;
-                if (dy < 0 && canScrollDown() || dy > 0 && canScrollUp()) {
+
+                if (dy <= 0 && canScrollDown() || dy >= 0 && canScrollUp()) {
                     offsetContent(dy);
                     postOnAnimation(this);
                 } else {

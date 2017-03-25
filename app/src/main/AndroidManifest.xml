@@ -25,7 +25,12 @@
 
         <activity android:name=".MainActivity" />
 
-        <activity android:name=".auth.LoginActivity" />
+        <activity android:name=".auth.LoginActivity">
+            <intent-filter>
+                <action android:name="com.sina.weibo.sdk.action.ACTION_SDK_REQ_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <activity android:name=".BrowserActivity" />
 

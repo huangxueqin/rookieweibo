@@ -12,11 +12,12 @@
             style="@style/ToolbarTitle" />
     </LinearLayout>
 
-    <com.sina.weibo.sdk.widget.LoginButton
+    <Button
         android:id="@+id/login_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"/>
+        android:layout_gravity="center"
+        android:text="授权登陆"/>
 
     <FrameLayout
         android:id="@+id/dim_view"
