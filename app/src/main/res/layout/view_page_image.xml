@@ -3,9 +3,9 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <com.bm.library.PhotoView
+
+    <com.huangxueqin.rookieweibo.ui.widget.ImagePreviewer
         android:id="@+id/image"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="matrix"/>
+        android:layout_height="match_parent" />
 </LinearLayout>

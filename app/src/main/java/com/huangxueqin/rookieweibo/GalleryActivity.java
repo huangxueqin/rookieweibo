@@ -8,8 +8,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
-import com.bm.library.PhotoView;
 import com.bumptech.glide.Glide;
 import com.huangxueqin.rookieweibo.cons.Cons;
 import com.lsjwzh.widget.recyclerviewpager.RecyclerViewPager;
@@ -62,10 +62,10 @@ public class GalleryActivity extends BaseActivity {
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
-            PhotoView image;
+            ImageView image;
             public ViewHolder(View itemView) {
                 super(itemView);
-                image = (PhotoView) itemView.findViewById(R.id.image);
+                image = (ImageView) itemView.findViewById(R.id.image);
             }
         }
     }
