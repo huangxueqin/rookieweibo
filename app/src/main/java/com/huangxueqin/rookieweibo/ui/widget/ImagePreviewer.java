@@ -41,6 +41,7 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
     private Matrix mBaseMatrix = new Matrix();
     private Matrix mSuppMatrix = new Matrix();
     private Matrix mDrawMatrix = new Matrix();
+    private Matrix mDisplayMatrix = new Matrix();
 
     private ScaleType savedScaleType;
     private OnClickListener mOnClickListener;
@@ -157,11 +158,11 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
         setImageMatrix(mDrawMatrix);
     }
 
-    private void getDrawableRect(RectF rectF) {
-//        rectF.set(mCurrOffsetX,
-//                mCurrOffsetY,
-//                mCurrOffsetX + mDrawableWidth*mCurrScale,
-//                mCurrOffsetY + mDrawableHeight*mCurrScale);
+    private void getDisplayRect(RectF rectF) {
+        Drawable d = getDrawable();
+        rectF.set(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
+        Matrix matrix = getMatrix();
+        matrix.mapRect(rectF);
     }
 
     private boolean canDragVertically(int directionY) {
@@ -169,7 +170,7 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
             return false;
         }
 
-        getDrawableRect(mTempRectF);
+        getDisplayRect(mTempRectF);
         if (directionY > 0) {
             return mTempRectF.top < 0;
         } else {
@@ -181,7 +182,7 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
         if (!mPreviewEnabled) {
             return false;
         }
-        getDrawableRect(mTempRectF);
+        getDisplayRect(mTempRectF);
         if (directionX > 0) {
             return mTempRectF.left < 0;
         } else {
@@ -190,179 +191,176 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
     }
 
     private void offsetDrawable(float dx, float dy) {
-        final float scaledWidth = mDrawableWidth*mCurrScale;
-        final float scaledHeight = mDrawableHeight*mCurrScale;
-        final float targetOffsetX = mCurrOffsetX+dx;
-        final float targetOffsetY = mCurrOffsetY+dy;
+        getDisplayRect(mTempRectF);
 
-        if (scaledWidth > getWidth()) {
-            mCurrOffsetX = Math.min(0, Math.max(getWidth()-scaledWidth, targetOffsetX));
-        }
+        dx = Math.max(-mTempRectF.left, Math.min(getWidth()-mTempRectF.width(), dx));
+        dy = Math.max(-mTempRectF.top, Math.min(getHeight()-mTempRectF.height(), dy));
 
-        if (scaledHeight > getHeight()) {
-            mCurrOffsetY = Math.min(0, Math.max(getHeight()-scaledHeight, targetOffsetY));
-        }
-
-        resetImageMatrix();
+        mSuppMatrix.postTranslate(dx, dy);
+        updateImageMatrix();
     }
 
-    // drag image
-
-    private boolean handleMoveAction(MotionEvent ev) {
-        final int activePointerId = mActivePointerId;
-        if (activePointerId == -1) {
-            return false;
-        }
-        final int activePointerIndex = ev.findPointerIndex(activePointerId);
-        if (activePointerIndex == -1) {
-            return false;
-        }
-
-        final int x = (int) ev.getX(activePointerIndex);
-        final int y = (int) ev.getY(activePointerIndex);
-
-        int dx = x - mLastMotionX;
-        int dy = y - mLastMotionY;
-
-        Log.d("TAG", "dx = " + dx + ", dy = " + dy + ", touchSlop = " + mTouchSlop);
-
-        if (!mIsBeingDragged && (Math.abs(dy) > mTouchSlop || Math.abs(dx) > mTouchSlop)) {
-            mIsBeingDragged = true;
-            if (Math.abs(dy) > mTouchSlop) {
-                if (dy > 0) {
-                    dy -= mTouchSlop;
-                } else {
-                    dy += mTouchSlop;
-                }
-            }
-
-            if (Math.abs(dx) > mTouchSlop) {
-                if (dx > 0) {
-                    dx -= mTouchSlop;
-                } else {
-                    dx += mTouchSlop;
-                }
-            }
-        }
-
-        boolean canDrag = false;
-
-        if (mIsBeingDragged) {
-            mLastMotionX = x;
-            mLastMotionY = y;
-
-            if (dx > 0 && !canDragHorizontally(1) || dx < 0 && !canDragHorizontally(-1)) {
-                dx = 0;
-            }
-
-            if (dy > 0 && !canDragVertically(1) || dy < 0 && !canDragVertically(-1)) {
-                dy = 0;
-            }
-
-            if (dx != 0 || dy != 0) {
-                canDrag = true;
-                offsetDrawable(dx, dy);
-            } else {
-                getParent().requestDisallowInterceptTouchEvent(false);
-            }
-        }
-
-        return mIsBeingDragged && canDrag;
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        boolean result = super.onTouchEvent(event);
-
-        if (!mPreviewEnabled) {
-            return result;
-        }
-
-        final int action = event.getActionMasked();
-        switch (action) {
-            case MotionEvent.ACTION_DOWN:
-                mLastMotionX = (int) event.getX();
-                mLastMotionY = (int) event.getY();
-                mActivePointerId = event.getPointerId(0);
-                break;
-            case MotionEvent.ACTION_MOVE:
-                getParent().requestDisallowInterceptTouchEvent(true);
-                boolean handled = handleMoveAction(event);
-                if (mIsBeingDragged) {
-                    setPressed(false);
-                }
-                if (handled) {
-                    return true;
-                }
-                break;
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
-                mActivePointerId = -1;
-                mIsBeingDragged = false;
-                break;
-        }
-
-        Log.d("TAG", "result = " + result);
-        return result;
-    }
-
-    // scale image
-
-    private void onDoubleClicked() {
-        if (!mPreviewEnabled) {
-            return;
-        }
-
-        final float targetScale;
-        if (mCurrScale < mBaseScale) {
-            targetScale = mBaseScale;
-        } else if (mCurrScale < mLargerScale) {
-            targetScale = mLargerScale;
-        } else {
-            targetScale = mBaseScale;
-        }
-
-        mCurrScale = targetScale;
-        mCurrOffsetX = (getWidth() - mDrawableWidth*mCurrScale)/2;
-        mCurrOffsetY = (getHeight() - mDrawableHeight*mCurrScale)/2;
-
-        resetImageMatrix();
-    }
-
-    private class DoubleClickListener implements View.OnClickListener {
-        private final static int TIME_OUT = 500;
-        private Handler mHandler;
-        private boolean mClicked = false;
-
-        public DoubleClickListener() {
-            mHandler = new Handler(Looper.getMainLooper());
-        }
-
-        @Override
-        public void onClick(View v) {
-            Log.d("TAG", "onClick");
-            if (!mClicked) {
-                mClicked = true;
-                mHandler.postDelayed(mReset, TIME_OUT);
-                return;
-            }
-            mClicked = false;
-            mHandler.removeCallbacks(mReset);
-            onDoubleClicked();
-        }
-
-        private Runnable mReset = new Runnable() {
-            @Override
-            public void run() {
-                if (mClicked && mOnClickListener != null) {
-                    mOnClickListener.onClick(ImagePreviewer.this);
-                }
-                mClicked = false;
-            }
-        };
-    }
-
+    // Handle Gestures
     private class SimpleGestureDetectorListener extends GestureDetector.SimpleOnGestureListener {
 
     }
+
+
+//    // drag image
+//
+//    private boolean handleMoveAction(MotionEvent ev) {
+//        final int activePointerId = mActivePointerId;
+//        if (activePointerId == -1) {
+//            return false;
+//        }
+//        final int activePointerIndex = ev.findPointerIndex(activePointerId);
+//        if (activePointerIndex == -1) {
+//            return false;
+//        }
+//
+//        final int x = (int) ev.getX(activePointerIndex);
+//        final int y = (int) ev.getY(activePointerIndex);
+//
+//        int dx = x - mLastMotionX;
+//        int dy = y - mLastMotionY;
+//
+//        Log.d("TAG", "dx = " + dx + ", dy = " + dy + ", touchSlop = " + mTouchSlop);
+//
+//        if (!mIsBeingDragged && (Math.abs(dy) > mTouchSlop || Math.abs(dx) > mTouchSlop)) {
+//            mIsBeingDragged = true;
+//            if (Math.abs(dy) > mTouchSlop) {
+//                if (dy > 0) {
+//                    dy -= mTouchSlop;
+//                } else {
+//                    dy += mTouchSlop;
+//                }
+//            }
+//
+//            if (Math.abs(dx) > mTouchSlop) {
+//                if (dx > 0) {
+//                    dx -= mTouchSlop;
+//                } else {
+//                    dx += mTouchSlop;
+//                }
+//            }
+//        }
+//
+//        boolean canDrag = false;
+//
+//        if (mIsBeingDragged) {
+//            mLastMotionX = x;
+//            mLastMotionY = y;
+//
+//            if (dx > 0 && !canDragHorizontally(1) || dx < 0 && !canDragHorizontally(-1)) {
+//                dx = 0;
+//            }
+//
+//            if (dy > 0 && !canDragVertically(1) || dy < 0 && !canDragVertically(-1)) {
+//                dy = 0;
+//            }
+//
+//            if (dx != 0 || dy != 0) {
+//                canDrag = true;
+//                offsetDrawable(dx, dy);
+//            } else {
+//                getParent().requestDisallowInterceptTouchEvent(false);
+//            }
+//        }
+//
+//        return mIsBeingDragged && canDrag;
+//    }
+//
+//    @Override
+//    public boolean onTouchEvent(MotionEvent event) {
+//        boolean result = super.onTouchEvent(event);
+//
+//        if (!mPreviewEnabled) {
+//            return result;
+//        }
+//
+//        final int action = event.getActionMasked();
+//        switch (action) {
+//            case MotionEvent.ACTION_DOWN:
+//                mLastMotionX = (int) event.getX();
+//                mLastMotionY = (int) event.getY();
+//                mActivePointerId = event.getPointerId(0);
+//                break;
+//            case MotionEvent.ACTION_MOVE:
+//                getParent().requestDisallowInterceptTouchEvent(true);
+//                boolean handled = handleMoveAction(event);
+//                if (mIsBeingDragged) {
+//                    setPressed(false);
+//                }
+//                if (handled) {
+//                    return true;
+//                }
+//                break;
+//            case MotionEvent.ACTION_UP:
+//            case MotionEvent.ACTION_CANCEL:
+//                mActivePointerId = -1;
+//                mIsBeingDragged = false;
+//                break;
+//        }
+//
+//        Log.d("TAG", "result = " + result);
+//        return result;
+//    }
+//
+//    // scale image
+//
+//    private void onDoubleClicked() {
+//        if (!mPreviewEnabled) {
+//            return;
+//        }
+//
+//        final float targetScale;
+//        if (mCurrScale < mBaseScale) {
+//            targetScale = mBaseScale;
+//        } else if (mCurrScale < mLargerScale) {
+//            targetScale = mLargerScale;
+//        } else {
+//            targetScale = mBaseScale;
+//        }
+//
+//        mCurrScale = targetScale;
+//        mCurrOffsetX = (getWidth() - mDrawableWidth*mCurrScale)/2;
+//        mCurrOffsetY = (getHeight() - mDrawableHeight*mCurrScale)/2;
+//
+//        resetImageMatrix();
+//    }
+//
+//    private class DoubleClickListener implements View.OnClickListener {
+//        private final static int TIME_OUT = 500;
+//        private Handler mHandler;
+//        private boolean mClicked = false;
+//
+//        public DoubleClickListener() {
+//            mHandler = new Handler(Looper.getMainLooper());
+//        }
+//
+//        @Override
+//        public void onClick(View v) {
+//            Log.d("TAG", "onClick");
+//            if (!mClicked) {
+//                mClicked = true;
+//                mHandler.postDelayed(mReset, TIME_OUT);
+//                return;
+//            }
+//            mClicked = false;
+//            mHandler.removeCallbacks(mReset);
+//            onDoubleClicked();
+//        }
+//
+//        private Runnable mReset = new Runnable() {
+//            @Override
+//            public void run() {
+//                if (mClicked && mOnClickListener != null) {
+//                    mOnClickListener.onClick(ImagePreviewer.this);
+//                }
+//                mClicked = false;
+//            }
+//        };
+//    }
+
+
 }
