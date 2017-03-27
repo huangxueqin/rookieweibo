@@ -9,6 +9,7 @@ import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -32,17 +33,19 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
     private int mDrawableHeight;
 
     private float mBaseScale;
-    private float mLargerScale;
     private float mBaseOffsetX;
     private float mBaseOffsetY;
-    private float mCurrScale;
-    private float mCurrOffsetX;
-    private float mCurrOffsetY;
-    private Matrix mMatrix;
+
+    private float mLargerScale;
+
+    private Matrix mBaseMatrix = new Matrix();
+    private Matrix mSuppMatrix = new Matrix();
+    private Matrix mDrawMatrix = new Matrix();
 
     private ScaleType savedScaleType;
     private OnClickListener mOnClickListener;
-    private DoubleClickListener mDoubleClickListener;
+    private GestureDetector mGestureDetector;
+    private SimpleGestureDetectorListener mGestureListener;
 
     private RectF mTempRectF = new RectF();
 
@@ -59,24 +62,9 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
         savedScaleType = getScaleType();
 
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
-        mDoubleClickListener = new DoubleClickListener();
-    }
-
-    private boolean drawableFineToPreview() {
-        Drawable d = getDrawable();
-        return d != null && d.getIntrinsicWidth() > 0 && d.getIntrinsicHeight() > 0;
-    }
-
-    private void enablePreview() {
-        mPreviewEnabled = true;
-        setScaleType(ScaleType.MATRIX);
-        super.setOnClickListener(mDoubleClickListener);
-    }
-
-    private void disablePreview() {
-        mPreviewEnabled = false;
-        setScaleType(savedScaleType);
-        super.setOnClickListener(mOnClickListener);
+        mGestureListener = new SimpleGestureDetectorListener();
+        mGestureDetector = new GestureDetector(context, mGestureListener);
+        mGestureDetector.setOnDoubleTapListener(mGestureListener);
     }
 
     @Override
@@ -100,7 +88,7 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
             enablePreview();
 
             if (getWidth() > 0 && getHeight() > 0) {
-                updateImageMatrix(getWidth(), getHeight());
+                resetImageMatrix(getWidth(), getHeight());
             }
         } else {
             disablePreview();
@@ -110,8 +98,25 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         if (mPreviewEnabled) {
-            updateImageMatrix(w, h);
+            resetImageMatrix(w, h);
         }
+    }
+
+    private boolean drawableFineToPreview() {
+        Drawable d = getDrawable();
+        return d != null && d.getIntrinsicWidth() > 0 && d.getIntrinsicHeight() > 0;
+    }
+
+    private void enablePreview() {
+        mPreviewEnabled = true;
+        setScaleType(ScaleType.MATRIX);
+        super.setOnClickListener(mDoubleClickListener);
+    }
+
+    private void disablePreview() {
+        mPreviewEnabled = false;
+        setScaleType(savedScaleType);
+        super.setOnClickListener(mOnClickListener);
     }
 
     /**
@@ -119,48 +124,44 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
      * @param w
      * @param h
      */
-    private void updateImageMatrix(int w, int h) {
+    private void resetImageMatrix(int w, int h) {
 
         final float drawableRatio = mDrawableWidth / (float)mDrawableHeight;
         final float viewRatio = w / (float)h;
 
         if (drawableRatio > viewRatio) {
-            mCurrScale = mBaseScale = w / (float)mDrawableWidth;
+            mBaseScale = w / (float)mDrawableWidth;
             mLargerScale = h / (float)mDrawableHeight;
         } else if (drawableRatio < viewRatio) {
-            mCurrScale = mBaseScale = h / (float)mDrawableHeight;
+            mBaseScale = h / (float)mDrawableHeight;
             mLargerScale = w / (float)mDrawableWidth;
         } else {
-            mLargerScale = mCurrScale = mBaseScale = w / (float)mDrawableWidth;
+            mLargerScale = 1.5f * (mBaseScale = w / (float)mDrawableWidth);
         }
 
-        mCurrOffsetX = mBaseOffsetX = (w-mDrawableWidth*mBaseScale) / 2;
-        mCurrOffsetY = mBaseOffsetY = (h-mDrawableHeight*mBaseScale) / 2;
+        mBaseOffsetX = (w-mDrawableWidth*mBaseScale) / 2;
+        mBaseOffsetY = (h-mDrawableHeight*mBaseScale) / 2;
 
-        mMatrix = new Matrix();
-        mMatrix.postScale(mBaseScale, mBaseScale);
-        mMatrix.postTranslate(mBaseOffsetX, mBaseOffsetY);
-        setImageMatrix(mMatrix);
+        mBaseMatrix.reset();
+        mBaseMatrix.postScale(mBaseScale, mBaseScale);
+        mBaseMatrix.postTranslate(mBaseOffsetX, mBaseOffsetY);
+
+        mSuppMatrix.reset();
+
+        updateImageMatrix();
     }
 
     private void updateImageMatrix() {
-        mMatrix.setScale(mCurrScale, mCurrScale);
-        mMatrix.postTranslate(mCurrOffsetX, mCurrOffsetY);
-        setImageMatrix(mMatrix);
+        mDrawMatrix.set(mBaseMatrix);
+        mDrawMatrix.postConcat(mSuppMatrix);
+        setImageMatrix(mDrawMatrix);
     }
 
     private void getDrawableRect(RectF rectF) {
-        rectF.set(mCurrOffsetX,
-                mCurrOffsetY,
-                mCurrOffsetX + mDrawableWidth*mCurrScale,
-                mCurrOffsetY + mDrawableHeight*mCurrScale);
-    }
-
-    private boolean allowDrag() {
-        if (!mPreviewEnabled || mMatrix == null) {
-            return false;
-        }
-        return mDrawableWidth*mCurrScale > getWidth() || mDrawableHeight*mCurrScale > getHeight();
+//        rectF.set(mCurrOffsetX,
+//                mCurrOffsetY,
+//                mCurrOffsetX + mDrawableWidth*mCurrScale,
+//                mCurrOffsetY + mDrawableHeight*mCurrScale);
     }
 
     private boolean canDragVertically(int directionY) {
@@ -202,7 +203,7 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
             mCurrOffsetY = Math.min(0, Math.max(getHeight()-scaledHeight, targetOffsetY));
         }
 
-        updateImageMatrix();
+        resetImageMatrix();
     }
 
     // drag image
@@ -325,7 +326,7 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
         mCurrOffsetX = (getWidth() - mDrawableWidth*mCurrScale)/2;
         mCurrOffsetY = (getHeight() - mDrawableHeight*mCurrScale)/2;
 
-        updateImageMatrix();
+        resetImageMatrix();
     }
 
     private class DoubleClickListener implements View.OnClickListener {
@@ -361,4 +362,7 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
         };
     }
 
+    private class SimpleGestureDetectorListener extends GestureDetector.SimpleOnGestureListener {
+
+    }
 }
