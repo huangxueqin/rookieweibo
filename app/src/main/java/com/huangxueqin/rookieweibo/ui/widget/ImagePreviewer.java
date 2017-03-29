@@ -11,6 +11,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewGroup;
 
 /**
  * Created by huangxueqin on 2017/3/26.
@@ -22,7 +23,8 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
 
     private boolean mPreviewEnabled;
 
-    private boolean mIsBeingDragged;
+    private boolean mIsBeingDraggedX;
+    private boolean mIsBeingDraggedY;
 
     private int mTouchSlop;
     private int mActivePointerId = -1;
@@ -63,7 +65,7 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
 
     public ImagePreviewer(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-
+        setClickable(true);
         savedScaleType = getScaleType();
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
 
@@ -73,6 +75,55 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
         mOnTouchListener = new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                Log.d("TAG", "onTouch event = " + event);
+                final int action = event.getActionMasked();
+                switch (action) {
+                    case MotionEvent.ACTION_DOWN:
+                        mActivePointerId = event.getPointerId(0);
+                        mLastMotionX = (int) event.getX();
+                        mLastMotionY = (int) event.getY();
+                        if (v.getParent() != null) {
+                            v.getParent().requestDisallowInterceptTouchEvent(true);
+                        }
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        final int pointerIndex = event.findPointerIndex(mActivePointerId);
+                        if (pointerIndex == -1) {
+                            break;
+                        }
+                        final int x = (int) event.getX(pointerIndex);
+                        final int y = (int) event.getY(pointerIndex);
+                        final int xDiff = x - mLastMotionX;
+                        final int yDiff = y - mLastMotionY;
+
+                        if (mIsBeingDraggedX && !canDragHorizontally(xDiff)) {
+                            if (!canDragVertically(yDiff) || !mIsBeingDraggedY) {
+                                v.getParent().requestDisallowInterceptTouchEvent(false);
+                            }
+                        }
+
+                        if (Math.abs(xDiff) > mTouchSlop && !mIsBeingDraggedX) {
+                            mIsBeingDraggedX = true;
+                        }
+                        if (Math.abs(yDiff) > mTouchSlop && !mIsBeingDraggedY) {
+                            mIsBeingDraggedY = true;
+                        }
+
+                        if (mIsBeingDraggedX) {
+                            mLastMotionX = x;
+                        }
+                        if (mIsBeingDraggedY) {
+                            mLastMotionY = y;
+                        }
+
+                        break;
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        mIsBeingDraggedX = false;
+                        mIsBeingDraggedY = false;
+                        mActivePointerId = -1;
+                        break;
+                }
                 return mGestureDetector.onTouchEvent(event);
             }
         };
@@ -80,8 +131,8 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
 
     @Override
     public void setOnClickListener(@Nullable OnClickListener l) {
-        if (!isClickable()) {
-            setClickable(true);
+                if (!isClickable()) {
+                    setClickable(true);
         }
         mOnClickListener = l;
         if (!mPreviewEnabled) {
@@ -212,7 +263,7 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
             if (zoomedW <= getWidth()) {
                 targetTx = (getWidth()-zoomedW)/2;
             } else {
-                targetTx += Math.max(0, getWidth()-zoomedW+tAnchorX);
+                targetTx += Math.max(0, getWidth()-zoomedW+targetTx);
             }
         }
 
@@ -223,7 +274,7 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
             if (zoomedH <= getHeight()) {
                 targetTy = (getHeight() - zoomedH) / 2;
             } else {
-                targetTy += Math.max(0, getHeight() - zoomedH + tAnchorY);
+                targetTy += Math.max(0, getHeight()-zoomedH+targetTy);
             }
         }
 
@@ -242,9 +293,9 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
 
         getDisplayRect(mTempRectF);
         if (directionY > 0) {
-            return mTempRectF.top < 0;
+            return Math.round(mTempRectF.top) < 0;
         } else {
-            return mTempRectF.bottom > getHeight();
+            return Math.round(mTempRectF.bottom) > getHeight();
         }
     }
 
@@ -254,9 +305,9 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
         }
         getDisplayRect(mTempRectF);
         if (directionX > 0) {
-            return mTempRectF.left < 0;
+            return Math.round(mTempRectF.left) < 0;
         } else {
-            return mTempRectF.right > getWidth();
+            return Math.round(mTempRectF.right) > getWidth();
         }
     }
 
@@ -273,19 +324,6 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
 
         mSuppMatrix.postTranslate(dx, dy);
         updateImageMatrix();
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        Log.d("TAG", "onTouchEvent " + event);
-        boolean result = super.onTouchEvent(event);
-        switch (event.getActionMasked()) {
-            case MotionEvent.ACTION_DOWN:
-                result = true;
-                break;
-        }
-
-        return result;
     }
 
     // Handle Gestures
