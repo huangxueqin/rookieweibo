@@ -360,7 +360,7 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
                     mActivePointerId = event.getPointerId(0);
                     mLastMotionX = (int) event.getX();
                     mLastMotionY = (int) event.getY();
-                    if (v.getParent() != null && !canDrag()) {
+                    if (v.getParent() != null && canDrag()) {
                         v.getParent().requestDisallowInterceptTouchEvent(true);
                     }
                     break;
