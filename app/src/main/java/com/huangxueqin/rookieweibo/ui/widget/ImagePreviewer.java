@@ -237,6 +237,14 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
         }
     }
 
+    private boolean canDragHorizontally() {
+        if (!mPreviewEnabled) {
+            return false;
+        }
+        getDisplayRect(mTempRectF);
+        return Math.round(mTempRectF.width()) > getWidth();
+    }
+
     private boolean canDragHorizontally(int directionX) {
         if (!mPreviewEnabled) {
             return false;
@@ -247,6 +255,23 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
         } else {
             return Math.round(mTempRectF.right) > getWidth();
         }
+    }
+
+    private boolean canDragVertically() {
+        if (!mPreviewEnabled) {
+            return false;
+        }
+        getDisplayRect(mTempRectF);
+        return Math.round(mTempRectF.height()) > getHeight();
+    }
+
+    private boolean canDrag() {
+        if (!mPreviewEnabled) {
+            return false;
+        }
+        getDisplayRect(mTempRectF);
+        return Math.round(mTempRectF.height()) > getHeight() ||
+                Math.round(mTempRectF.width()) > getWidth();
     }
 
     private void transitDrawable(float dx, float dy) {
@@ -286,7 +311,14 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
         private float decideTargetScale() {
             final Matrix mat = getImageMatrix();
             mat.getValues(mTempValues);
-            final float currScale = mTempValues[Matrix.MSCALE_X];
+
+            float currScale = mTempValues[Matrix.MSCALE_X];
+            if (Math.abs(currScale-mBaseScale) < 0.01) {
+                currScale = mBaseScale;
+            }
+            if (Math.abs(currScale-mMaxScale) < 0.01) {
+                currScale = mMaxScale;
+            }
 
             if (currScale < mBaseScale) {
                 return mBaseScale;
@@ -328,7 +360,7 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
                     mActivePointerId = event.getPointerId(0);
                     mLastMotionX = (int) event.getX();
                     mLastMotionY = (int) event.getY();
-                    if (v.getParent() != null) {
+                    if (v.getParent() != null && !canDrag()) {
                         v.getParent().requestDisallowInterceptTouchEvent(true);
                     }
                     break;
