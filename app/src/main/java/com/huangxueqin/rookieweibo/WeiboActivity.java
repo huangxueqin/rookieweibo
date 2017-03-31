@@ -29,6 +29,7 @@ import com.huangxueqin.rookieweibo.cons.Cons;
 import com.huangxueqin.rookieweibo.cons.StatusType;
 import com.huangxueqin.rookieweibo.common.utils.StatusUtils;
 import com.huangxueqin.rookieweibo.ui.comments.CommentListAdapter;
+import com.huangxueqin.rookieweibo.ui.repost.RepostFragment;
 import com.huangxueqin.rookieweibo.ui.widget.StatusTextView;
 import com.huangxueqin.rookieweibo.ui.widget.WeiboImageGrid;
 import com.huangxueqin.rookieweibo.ui.widget.SlideTabLayout;
@@ -126,13 +127,22 @@ public class WeiboActivity extends BaseActivity {
         }
 
         mSlideTabs.setAdapter(mSlideTabAdapter);
+        mSlideTabs.setTabSelectListener(new SlideTabLayout.TabSelectListener() {
+            @Override
+            public void onTabSelected(int tabNdx) {
+                mViewPager.setCurrentItem(tabNdx);
+            }
+        });
+        mViewPager.addOnPageChangeListener(mSlideTabs);
         mViewPager.setOffscreenPageLimit(3);
         mViewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int position) {
                 if (position == 0) {
-                    CommentFragment fragment = new CommentFragment();
-                    fragment.mStatus = mStatus;
+                    CommentFragment fragment = CommentFragment.newInstance(mStatus.id);
+                    return fragment;
+                } if (position == 1) {
+                    RepostFragment fragment = RepostFragment.newInstance(mStatus.id);
                     return fragment;
                 } else {
                     return new BlankFragment();

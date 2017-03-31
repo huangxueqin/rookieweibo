@@ -19,9 +19,14 @@ import java.util.Locale;
 public class StatusUtils {
     private static final int MAX_CACHE_SIZE = 200;
 
+    private static final String FIELD_MIDDLE_PICS = "middlePics";
+    private static final String FIELD_LARGE_PICS = "largePics";
+    private static final String FIELD_STATUS = "status";
+
     private static class CachedValue {
         String[] middlePics;
         String[] largePics;
+        Status status;
     }
 
     private static final LruCache<String, CachedValue> CACHE = new LruCache<>(MAX_CACHE_SIZE);
@@ -46,7 +51,7 @@ public class StatusUtils {
         CachedValue cv = CACHE.get(id);
         if (cv == null) return null;
         try {
-            Field field = cv.getClass().getField(fieldName);
+            Field field = cv.getClass().getDeclaredField(fieldName);
             field.setAccessible(true);
             field.get(cv);
         } catch (NoSuchFieldException e) {
@@ -64,7 +69,7 @@ public class StatusUtils {
             CACHE.put(id, cv);
         }
         try {
-            Field field = cv.getClass().getField(fieldName);
+            Field field = cv.getClass().getDeclaredField(fieldName);
             field.setAccessible(true);
             field.set(cv, obj);
         } catch (NoSuchFieldException e) {
@@ -74,12 +79,18 @@ public class StatusUtils {
         }
     }
 
+    public static void saveStatus(Status status) {
+        saveToCache(status.id, status, FIELD_STATUS);
+    }
+
+    public static Status queryStatus(String statusId) {
+        return (Status) queryFromCache(statusId, FIELD_STATUS);
+    }
+
     public static String[] getThumbnailPics(Status status) {
         if (status.pic_urls == null) return null;
         return status.pic_urls.toArray(new String[0]);
     }
-
-
 
     public static String[] getMiddlePics(Status status) {
         if (status.pic_urls == null) return null;

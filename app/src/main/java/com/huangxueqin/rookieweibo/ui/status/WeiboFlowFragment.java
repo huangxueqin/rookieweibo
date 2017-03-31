@@ -39,7 +39,6 @@ import butterknife.ButterKnife;
  */
 
 public class WeiboFlowFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener {
-    private static final int DEFAULT_RETRY = 2;
 
     @BindView(R.id.swipe_refresh_layout) SwipeRefreshLayout mSwipeRefreshLayout;
     @BindView(R.id.weibo_flow_list) RecyclerView mWeiboFlowList;

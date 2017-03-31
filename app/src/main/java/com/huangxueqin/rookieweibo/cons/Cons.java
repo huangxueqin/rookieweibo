@@ -10,5 +10,6 @@ public class Cons {
         String IMAGE_LIST = "key-image-list";
         String SELECT_INDEX = "select-index";
         String STATUS = "key-status";
+        String STATUS_ID = "key-status-id";
     }
 }

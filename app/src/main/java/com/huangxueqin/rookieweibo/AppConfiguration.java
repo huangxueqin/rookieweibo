@@ -20,4 +20,8 @@ public class AppConfiguration {
         int COUNT = 20;
         boolean BASE_APP = false;
     }
+
+    public interface Comment {
+        int COUNT = 20;
+    }
 }
