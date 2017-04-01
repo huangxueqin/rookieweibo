@@ -4,12 +4,10 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-import com.huangxueqin.rookieweibo.auth.AccessTokenKeeper;
-import com.huangxueqin.rookieweibo.auth.UserKeeper;
 import com.huangxueqin.rookieweibo.interfaces.IFragmentCallback;
+import com.huangxueqin.rookieweibo.ui.message.MessageFragment;
 import com.huangxueqin.rookieweibo.ui.widget.SlideTabLayout;
 import com.huangxueqin.rookieweibo.ui.status.WeiboFlowFragment;
 import com.sina.weibo.sdk.auth.Oauth2AccessToken;
@@ -18,7 +16,7 @@ import com.sina.weibo.sdk.openapi.models.User;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements
+public class MainActivity extends BaseActivity implements
         ViewPager.OnPageChangeListener,
         SlideTabLayout.TabSelectListener,
         IFragmentCallback {
@@ -27,17 +25,12 @@ public class MainActivity extends AppCompatActivity implements
     @BindView(R.id.view_pager) ViewPager mFragmentPager;
 
     Fragment[] mFragments;
-    User mUser;
-    Oauth2AccessToken mAccessToken;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-
-        mUser = UserKeeper.readUser(this);
-        mAccessToken = AccessTokenKeeper.readAccessToken(this);
 
         createMainFragments();
         initFragmentPager();
@@ -55,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements
                 fragment = new WeiboFlowFragment();
             } else if (i == AppConfiguration.Main.TabUserCenter) {
                 fragment = new UserCenterFragment();
+            } else if (i == AppConfiguration.Main.TabMessage) {
+                fragment = new MessageFragment();
             } else {
                 fragment = new BlankFragment();
             }

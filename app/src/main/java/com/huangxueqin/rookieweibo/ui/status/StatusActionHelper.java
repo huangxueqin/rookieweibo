@@ -2,6 +2,7 @@ package com.huangxueqin.rookieweibo.ui.status;
 
 import android.content.Context;
 import android.content.Intent;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.huangxueqin.rookieweibo.GalleryActivity;
@@ -17,7 +18,7 @@ import com.sina.weibo.sdk.openapi.models.User;
 public final class StatusActionHelper {
 
     public static void goUserPage(Context context, User user) {
-
+        Toast.makeText(context, "Go User Page", Toast.LENGTH_SHORT).show();
     }
 
     public static void goStatusPage(Context context, Status status) {

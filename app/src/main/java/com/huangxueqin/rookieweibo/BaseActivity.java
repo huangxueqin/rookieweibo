@@ -5,6 +5,11 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
+import com.huangxueqin.rookieweibo.auth.AccessTokenKeeper;
+import com.huangxueqin.rookieweibo.auth.UserKeeper;
+import com.sina.weibo.sdk.auth.Oauth2AccessToken;
+import com.sina.weibo.sdk.openapi.models.User;
+
 import butterknife.BindView;
 import butterknife.Optional;
 
@@ -21,6 +26,16 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Nullable
     @BindView(R.id.close)
     View mCloseButton;
+
+    User mUser;
+    Oauth2AccessToken mAccessToken;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mUser = UserKeeper.readUser(this);
+        mAccessToken = AccessTokenKeeper.readAccessToken(this);
+    }
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {

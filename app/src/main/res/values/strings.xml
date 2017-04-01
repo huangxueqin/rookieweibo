@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8" ?>
 <resources>
     <string name="app_name">小牛微博</string>
     <string name="login_title">登录</string>
@@ -6,4 +7,9 @@
 
     <string name="header_scrolling_behavior">com.huangxueqin.rookieweibo.weibodetail.HeaderScrollingBehavior</string>
     <string name="header_float_behavior">com.huangxueqin.rookieweibo.weibodetail.HeaderFloatBehavior</string>
+
+    <string name="message_at">\&#064;我的</string>
+    <string name="message_comments">评论</string>
+    <string name="message_like">赞</string>
+
 </resources>

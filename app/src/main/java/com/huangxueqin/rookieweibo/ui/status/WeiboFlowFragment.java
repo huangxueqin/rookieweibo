@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.huangxueqin.rookieweibo.AppConfiguration;
 import com.huangxueqin.rookieweibo.BaseFragment;
@@ -28,6 +29,7 @@ import com.sina.weibo.sdk.exception.WeiboException;
 import com.sina.weibo.sdk.openapi.StatusesAPI;
 import com.sina.weibo.sdk.openapi.models.Status;
 import com.sina.weibo.sdk.openapi.models.StatusList;
+import com.sina.weibo.sdk.openapi.models.User;
 
 import java.util.ArrayList;
 
@@ -219,10 +221,31 @@ public class WeiboFlowFragment extends BaseFragment implements SwipeRefreshLayou
                     final int index = (Integer) args[1];
                     StatusActionHelper.goGallery(getContext(), images, index);
                     break;
-                case StatusAction.GO_STATUS:
+                case StatusAction.GO_STATUS: {
                     final Status status = (Status) args[0];
                     StatusActionHelper.goStatusPage(getContext(), status);
+                }
                     break;
+                case StatusAction.GO_USER:
+                    final User user = (User) args[0];
+                    StatusActionHelper.goUserPage(getContext(), user);
+                    break;
+                case StatusAction.ATTITUDE: {
+                    final Status status = (Status) args[0];
+                    StatusActionHelper.attitude(getContext(), status);
+                    break;
+                }
+                case StatusAction.COMMENT: {
+                    final Status status = (Status) args[0];
+                    StatusActionHelper.comment(getContext(), status);
+                    break;
+                }
+                case StatusAction.REPOST: {
+                    final Status status = (Status) args[0];
+                    StatusActionHelper.repost(getContext(), status);
+                    break;
+                }
+
             }
         }
     };
