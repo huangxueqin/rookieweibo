@@ -8,6 +8,7 @@ import android.os.Bundle;
 
 import com.huangxueqin.rookieweibo.interfaces.IFragmentCallback;
 import com.huangxueqin.rookieweibo.ui.message.MessageFragment;
+import com.huangxueqin.rookieweibo.ui.profile.ProfileFragment;
 import com.huangxueqin.rookieweibo.ui.widget.SlideTabLayout;
 import com.huangxueqin.rookieweibo.ui.status.WeiboFlowFragment;
 import com.sina.weibo.sdk.auth.Oauth2AccessToken;
@@ -47,7 +48,7 @@ public class MainActivity extends BaseActivity implements
             if (i == AppConfiguration.Main.TabWeiboFlow) {
                 fragment = new WeiboFlowFragment();
             } else if (i == AppConfiguration.Main.TabUserCenter) {
-                fragment = new UserCenterFragment();
+                fragment = new ProfileFragment();
             } else if (i == AppConfiguration.Main.TabMessage) {
                 fragment = new MessageFragment();
             } else {

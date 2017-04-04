@@ -10,6 +10,8 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 
 import com.huangxueqin.rookieweibo.common.utils.L;
 
@@ -380,11 +382,13 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
                     final int xDiff = x - mLastMotionX;
                     final int yDiff = y - mLastMotionY;
 
-                    if (mIsBeingDraggedX && !canDragHorizontally(xDiff)) {
-                        if (!canDragVertically(yDiff) || !mIsBeingDraggedY) {
-                            v.getParent().requestDisallowInterceptTouchEvent(false);
+//                    if (detectNestedScroll(xDiff)) {
+                        if (mIsBeingDraggedX && !canDragHorizontally(xDiff)) {
+                            if (!canDragVertically(yDiff) || !mIsBeingDraggedY) {
+                                v.getParent().requestDisallowInterceptTouchEvent(false);
+                            }
                         }
-                    }
+//                    }
 
                     if (Math.abs(xDiff) > mTouchSlop && !mIsBeingDraggedX) {
                         mIsBeingDraggedX = true;
@@ -411,8 +415,18 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
 
             return mGestureDetector.onTouchEvent(event);
         }
+    }
 
-
+    private boolean detectNestedScroll(int direction) {
+        ViewParent parent = getParent();
+        while (parent != null && parent instanceof ViewGroup) {
+            ViewGroup vg = (ViewGroup) parent;
+            if (vg.canScrollHorizontally(direction)) {
+                return true;
+            }
+            parent = vg.getParent();
+        }
+        return false;
     }
 
     private class ZoomRunnable implements Runnable {

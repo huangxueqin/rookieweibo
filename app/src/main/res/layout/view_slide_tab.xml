@@ -7,6 +7,8 @@
     android:elevation="@dimen/toolbar_elevation"
     android:layout_width="match_parent"
     android:layout_height="@dimen/slide_tab_height"
-    app:tab_mode="fit_screen"
+    app:tab_mode="fix_width"
+    app:tab_width="100dp"
+    app:tab_gravity="center"
     app:tab_style="plain_text">
 </com.huangxueqin.rookieweibo.ui.widget.SlideTabLayout>

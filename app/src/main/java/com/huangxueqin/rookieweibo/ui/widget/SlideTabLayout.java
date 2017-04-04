@@ -121,6 +121,7 @@ public class SlideTabLayout extends HorizontalScrollView implements ViewPager.On
 
     private void setTabCellLayout(LinearLayout.LayoutParams lp, int tabMode) {
         lp.height = ViewGroup.LayoutParams.MATCH_PARENT;
+        lp.width = ViewGroup.LayoutParams.WRAP_CONTENT;
         if (tabMode == MODE_FIT_SCREEN) {
             lp.width = 0;
             lp.weight = 1;
