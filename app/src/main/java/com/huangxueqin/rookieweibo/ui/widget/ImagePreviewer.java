@@ -5,13 +5,16 @@ import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.widget.ImageView;
 
 import com.huangxueqin.rookieweibo.common.utils.L;
 
@@ -44,6 +47,8 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
     // gesture detect
     private GestureHandler mGestureHandler;
 
+    private SnapDelegate mSnapDelegate;
+
     private RectF mTempRectF = new RectF();
     private float[] mTempValues = new float[9];
 
@@ -61,6 +66,15 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
         savedScaleType = getScaleType();
 
         mGestureHandler = new GestureHandler(context);
+    }
+
+    public void setSnapDelegate(SnapDelegate delegate) {
+        mSnapDelegate = delegate;
+    }
+
+    private int getMaxAllowedBitmapSize() {
+        final DisplayMetrics metrics = getResources().getDisplayMetrics();
+        return Math.max(metrics.widthPixels, metrics.heightPixels);
     }
 
     private boolean allowPreview() {
@@ -133,7 +147,7 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
         updateImageMatrix();
     }
 
-    private float[] getImageTranslateValues() {
+    public float[] getImageTranslateValues() {
         getImageMatrix().getValues(mTempValues);
         return mTempValues;
     }
@@ -173,6 +187,13 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
         rectF.set(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
         Matrix matrix = getImageMatrix();
         matrix.mapRect(rectF);
+    }
+
+    private void getRawDisplayRect(RectF rectF) {
+        final int width = mSnapDelegate == null ? getDrawable().getIntrinsicWidth() : mSnapDelegate.getRawWidth(this);
+        final int height = mSnapDelegate == null ? getDrawable().getIntrinsicHeight() : mSnapDelegate.getRawHeight(this);
+        rectF.set(0, 0, width, height);
+        getImageMatrix().mapRect(rectF);
     }
 
     private void zoomImage(float targetScale, boolean animated) {
@@ -226,12 +247,14 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
         }
     }
 
+
+
     private boolean canDragVertically(int directionY) {
         if (!mPreviewEnabled) {
             return false;
         }
 
-        getDisplayRect(mTempRectF);
+        getRawDisplayRect(mTempRectF);
         if (directionY > 0) {
             return Math.round(mTempRectF.top) < 0;
         } else {
@@ -243,7 +266,7 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
         if (!mPreviewEnabled) {
             return false;
         }
-        getDisplayRect(mTempRectF);
+        getRawDisplayRect(mTempRectF);
         return Math.round(mTempRectF.width()) > getWidth();
     }
 
@@ -251,7 +274,7 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
         if (!mPreviewEnabled) {
             return false;
         }
-        getDisplayRect(mTempRectF);
+        getRawDisplayRect(mTempRectF);
         if (directionX > 0) {
             return Math.round(mTempRectF.left) < 0;
         } else {
@@ -263,7 +286,7 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
         if (!mPreviewEnabled) {
             return false;
         }
-        getDisplayRect(mTempRectF);
+        getRawDisplayRect(mTempRectF);
         return Math.round(mTempRectF.height()) > getHeight();
     }
 
@@ -271,23 +294,25 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
         if (!mPreviewEnabled) {
             return false;
         }
-        getDisplayRect(mTempRectF);
+        getRawDisplayRect(mTempRectF);
         return Math.round(mTempRectF.height()) > getHeight() ||
                 Math.round(mTempRectF.width()) > getWidth();
     }
 
-    private void transitDrawable(float dx, float dy) {
+    private void transitDrawable(float dx, float dy, float[] consumed) {
         getDisplayRect(mTempRectF);
 
         final float dxMin = Math.min(0, getWidth() - mTempRectF.right);
         final float dxMax = Math.max(0, -mTempRectF.left);
-        dx = Math.max(dxMin, Math.min(dxMax, dx));
+        final float tx = Math.max(dxMin, Math.min(dxMax, -dx));
 
         final float dyMin = Math.min(0, getHeight() - mTempRectF.bottom);
         final float dyMax = Math.max(0, -mTempRectF.top);
-        dy = Math.max(dyMin, Math.min(dyMax, dy));
+        final float ty = Math.max(dyMin, Math.min(dyMax, -dy));
 
-        mSuppMatrix.postTranslate(dx, dy);
+        consumed[0] = -tx;
+        consumed[1] = -ty;
+        mSuppMatrix.postTranslate(tx, ty);
         updateImageMatrix();
     }
 
@@ -333,7 +358,15 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            transitDrawable(-distanceX, -distanceY);
+            float[] consumed = {0, 0};
+            transitDrawable(distanceX, distanceY, consumed);
+            if (mSnapDelegate != null) {
+                float unConsumedX = distanceX - consumed[0];
+                float unConsumedY = distanceY - consumed[1];
+                L.d("TAG", "unConsumedX = " + unConsumedX + ", unConsumedY = " + unConsumedY);
+                float currScale = getImageTranslateValues()[Matrix.MSCALE_X];
+                mSnapDelegate.offsetRegion(ImagePreviewer.this, unConsumedX/currScale, unConsumedY/currScale);
+            }
             return true;
         }
 
@@ -382,13 +415,13 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
                     final int xDiff = x - mLastMotionX;
                     final int yDiff = y - mLastMotionY;
 
-//                    if (detectNestedScroll(xDiff)) {
+                    if (detectNestedScroll(-xDiff)) {
                         if (mIsBeingDraggedX && !canDragHorizontally(xDiff)) {
                             if (!canDragVertically(yDiff) || !mIsBeingDraggedY) {
                                 v.getParent().requestDisallowInterceptTouchEvent(false);
                             }
                         }
-//                    }
+                    }
 
                     if (Math.abs(xDiff) > mTouchSlop && !mIsBeingDraggedX) {
                         mIsBeingDraggedX = true;
@@ -421,7 +454,7 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
         ViewParent parent = getParent();
         while (parent != null && parent instanceof ViewGroup) {
             ViewGroup vg = (ViewGroup) parent;
-            if (vg.canScrollHorizontally(direction)) {
+            if (ViewCompat.canScrollHorizontally(vg, direction)) {
                 return true;
             }
             parent = vg.getParent();
@@ -461,5 +494,11 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
                 postOnAnimation(this);
             }
         }
+    }
+
+    public interface SnapDelegate {
+        int getRawHeight(ImageView imageView);
+        int getRawWidth(ImageView imageView);
+        void offsetRegion(ImageView imageView, float dx, float dy);
     }
 }

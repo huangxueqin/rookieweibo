@@ -1,19 +1,33 @@
 package com.huangxueqin.rookieweibo;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.BitmapRegionDecoder;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.util.LruCache;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.huangxueqin.rookieweibo.cons.Cons;
+import com.huangxueqin.rookieweibo.ui.widget.ImagePreviewer;
 import com.lsjwzh.widget.recyclerviewpager.RecyclerViewPager;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.HashMap;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -22,12 +36,17 @@ import butterknife.ButterKnife;
  * Created by huangxueqin on 2017/3/2.
  */
 
-public class GalleryActivity extends BaseActivity {
+public class GalleryActivity extends BaseActivity implements ImagePreviewer.SnapDelegate {
     String[] mImageUrls;
     int mSelectedIndex;
 
     @BindView(R.id.image_list)
     RecyclerViewPager mImageList;
+
+    LruCache<String, Bitmap> mImageCache;
+    HashMap<ImageView, String> mLoadMap;
+    HashMap<String, DecoderOptions> mDecoderOpts;
+    int mMaxBitmapSize;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -40,6 +59,122 @@ public class GalleryActivity extends BaseActivity {
         mImageList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mImageList.setAdapter(new ImageAdapter());
         mImageList.scrollToPosition(mSelectedIndex);
+
+        final int maxMemory = (int) Runtime.getRuntime().maxMemory()/1024;
+        mImageCache = new LruCache<String, Bitmap>(maxMemory/8) {
+            @Override
+            protected int sizeOf(String key, Bitmap value) {
+                return value.getByteCount() / 1024;
+            }
+        };
+        mLoadMap = new HashMap<>();
+        mDecoderOpts = new HashMap<>();
+
+        final DisplayMetrics metrics = getResources().getDisplayMetrics();
+        mMaxBitmapSize = Math.max(metrics.widthPixels, metrics.heightPixels);
+    }
+
+    private static int computeSampling(final int srcSize, final int dstSize) {
+        int sampling = 1;
+        while (srcSize / (sampling+1) >= dstSize) {
+            sampling += 1;
+        }
+        return sampling;
+    }
+
+    private void setImageUrl(final String url, final ImagePreviewer imageView) {
+        final Bitmap imageBitmap = mImageCache.get(url);
+        mLoadMap.put(imageView, url);
+        if (imageBitmap != null) {
+            imageView.setImageBitmap(imageBitmap);
+            DecoderOptions ops = mDecoderOpts.get(imageView);
+            if (ops != null && (ops.rawHeight > mMaxBitmapSize || ops.rawWidth > mMaxBitmapSize)) {
+                imageView.setSnapDelegate(this);
+            } else {
+                imageView.setSnapDelegate(null);
+            }
+        } else {
+            Glide.with(GalleryActivity.this)
+                    .load(url)
+                    .downloadOnly(new SimpleTarget<File>() {
+                        @Override
+                        public void onResourceReady(File resource, GlideAnimation<? super File> glideAnimation) {
+                            DecoderOptions decoderOpts = mDecoderOpts.get(url);
+                            if (decoderOpts == null) {
+                                final BitmapFactory.Options options = new BitmapFactory.Options();
+                                options.inJustDecodeBounds = true;
+                                BitmapFactory.decodeFile(resource.getAbsolutePath(), options);
+                                decoderOpts = new DecoderOptions(options.outWidth, options.outHeight);
+                                mDecoderOpts.put(url, decoderOpts);
+                            }
+
+                            final int rawWidth = decoderOpts.rawWidth;
+                            final int rawHeight = decoderOpts.rawHeight;
+
+                            Bitmap imageBitmap = null;
+                            if (rawWidth <= mMaxBitmapSize && rawHeight <= mMaxBitmapSize) {
+                                imageBitmap = BitmapFactory.decodeFile(resource.getAbsolutePath());
+                            } else {
+                                if (decoderOpts.decoder == null) {
+                                    try {
+                                        decoderOpts.decoder = BitmapRegionDecoder.newInstance(new FileInputStream(resource), true);
+                                        decoderOpts.region = new Rect(0, 0, rawWidth, Math.min(rawHeight, mMaxBitmapSize));
+                                        decoderOpts.options = new BitmapFactory.Options();
+                                        if (rawWidth > mMaxBitmapSize) {
+                                            decoderOpts.options.inSampleSize = computeSampling(rawWidth, mMaxBitmapSize);
+                                        }
+                                        mDecoderOpts.put(url, decoderOpts);
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+
+                                if (decoderOpts.decoder != null) {
+                                    imageBitmap = decoderOpts.decoder.decodeRegion(decoderOpts.region, decoderOpts.options);
+                                }
+                            }
+
+                            if (imageBitmap != null) {
+                                mImageCache.put(url, imageBitmap);
+                                final String pendingUrl = mLoadMap.get(imageView);
+                                if (pendingUrl.equals(url)) {
+                                    imageView.setImageBitmap(imageBitmap);
+                                    if (rawWidth > mMaxBitmapSize || rawHeight > mMaxBitmapSize) {
+                                        imageView.setSnapDelegate(GalleryActivity.this);
+                                    } else {
+                                        imageView.setSnapDelegate(null);
+                                    }
+                                }
+                            }
+                        }
+                    });
+        }
+    }
+
+    @Override
+    public int getRawHeight(ImageView imageView) {
+        final String url = mLoadMap.get(imageView);
+        DecoderOptions ops = mDecoderOpts.get(url);
+        return ops.rawHeight;
+    }
+
+    @Override
+    public int getRawWidth(ImageView imageView) {
+        final String url = mLoadMap.get(imageView);
+        DecoderOptions ops = mDecoderOpts.get(url);
+        return ops.rawWidth;
+    }
+
+    @Override
+    public void offsetRegion(ImageView imageView, float dx, float dy) {
+        final String url = mLoadMap.get(imageView);
+        DecoderOptions ops = mDecoderOpts.get(url);
+        ops.region.offset(0, (int) dy);
+        Bitmap image = ops.decoder.decodeRegion(ops.region, ops.options);
+        if (image != null) {
+            imageView.setImageBitmap(image);
+            mImageCache.put(url, image);
+        }
     }
 
     private class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
@@ -52,10 +187,7 @@ public class GalleryActivity extends BaseActivity {
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
-            Glide.with(GalleryActivity.this)
-                    .load(mImageUrls[position])
-                    .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
-                    .into(holder.image);
+            setImageUrl(mImageUrls[position], holder.image);
         }
 
         @Override
@@ -64,10 +196,10 @@ public class GalleryActivity extends BaseActivity {
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
-            ImageView image;
+            ImagePreviewer image;
             public ViewHolder(View itemView) {
                 super(itemView);
-                image = (ImageView) itemView.findViewById(R.id.image);
+                image = (ImagePreviewer) itemView.findViewById(R.id.image);
             }
         }
     }
@@ -83,6 +215,8 @@ public class GalleryActivity extends BaseActivity {
         super.onPause();
         exitImmersiveMode();
     }
+
+
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
@@ -107,5 +241,18 @@ public class GalleryActivity extends BaseActivity {
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+    }
+
+    private static class DecoderOptions {
+        final int rawWidth;
+        final int rawHeight;
+        BitmapRegionDecoder decoder;
+        Rect region;
+        BitmapFactory.Options options;
+
+        public DecoderOptions(final int rawWidth, final int rawHeight) {
+            this.rawWidth = rawWidth;
+            this.rawHeight = rawHeight;
+        }
     }
 }
