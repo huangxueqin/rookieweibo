@@ -21,6 +21,7 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.huangxueqin.rookieweibo.cons.Cons;
 import com.huangxueqin.rookieweibo.ui.widget.ImagePreviewer;
+import com.huangxueqin.ultimateimageview.UltimateImageView;
 import com.lsjwzh.widget.recyclerviewpager.RecyclerViewPager;
 
 import java.io.ByteArrayInputStream;
@@ -82,73 +83,15 @@ public class GalleryActivity extends BaseActivity implements ImagePreviewer.Snap
         return sampling;
     }
 
-    private void setImageUrl(final String url, final ImagePreviewer imageView) {
-        final Bitmap imageBitmap = mImageCache.get(url);
-        mLoadMap.put(imageView, url);
-        if (imageBitmap != null) {
-            imageView.setImageBitmap(imageBitmap);
-            DecoderOptions ops = mDecoderOpts.get(imageView);
-            if (ops != null && (ops.rawHeight > mMaxBitmapSize || ops.rawWidth > mMaxBitmapSize)) {
-                imageView.setSnapDelegate(this);
-            } else {
-                imageView.setSnapDelegate(null);
-            }
-        } else {
-            Glide.with(GalleryActivity.this)
-                    .load(url)
-                    .downloadOnly(new SimpleTarget<File>() {
-                        @Override
-                        public void onResourceReady(File resource, GlideAnimation<? super File> glideAnimation) {
-                            DecoderOptions decoderOpts = mDecoderOpts.get(url);
-                            if (decoderOpts == null) {
-                                final BitmapFactory.Options options = new BitmapFactory.Options();
-                                options.inJustDecodeBounds = true;
-                                BitmapFactory.decodeFile(resource.getAbsolutePath(), options);
-                                decoderOpts = new DecoderOptions(options.outWidth, options.outHeight);
-                                mDecoderOpts.put(url, decoderOpts);
-                            }
-
-                            final int rawWidth = decoderOpts.rawWidth;
-                            final int rawHeight = decoderOpts.rawHeight;
-
-                            Bitmap imageBitmap = null;
-                            if (rawWidth <= mMaxBitmapSize && rawHeight <= mMaxBitmapSize) {
-                                imageBitmap = BitmapFactory.decodeFile(resource.getAbsolutePath());
-                            } else {
-                                if (decoderOpts.decoder == null) {
-                                    try {
-                                        decoderOpts.decoder = BitmapRegionDecoder.newInstance(new FileInputStream(resource), true);
-                                        decoderOpts.region = new Rect(0, 0, rawWidth, Math.min(rawHeight, mMaxBitmapSize));
-                                        decoderOpts.options = new BitmapFactory.Options();
-                                        if (rawWidth > mMaxBitmapSize) {
-                                            decoderOpts.options.inSampleSize = computeSampling(rawWidth, mMaxBitmapSize);
-                                        }
-                                        mDecoderOpts.put(url, decoderOpts);
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-
-                                if (decoderOpts.decoder != null) {
-                                    imageBitmap = decoderOpts.decoder.decodeRegion(decoderOpts.region, decoderOpts.options);
-                                }
-                            }
-
-                            if (imageBitmap != null) {
-                                mImageCache.put(url, imageBitmap);
-                                final String pendingUrl = mLoadMap.get(imageView);
-                                if (pendingUrl.equals(url)) {
-                                    imageView.setImageBitmap(imageBitmap);
-                                    if (rawWidth > mMaxBitmapSize || rawHeight > mMaxBitmapSize) {
-                                        imageView.setSnapDelegate(GalleryActivity.this);
-                                    } else {
-                                        imageView.setSnapDelegate(null);
-                                    }
-                                }
-                            }
-                        }
-                    });
-        }
+    private void setImageUrl(final String url, final UltimateImageView imageView) {
+        Glide.with(GalleryActivity.this)
+                .load(url)
+                .downloadOnly(new SimpleTarget<File>() {
+                    @Override
+                    public void onResourceReady(File resource, GlideAnimation<? super File> glideAnimation) {
+                        imageView.setImage(resource);
+                    }
+                });
     }
 
     @Override
@@ -196,10 +139,10 @@ public class GalleryActivity extends BaseActivity implements ImagePreviewer.Snap
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
-            ImagePreviewer image;
+            UltimateImageView image;
             public ViewHolder(View itemView) {
                 super(itemView);
-                image = (ImagePreviewer) itemView.findViewById(R.id.image);
+                image = (UltimateImageView) itemView.findViewById(R.id.image);
             }
         }
     }

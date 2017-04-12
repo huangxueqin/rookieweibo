@@ -72,11 +72,6 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
         mSnapDelegate = delegate;
     }
 
-    private int getMaxAllowedBitmapSize() {
-        final DisplayMetrics metrics = getResources().getDisplayMetrics();
-        return Math.max(metrics.widthPixels, metrics.heightPixels);
-    }
-
     private boolean allowPreview() {
         Drawable d = getDrawable();
         return d != null && d.getIntrinsicWidth() > 0 && d.getIntrinsicHeight() > 0;
