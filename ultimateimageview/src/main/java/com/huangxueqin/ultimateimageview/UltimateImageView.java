@@ -10,13 +10,18 @@ import android.support.annotation.Nullable;
 import android.support.v4.util.Pools;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+
+
+import com.huangxueqin.ultimateimageview.factory.FileImageBlockSource;
 
 import java.io.File;
 import java.util.List;
@@ -25,10 +30,10 @@ import java.util.List;
  * Created by huangxueqin on 2017/4/6.
  */
 
-public class UltimateImageView extends View implements LoadListener {
+public class UltimateImageView extends View implements ImageBlockTarget {
     private static final int ZOOM_DURATION = 200;
 
-    private ImageLoader mImageLoader;
+    private DrawBlockLoader mImageLoader;
 
     private int mDrawableWidth;
     private int mDrawableHeight;
@@ -62,15 +67,21 @@ public class UltimateImageView extends View implements LoadListener {
 
         setClickable(true);
 
-        mImageLoader = new ImageLoader(context);
-        mImageLoader.setLoadListener(this);
-
         mGestureHandler = new GestureHandler(context);
         setOnTouchListener(mGestureHandler);
     }
 
     public void setImage(File imageFile) {
-        mImageLoader.setImage(imageFile.getAbsolutePath());
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        final int blockSize = Math.min(metrics.widthPixels, metrics.heightPixels);
+        final int cachePixels = blockSize/2;
+
+        mImageLoader = new DrawBlockLoader(
+                getContext(),
+                this,
+                new FileImageBlockSource(imageFile),
+                blockSize,
+                cachePixels);
         invalidate();
     }
 
@@ -108,19 +119,22 @@ public class UltimateImageView extends View implements LoadListener {
             return;
         }
 
-        Log.d("TAG", "onDraw: " + SystemClock.uptimeMillis());
+        if (mImageLoader == null) {
+            return;
+        }
 
-        final Rect drawArea = mRectCache.obtainRect();
-        getImageDrawRect(drawArea);
+        final Rect drawRect = mRectCache.obtainRect();
+        getImageDrawRect(drawRect);
         mImageMatrix.getValues(mMatrixValues);
-        List<DrawBlock> drawDatas = mImageLoader.getDrawData(1/mMatrixValues[Matrix.MSCALE_X], drawArea);
+        final float scale = mMatrixValues[Matrix.MSCALE_X];
+        List<DrawBlock> drawDatas = mImageLoader.getDrawData(1/scale, drawRect);
         final RectF dst = mRectCache.obtainRectF();
         for (DrawBlock data : drawDatas) {
             dst.set(data.imgRect);
             mImageMatrix.mapRect(dst);
             canvas.drawBitmap(data.bitmap, data.srcRect, dst, null);
         }
-        mRectCache.recycle(drawArea);
+        mRectCache.recycle(drawRect);
         mRectCache.recycle(dst);
     }
 
@@ -328,7 +342,8 @@ public class UltimateImageView extends View implements LoadListener {
     }
 
     // Handle Gestures
-    private class GestureHandler extends GestureDetector.SimpleOnGestureListener implements OnTouchListener {
+    private class GestureHandler extends GestureDetector.SimpleOnGestureListener
+            implements OnTouchListener, ScaleGestureDetector.OnScaleGestureListener {
 
         private boolean mIsBeingDraggedX;
         private boolean mIsBeingDraggedY;
@@ -338,12 +353,16 @@ public class UltimateImageView extends View implements LoadListener {
         private int mLastMotionX;
         private int mLastMotionY;
 
+        private boolean isScaling;
+
         private GestureDetector mGestureDetector;
+        private ScaleGestureDetector mScaleGestureDetector;
 
         public GestureHandler(Context context) {
             mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
             mGestureDetector = new GestureDetector(context, this);
             mGestureDetector.setOnDoubleTapListener(this);
+            mScaleGestureDetector = new ScaleGestureDetector(context, this);
         }
 
         private float decideTargetScale() {
@@ -366,31 +385,16 @@ public class UltimateImageView extends View implements LoadListener {
             }
         }
 
-        @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            transitDrawable(distanceX, distanceY);
-            return true;
-        }
-
-        @Override
-        public boolean onDoubleTap(MotionEvent e) {
-            final float tapX = e.getX();
-            final float tapY = e.getY();
-            zoomImage(decideTargetScale(), tapX, tapY, true);
-            return true;
-        }
-
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
+        private void handleNestedScroll(View v, MotionEvent event) {
             final int action = event.getActionMasked();
             switch (action) {
                 case MotionEvent.ACTION_DOWN:
                     mActivePointerId = event.getPointerId(0);
                     mLastMotionX = (int) event.getX();
                     mLastMotionY = (int) event.getY();
-                    if (v.getParent() != null && canDrag()) {
+//                    if (v.getParent() != null && canDrag()) {
                         v.getParent().requestDisallowInterceptTouchEvent(true);
-                    }
+//                    }
                     break;
                 case MotionEvent.ACTION_MOVE:
                     final int pointerId = mActivePointerId;
@@ -429,7 +433,6 @@ public class UltimateImageView extends View implements LoadListener {
                     if (mIsBeingDraggedY) {
                         mLastMotionY = y;
                     }
-
                     break;
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
@@ -438,8 +441,62 @@ public class UltimateImageView extends View implements LoadListener {
                     mActivePointerId = -1;
                     break;
             }
+        }
 
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            mScaleGestureDetector.onTouchEvent(event);
+            if (isScaling) {
+                return true;
+            }
+
+            handleNestedScroll(v, event);
             return mGestureDetector.onTouchEvent(event);
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            if (!isScaling) {
+                transitDrawable(distanceX, distanceY);
+            }
+            return true;
+        }
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            final float tapX = e.getX();
+            final float tapY = e.getY();
+            zoomImage(decideTargetScale(), tapX, tapY, true);
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            return super.onFling(e1, e2, velocityX, velocityY);
+        }
+
+        // scale gesture
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            Log.d("TAG", "onScale...");
+            if (!isScaling) {
+                return false;
+            }
+            mImageMatrix.getValues(mMatrixValues);
+            final float newScale = mMatrixValues[Matrix.MSCALE_X]*detector.getScaleFactor();
+            zoomImage(newScale, detector.getFocusX(), detector.getFocusY(), false);
+            return true;
+        }
+
+        @Override
+        public boolean onScaleBegin(ScaleGestureDetector detector) {
+            isScaling = true;
+            return true;
+        }
+
+        @Override
+        public void onScaleEnd(ScaleGestureDetector detector) {
+            isScaling = false;
         }
     }
 
@@ -458,12 +515,6 @@ public class UltimateImageView extends View implements LoadListener {
     @Override
     public void onLoadFail() {
 
-    }
-
-    @Override
-    public void onDecodeThumbnailSuccess() {
-        Log.d("TAG", "onDecodeThumbnailSuccess: " + SystemClock.uptimeMillis());
-        invalidate();
     }
 
     @Override
