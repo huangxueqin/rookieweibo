@@ -234,22 +234,24 @@ public class DrawBlockLoader implements Handler.Callback {
     }
 
     private boolean decodeBlock(int position, final int sampleRate) {
-        if (mCache.get(position) != null) {
+        if (mCache.get(position) != null && mCache.sr == sampleRate) {
             return false;
         }
 
         final int row = PosUtil.getRow(position);
         final int col = PosUtil.getCol(position);
+
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = sampleRate;
         Bitmap bitmap = mDecoder.decodeRegion(getDecodeRegion(row, col), options);
 
-        if (bitmap != null) {
+        if (bitmap != null && mCache.sr == sampleRate) {
             mCache.put(position, bitmap);
             mBackupCache.remove(position);
+            return true;
         }
 
-        return bitmap != null;
+        return false;
     }
 
     @Override
@@ -302,6 +304,16 @@ public class DrawBlockLoader implements Handler.Callback {
                 break;
         }
         return true;
+    }
+
+    public void finalize() {
+        mLoadHandler.removeCallbacksAndMessages(null);
+        if (mDecoder != null) {
+            mDecoder.recycle();
+        }
+
+        mCache.clean();
+        mBackupCache.clean();
     }
 
     private static int ceil(float f) {

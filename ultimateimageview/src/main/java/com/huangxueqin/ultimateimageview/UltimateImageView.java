@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v4.util.Pools;
@@ -20,8 +21,8 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
-
 import com.huangxueqin.ultimateimageview.factory.FileImageBlockSource;
+import com.huangxueqin.ultimateimageview.factory.ImageBlockSource;
 
 import java.io.File;
 import java.util.List;
@@ -34,6 +35,7 @@ public class UltimateImageView extends View implements ImageBlockTarget {
     private static final int ZOOM_DURATION = 200;
 
     private DrawBlockLoader mImageLoader;
+    private Drawable mDrawable;
 
     private int mDrawableWidth;
     private int mDrawableHeight;
@@ -71,7 +73,7 @@ public class UltimateImageView extends View implements ImageBlockTarget {
         setOnTouchListener(mGestureHandler);
     }
 
-    public void setImage(File imageFile) {
+    private void setImage(ImageBlockSource source) {
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         final int blockSize = Math.min(metrics.widthPixels, metrics.heightPixels);
         final int cachePixels = blockSize/2;
@@ -79,10 +81,35 @@ public class UltimateImageView extends View implements ImageBlockTarget {
         mImageLoader = new DrawBlockLoader(
                 getContext(),
                 this,
-                new FileImageBlockSource(imageFile),
+                source,
                 blockSize,
                 cachePixels);
         invalidate();
+    }
+
+    public void setImage(Drawable drawable) {
+        if (mImageLoader != null) {
+            mImageLoader.finalize();
+            mImageLoader = null;
+        }
+        if (drawable == null) {
+            return;
+        }
+
+    }
+
+    public void setImage(File imageFile) {
+
+        if (mImageLoader != null) {
+            mImageLoader.finalize();
+            mImageLoader = null;
+        }
+
+        if (imageFile == null) {
+            return;
+        }
+
+        setImage(new FileImageBlockSource(imageFile));
     }
 
     @Override
