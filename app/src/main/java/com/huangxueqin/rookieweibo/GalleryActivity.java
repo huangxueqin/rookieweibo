@@ -130,7 +130,15 @@ public class GalleryActivity extends BaseActivity implements ImagePreviewer.Snap
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
-            setImageUrl(mImageUrls[position], holder.image);
+            final String imageURL = mImageUrls[position];
+            final boolean isGif = imageURL.endsWith(".gif");
+            holder.gifView.setVisibility(isGif ? View.VISIBLE : View.GONE);
+            holder.image.setVisibility(isGif ? View.GONE : View.VISIBLE);
+            if (isGif) {
+                Glide.with(GalleryActivity.this).load(imageURL).asGif().into(holder.gifView);
+            } else {
+                setImageUrl(imageURL, holder.image);
+            }
         }
 
         @Override
@@ -140,9 +148,11 @@ public class GalleryActivity extends BaseActivity implements ImagePreviewer.Snap
 
         class ViewHolder extends RecyclerView.ViewHolder {
             UltimateImageView image;
+            ImageView gifView;
             public ViewHolder(View itemView) {
                 super(itemView);
                 image = (UltimateImageView) itemView.findViewById(R.id.image);
+                gifView = (ImageView) itemView.findViewById(R.id.gif_image);
             }
         }
     }

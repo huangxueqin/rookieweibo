@@ -13,6 +13,7 @@ import android.os.SystemClock;
 import android.util.Log;
 
 
+import com.bumptech.glide.load.engine.Resource;
 import com.huangxueqin.ultimateimageview.factory.ImageBlockSource;
 
 import java.util.ArrayList;
@@ -162,9 +163,7 @@ public class DrawBlockLoader implements Handler.Callback {
             }
         }
 
-        Log.d("TAG", "before load missing blocks");
         loadMissingBlocks(missingBlocks);
-        Log.d("TAG", "after load missing blocks");
 
         // load extra caches
         final List<Integer> missingCachedBlocks = new LinkedList<>();
@@ -307,9 +306,11 @@ public class DrawBlockLoader implements Handler.Callback {
     }
 
     public void finalize() {
+        Log.d("TAG", "finalized()");
         mLoadHandler.removeCallbacksAndMessages(null);
         if (mDecoder != null) {
             mDecoder.recycle();
+            mDecoder = null;
         }
 
         mCache.clean();

@@ -54,7 +54,8 @@ public class WeiboImageGrid extends ViewGroup {
             ImageView im = (ImageView) getChildAt(i);
             im.setVisibility(i < imageUrls.length ? VISIBLE : GONE);
             if (i < imageUrls.length) {
-                Glide.with(getContext()).load(imageUrls[i]).into(im);
+                // avoid show gif
+                Glide.with(getContext()).load(imageUrls[i]).asBitmap().into(im);
             }
         }
     }

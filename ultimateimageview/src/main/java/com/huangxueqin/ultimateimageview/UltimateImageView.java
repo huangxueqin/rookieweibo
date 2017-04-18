@@ -75,7 +75,7 @@ public class UltimateImageView extends View implements ImageBlockTarget {
 
     private void setImage(ImageBlockSource source) {
         DisplayMetrics metrics = getResources().getDisplayMetrics();
-        final int blockSize = Math.min(metrics.widthPixels, metrics.heightPixels);
+        final int blockSize = Math.min(metrics.widthPixels, metrics.heightPixels)/2;
         final int cachePixels = blockSize/2;
 
         mImageLoader = new DrawBlockLoader(
@@ -99,7 +99,7 @@ public class UltimateImageView extends View implements ImageBlockTarget {
     }
 
     public void setImage(File imageFile) {
-
+        Log.d("TAG", "set image...");
         if (mImageLoader != null) {
             mImageLoader.finalize();
             mImageLoader = null;
@@ -110,6 +110,14 @@ public class UltimateImageView extends View implements ImageBlockTarget {
         }
 
         setImage(new FileImageBlockSource(imageFile));
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (mImageLoader != null) {
+            mImageLoader.finalize();
+        }
     }
 
     @Override

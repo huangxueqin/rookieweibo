@@ -2,10 +2,13 @@ package com.huangxueqin.rookieweibo.ui.status;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.huangxueqin.rookieweibo.AppConfiguration;
 import com.huangxueqin.rookieweibo.GalleryActivity;
+import com.huangxueqin.rookieweibo.RepostActivity;
 import com.huangxueqin.rookieweibo.WeiboActivity;
 import com.huangxueqin.rookieweibo.cons.Cons;
 import com.sina.weibo.sdk.openapi.models.Status;
@@ -40,7 +43,9 @@ public final class StatusActionHelper {
     }
 
     public static void repost(Context context, Status status) {
-
+        Intent repost = new Intent(context, RepostActivity.class);
+        repost.putExtra(Cons.IntentKey.STATUS, new Gson().toJson(status));
+        context.startActivity(repost);
     }
 
     public static void comment(Context context, Status status) {
