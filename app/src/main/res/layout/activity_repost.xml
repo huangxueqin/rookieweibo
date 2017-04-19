@@ -1,14 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_view"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <RelativeLayout style="@style/Toolbar"
+        android:id="@+id/toolbar">
+
+        <include layout="@layout/view_toolbar_back_button"
+            android:id="@+id/back"/>
+
+        <TextView
+            style="@style/Toolbar.Center"
+            android:text="@string/repost_title"/>
+
+        <TextView
+            android:id="@+id/menu_send"
+            style="@style/ToolbarTextMenu.Right"
+            android:textColor="@color/green3"
+            android:text="@string/send"/>
+    </RelativeLayout>
+
     <LinearLayout
-        android:orientation="horizontal"
+        android:id="@+id/input_view"
+        android:orientation="vertical"
+        android:background="@color/white"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/toolbar_height">
+        android:layout_height="match_parent">
+
+        <EditText
+            android:id="@+id/editor"
+            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:layout_height="0dp"
+            android:background="@drawable/weibo_input"
+            android:padding="10dp"
+            android:textSize="@dimen/text2"
+            android:textColor="@color/black"
+            android:gravity="top|left"
+            android:inputType="text|textMultiLine|textNoSuggestions"
+            android:scrollbars="vertical"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="@color/grey1" />
+
+        <LinearLayout
+            android:id="@+id/edit_toolbar"
+            android:background="@color/white"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="34dp">
+            <LinearLayout
+                android:gravity="center"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent">
+                <ImageView
+                    android:id="@+id/show_emotion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/open_emotion_panel_icon"/>
+            </LinearLayout>
+        </LinearLayout>
 
     </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/bottom_panel"
+        android:layout_width="match_parent"
+        android:layout_weight="1"
+        android:layout_height="0dp"
+        android:background="@color/grey2">
+    </FrameLayout>
+
 
 </LinearLayout>

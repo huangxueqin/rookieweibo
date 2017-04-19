@@ -163,14 +163,18 @@ public class UltimateImageView extends View implements ImageBlockTarget {
         mImageMatrix.getValues(mMatrixValues);
         final float scale = mMatrixValues[Matrix.MSCALE_X];
         List<DrawBlock> drawDatas = mImageLoader.getDrawData(1/scale, drawRect);
-        final RectF dst = mRectCache.obtainRectF();
+        final RectF dstRectF = mRectCache.obtainRectF();
+        final Rect dstRect = mRectCache.obtainRect();
         for (DrawBlock data : drawDatas) {
-            dst.set(data.imgRect);
-            mImageMatrix.mapRect(dst);
-            canvas.drawBitmap(data.bitmap, data.srcRect, dst, null);
+            dstRectF.set(data.imgRect);
+            mImageMatrix.mapRect(dstRectF);
+            dstRectF.round(dstRect);
+            canvas.drawBitmap(data.bitmap, data.srcRect, dstRect, null);
         }
+
         mRectCache.recycle(drawRect);
-        mRectCache.recycle(dst);
+        mRectCache.recycle(dstRectF);
+        mRectCache.recycle(dstRect);
     }
 
     private void updateImageMatrix() {

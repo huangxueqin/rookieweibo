@@ -59,13 +59,13 @@ public abstract class BaseActivity extends AppCompatActivity {
                     onToolbarClosePress();
                     break;
                 default:
-                    onToolbarButtonPress();
+                    onToolbarButtonPress(v);
                     break;
             }
         }
     };
 
-    protected void onToolbarButtonPress() {
+    protected void onToolbarButtonPress(View v) {
     }
 
     protected void onToolbarClosePress() {

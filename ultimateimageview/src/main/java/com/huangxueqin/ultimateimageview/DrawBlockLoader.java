@@ -54,9 +54,9 @@ public class DrawBlockLoader implements Handler.Callback {
     private Handler mLoadHandler;
     private Handler mMainHandler;
 
-    private BitmapRegionDecoder mDecoder;
     private int mImageWidth;
     private int mImageHeight;
+    private volatile BitmapRegionDecoder mDecoder;
 
     private volatile Rect mCachedDrawRect;
     private volatile BlockCache mCache;
@@ -233,6 +233,10 @@ public class DrawBlockLoader implements Handler.Callback {
     }
 
     private boolean decodeBlock(int position, final int sampleRate) {
+        if (mDecoder == null) {
+            return false;
+        }
+
         if (mCache.get(position) != null && mCache.sr == sampleRate) {
             return false;
         }

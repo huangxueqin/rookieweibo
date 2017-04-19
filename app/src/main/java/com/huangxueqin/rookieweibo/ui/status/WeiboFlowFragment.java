@@ -12,10 +12,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.huangxueqin.rookieweibo.AppConfiguration;
 import com.huangxueqin.rookieweibo.BaseFragment;
 import com.huangxueqin.rookieweibo.BrowserActivity;
 import com.huangxueqin.rookieweibo.R;
+import com.huangxueqin.rookieweibo.RepostActivity;
 import com.huangxueqin.rookieweibo.common.list.LoadingListener;
 import com.huangxueqin.rookieweibo.WeiboAPIWrapper;
 import com.huangxueqin.rookieweibo.auth.AuthConstants;
@@ -36,11 +38,15 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static android.app.Activity.RESULT_OK;
+
 /**
  * Created by huangxueqin on 2017/2/22.
  */
 
 public class WeiboFlowFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener {
+    private static final int REQUEST_REPOST = 0x1000;
+
 
     @BindView(R.id.swipe_refresh_layout) SwipeRefreshLayout mSwipeRefreshLayout;
     @BindView(R.id.weibo_flow_list) RecyclerView mWeiboFlowList;
@@ -212,6 +218,21 @@ public class WeiboFlowFragment extends BaseFragment implements SwipeRefreshLayou
         }
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_REPOST:
+                if (resultCode == RESULT_OK) {
+                    Toast.makeText(getContext(), "转发成功", Toast.LENGTH_SHORT).show();
+                    mSwipeRefreshLayout.setRefreshing(true);
+                    refreshFlow();
+                    return;
+                }
+                break;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
     private StatusListener mStatusListener = new StatusListener() {
         @Override
         public void performAction(int action, Object... args) {
@@ -242,10 +263,11 @@ public class WeiboFlowFragment extends BaseFragment implements SwipeRefreshLayou
                 }
                 case StatusAction.REPOST: {
                     final Status status = (Status) args[0];
-                    StatusActionHelper.repost(getContext(), status);
+                    Intent intent = new Intent(getContext(), RepostActivity.class);
+                    intent.putExtra(Cons.IntentKey.STATUS, new Gson().toJson(status));
+                    startActivityForResult(intent, REQUEST_REPOST);
                     break;
                 }
-
             }
         }
     };
