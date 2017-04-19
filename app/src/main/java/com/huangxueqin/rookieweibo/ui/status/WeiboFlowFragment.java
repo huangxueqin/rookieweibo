@@ -120,6 +120,7 @@ public class WeiboFlowFragment extends BaseFragment implements SwipeRefreshLayou
     }
 
     private void updateUIAfterRefresh() {
+        mWeiboFlowList.scrollToPosition(0);
         mSwipeRefreshLayout.setRefreshing(false);
         mFlowAdapter.setDataInComplete();
     }

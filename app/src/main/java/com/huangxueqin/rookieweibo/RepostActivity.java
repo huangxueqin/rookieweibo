@@ -5,7 +5,6 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -29,8 +28,7 @@ import butterknife.ButterKnife;
  */
 
 public class RepostActivity extends BaseActivity {
-    private static final int PANEL_CLOSE = 0x100;
-    private static final int PANEL_EMOTION = 0x101;
+    private static final int EMOTION_PANEL = 0x100;
 
     @BindView(R.id.root_view)
     ViewGroup mContentView;
@@ -40,7 +38,7 @@ public class RepostActivity extends BaseActivity {
     @BindView(R.id.editor)
     EditText mContentEditor;
     @BindView(R.id.show_emotion)
-    View mShowEmotionButton;
+    View mEmotionPickerButton;
 
     @BindView(R.id.bottom_panel)
     ViewGroup mBottomPanel;
@@ -53,10 +51,14 @@ public class RepostActivity extends BaseActivity {
     Status mStatus;
     StatusesAPI mStatusesAPI;
     int mTextCount = 0;
-    int mCurrentPanelType = PANEL_CLOSE;
 
-    int mLastContentBottom = -1;
-    Rect tempRect = new Rect();
+    // used for handle toggling bottom panel
+    int mWindowVisibleBottom = -1;
+    int mInputViewTop;
+    int mBottomPanelHeight;
+
+    boolean mKeyboardVisible;
+    boolean mBottomPanelVisible;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,7 +66,7 @@ public class RepostActivity extends BaseActivity {
         setContentView(R.layout.activity_repost);
         ButterKnife.bind(this);
         mSendButton.setOnClickListener(mToolbarActionListener);
-        mShowEmotionButton.setOnClickListener(mToolbarActionListener);
+        mEmotionPickerButton.setOnClickListener(mToolbarActionListener);
 
         final String statusStr = getIntent().getStringExtra(Cons.IntentKey.STATUS);
         mStatus = new Gson().fromJson(statusStr, Status.class);
@@ -72,7 +74,7 @@ public class RepostActivity extends BaseActivity {
 
         initViews();
 
-        observeKeyboardPop();
+        mContentView.getViewTreeObserver().addOnGlobalLayoutListener(mKeyboardObserver);
     }
 
     @Override
@@ -95,31 +97,48 @@ public class RepostActivity extends BaseActivity {
         }
 
         mBottomPanel.setVisibility(View.GONE);
+        mBottomPanelHeight = 600;
     }
 
-    // register keyboard show/hide listener
-    private void observeKeyboardPop() {
-        mContentView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                mContentView.getWindowVisibleDisplayFrame(tempRect);
-                if (mLastContentBottom == -1) {
-                    mLastContentBottom = tempRect.bottom;
-                } else {
-                    if (mLastContentBottom != tempRect.bottom) {
-                        mLastContentBottom = tempRect.bottom;
-                        if (mCurrentPanelType == PANEL_CLOSE) {
-                            final int height = mContentView.getHeight() - mToolbar.getHeight();
-                            Log.d("TAG", "height = " + height);
-                            ViewGroup.LayoutParams params = mInputView.getLayoutParams();
-                            params.height = height;
-                            mInputView.setLayoutParams(params);
-                        }
-                    }
-                }
+    private ViewTreeObserver.OnGlobalLayoutListener mKeyboardObserver = new ViewTreeObserver.OnGlobalLayoutListener() {
+
+        private Rect rect = new Rect();
+
+        @Override
+        public void onGlobalLayout() {
+            mContentView.getWindowVisibleDisplayFrame(rect);
+            final int curVisibleBottom = rect.bottom;
+            final int oldVisibleBottom = mWindowVisibleBottom;
+
+            if (curVisibleBottom == oldVisibleBottom) {
+                return;
             }
-        });
+
+            if (mWindowVisibleBottom == -1) {
+                mWindowVisibleBottom = curVisibleBottom;
+                mInputViewTop = mInputView.getTop();
+                return;
+            }
+
+            mKeyboardVisible = curVisibleBottom < oldVisibleBottom;
+            if (curVisibleBottom < oldVisibleBottom) {
+                mBottomPanelHeight = oldVisibleBottom - curVisibleBottom;
+                toggleEmotionPicker(false);
+            }
+            if (curVisibleBottom < oldVisibleBottom || !mBottomPanelVisible) {
+                // adjust input view height
+                adjustInputViewHeight();
+            }
+            mWindowVisibleBottom = curVisibleBottom;
+        }
+    };
+
+    private void adjustInputViewHeight() {
+        final ViewGroup.LayoutParams lp = mInputView.getLayoutParams();
+        lp.height = mContentView.getHeight()-mInputViewTop;
+        mInputView.setLayoutParams(lp);
     }
+
 
     private void showKeyboard(final int flags) {
         final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -136,36 +155,55 @@ public class RepostActivity extends BaseActivity {
         }
     }
 
+
     @Override
     protected void onToolbarButtonPress(View v) {
         super.onToolbarButtonPress(v);
-        final int id = v.getId();
-        if (id == R.id.menu_send) {
-            doRepost();
-        } else if (id == R.id.show_emotion) {
-            if (mCurrentPanelType == PANEL_EMOTION) {
-                // hide panel
-                mShowEmotionButton.setSelected(false);
-                hideBottomPanel();
+        switch (v.getId()) {
+            case R.id.menu_send:
+                doRepost();
+                break;
+            case R.id.show_emotion:
+                toggleEmotionPicker(!mEmotionPickerButton.isSelected());
+                break;
+        }
+    }
+
+    private void toggleEmotionPicker(boolean open) {
+        mEmotionPickerButton.setSelected(open);
+        if (!open) {
+            toggleBottomPanel(false);
+            showKeyboard(InputMethodManager.SHOW_IMPLICIT);
+        } else {
+            toggleBottomPanel(true);
+            // show emotion picker
+        }
+    }
+
+    private void toggleBottomPanel(boolean open) {
+        if (mBottomPanelVisible == open) {
+            return;
+        }
+        mBottomPanelVisible = open;
+        if (open) {
+            if (mKeyboardVisible) {
+                hideKeyboard();
             } else {
-                mShowEmotionButton.setSelected(true);
-                showBottomPanel(PANEL_EMOTION);
+                adjustInputViewBottomForBottomPanel(true);
             }
-        }
-    }
-
-    private void hideBottomPanel() {
-        mCurrentPanelType = PANEL_CLOSE;
-        mBottomPanel.setVisibility(View.GONE);
-    }
-
-    private void showBottomPanel(int panelType) {
-        final int oldPanelType = mCurrentPanelType;
-        mCurrentPanelType = panelType;
-        if (oldPanelType == PANEL_CLOSE) {
-            hideKeyboard();
             mBottomPanel.setVisibility(View.VISIBLE);
+        } else {
+            if (!mKeyboardVisible) {
+                adjustInputViewBottomForBottomPanel(false);
+            }
+            mBottomPanel.setVisibility(View.GONE);
         }
+    }
+
+    private void adjustInputViewBottomForBottomPanel(boolean open) {
+        final ViewGroup.LayoutParams lp = mInputView.getLayoutParams();
+        lp.height = mContentView.getHeight() - mInputViewTop - (open ? mBottomPanelHeight : 0);
+        mInputView.setLayoutParams(lp);
     }
 
     private void doRepost() {
@@ -188,6 +226,4 @@ public class RepostActivity extends BaseActivity {
                     }
                 });
     }
-
-
 }
