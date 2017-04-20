@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.huangxueqin.rookieweibo.auth.AuthConstants;
 import com.huangxueqin.rookieweibo.cons.Cons;
+import com.huangxueqin.rookieweibo.ui.emoji.EmojiFragment;
 import com.sina.weibo.sdk.exception.WeiboException;
 import com.sina.weibo.sdk.net.RequestListener;
 import com.sina.weibo.sdk.openapi.legacy.StatusesAPI;
@@ -60,6 +62,8 @@ public class RepostActivity extends BaseActivity {
     boolean mKeyboardVisible;
     boolean mBottomPanelVisible;
 
+    EmojiFragment mEmojiFragment;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,6 +88,7 @@ public class RepostActivity extends BaseActivity {
             @Override
             public void run() {
                 showKeyboard(InputMethodManager.SHOW_IMPLICIT);
+                mContentEditor.setSelection(0);
             }
         });
     }
@@ -177,6 +182,13 @@ public class RepostActivity extends BaseActivity {
         } else {
             toggleBottomPanel(true);
             // show emotion picker
+            if (mEmojiFragment == null) {
+                mEmojiFragment = new EmojiFragment();
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.bottom_panel, mEmojiFragment)
+                        .commit();
+            }
         }
     }
 
@@ -191,13 +203,8 @@ public class RepostActivity extends BaseActivity {
             } else {
                 adjustInputViewBottomForBottomPanel(true);
             }
-            mBottomPanel.setVisibility(View.VISIBLE);
-        } else {
-            if (!mKeyboardVisible) {
-                adjustInputViewBottomForBottomPanel(false);
-            }
-            mBottomPanel.setVisibility(View.GONE);
         }
+        mBottomPanel.setVisibility(open ? View.VISIBLE : View.GONE);
     }
 
     private void adjustInputViewBottomForBottomPanel(boolean open) {

@@ -9,7 +9,7 @@
 
         <TextView android:id="@+id/title"
             android:text="@string/login_title"
-            style="@style/ToolbarTitle" />
+            style="@style/ToolbarTitle.Left" />
     </LinearLayout>
 
     <Button
