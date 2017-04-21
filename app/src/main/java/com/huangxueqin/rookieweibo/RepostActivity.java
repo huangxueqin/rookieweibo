@@ -129,10 +129,9 @@ public class RepostActivity extends BaseActivity {
             if (curVisibleBottom < oldVisibleBottom) {
                 mBottomPanelHeight = oldVisibleBottom - curVisibleBottom;
                 toggleEmotionPicker(false);
-            }
-            if (curVisibleBottom < oldVisibleBottom || !mBottomPanelVisible) {
-                // adjust input view height
                 adjustInputViewHeight();
+            } else {
+                toggleEmotionPicker(true);
             }
             mWindowVisibleBottom = curVisibleBottom;
         }
