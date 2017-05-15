@@ -2,14 +2,12 @@ package com.huangxueqin.rookieweibo.ui.repost;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.huangxueqin.rookieweibo.AppConfiguration;
-import com.huangxueqin.rookieweibo.BaseFragment;
+import com.huangxueqin.rookieweibo.LceFragment;
 import com.huangxueqin.rookieweibo.common.utils.L;
 import com.huangxueqin.rookieweibo.cons.Cons;
 import com.sina.weibo.sdk.exception.WeiboException;
@@ -20,21 +18,24 @@ import com.sina.weibo.sdk.openapi.legacy.StatusesAPI;
  * Created by huangxueqin on 2017/3/31.
  */
 
-public class RepostFragment extends BaseFragment {
+public class RepostListFragment extends LceFragment {
     private static final int COUNT_EACH_REQUEST = 20;
 
     private String mStatusId;
     private StatusesAPI mStatusAPI;
     private int mCurrentPage;
-    private boolean mAllRepostLoaded;
-    private boolean mIsLoading;
 
-    public static RepostFragment newInstance(String statusId) {
-        RepostFragment fragment = new RepostFragment();
+    public static RepostListFragment newInstance(String statusId) {
+        RepostListFragment fragment = new RepostListFragment();
         Bundle args = new Bundle();
         args.putString(Cons.IntentKey.STATUS_ID, statusId);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    protected int getLayoutId() {
+        return 0;
     }
 
     @Override
@@ -63,7 +64,7 @@ public class RepostFragment extends BaseFragment {
     }
 
     private void loadRepostList(final int page) {
-        loadRepostList(page, DEFAULT_RETRY);
+        loadRepostList(page, 2);
     }
 
     private void loadRepostList(final int page, final int retryTimes) {

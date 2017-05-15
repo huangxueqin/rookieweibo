@@ -40,7 +40,6 @@ public class LoginActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        ButterKnife.bind(this);
 
         mToolbarClose.setOnClickListener(mToolbarActionListener);
         mSsoHandler = new SsoHandler(this, new AuthInfo(this, AuthConstants.APP_KEY, AuthConstants.REDIRECT_URL, AuthConstants.SCOPE));

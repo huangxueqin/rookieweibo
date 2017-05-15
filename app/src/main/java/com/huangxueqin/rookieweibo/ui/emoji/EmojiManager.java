@@ -13,8 +13,8 @@ import java.util.Map;
  * Created by huangxueqin on 2017/4/20.
  */
 
-public class EmojiHelper {
-    private static class EmojiHelperLoader {
+public class EmojiManager {
+    private static class EmojiManagerLoader {
         private final static Pair<String, Integer>[] EMOJI_TABLE = new Pair[] {
                 new Pair("爱你", R.mipmap.d_aini),
                 new Pair("奥特曼", R.mipmap.d_aoteman),
@@ -87,28 +87,28 @@ public class EmojiHelper {
                 new Pair("左哼哼", R.mipmap.d_zuohengheng)
         };
 
-        final static EmojiHelper INSTANCE = new EmojiHelper();
+        final static EmojiManager INSTANCE = new EmojiManager();
     }
 
     private Map<String, Integer> mEmojiMap;
 
-    private EmojiHelper() {
-        if (EmojiHelperLoader.INSTANCE != null) {
+    private EmojiManager() {
+        if (EmojiManagerLoader.INSTANCE != null) {
             throw new IllegalStateException("INSTANCE Already Exist...");
         }
 
-        HashMap<String, Integer> map = new HashMap<>(EmojiHelperLoader.EMOJI_TABLE.length);
-        for (Pair<String, Integer> pair : EmojiHelperLoader.EMOJI_TABLE) {
+        HashMap<String, Integer> map = new HashMap<>(EmojiManagerLoader.EMOJI_TABLE.length);
+        for (Pair<String, Integer> pair : EmojiManagerLoader.EMOJI_TABLE) {
             map.put(pair.first, pair.second);
         }
         mEmojiMap = Collections.unmodifiableMap(map);
     }
 
-    public static EmojiHelper getInstance() {
-        return EmojiHelperLoader.INSTANCE;
+    public static EmojiManager getInstance() {
+        return EmojiManagerLoader.INSTANCE;
     }
 
     public Pair[] getEmojiTable() {
-        return Arrays.copyOfRange(EmojiHelperLoader.EMOJI_TABLE, 0, EmojiHelperLoader.EMOJI_TABLE.length);
+        return Arrays.copyOfRange(EmojiManagerLoader.EMOJI_TABLE, 0, EmojiManagerLoader.EMOJI_TABLE.length);
     }
 }

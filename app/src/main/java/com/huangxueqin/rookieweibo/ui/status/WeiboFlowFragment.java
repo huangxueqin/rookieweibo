@@ -16,6 +16,7 @@ import com.google.gson.Gson;
 import com.huangxueqin.rookieweibo.AppConfiguration;
 import com.huangxueqin.rookieweibo.BaseFragment;
 import com.huangxueqin.rookieweibo.BrowserActivity;
+import com.huangxueqin.rookieweibo.LceFragment;
 import com.huangxueqin.rookieweibo.R;
 import com.huangxueqin.rookieweibo.RepostActivity;
 import com.huangxueqin.rookieweibo.common.list.LoadingListener;
@@ -44,7 +45,7 @@ import static android.app.Activity.RESULT_OK;
  * Created by huangxueqin on 2017/2/22.
  */
 
-public class WeiboFlowFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener {
+public class WeiboFlowFragment extends LceFragment implements SwipeRefreshLayout.OnRefreshListener {
     private static final int REQUEST_REPOST = 0x1000;
 
 
@@ -61,17 +62,20 @@ public class WeiboFlowFragment extends BaseFragment implements SwipeRefreshLayou
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mStatusAPI = new StatusesAPI(getContext(), AuthConstants.APP_KEY, getAccessToken());
+        mStatusAPI = new StatusesAPI(getContext(), mAppKey, mToken);
         mFlowAdapter = new WeiboFlowAdapter(getContext());
         mFlowAdapter.setStatusActionListener(mStatusListener);
         mFlowAdapter.setLinkHandler(mLinkHandler);
     }
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_weibo_flow, container, false);
-        ButterKnife.bind(this, root);
+    protected int getLayoutId() {
+        return R.layout.fragment_weibo_flow;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         final int paddingBetweenItem = getResources().getDimensionPixelSize(R.dimen.weibo_flow_list_padding_between_item);
         final int paddingLeft = getResources().getDimensionPixelSize(R.dimen.weibo_flow_list_padding_left);
@@ -80,9 +84,7 @@ public class WeiboFlowFragment extends BaseFragment implements SwipeRefreshLayou
         mWeiboFlowList.addItemDecoration(new LinearPaddingDecoration(paddingLeft, paddingTop, paddingBetweenItem));
         mWeiboFlowList.setAdapter(mFlowAdapter);
         mWeiboFlowList.addOnScrollListener(mLoadingListener);
-
         mSwipeRefreshLayout.setOnRefreshListener(this);
-        return root;
     }
 
     @Override
@@ -155,7 +157,7 @@ public class WeiboFlowFragment extends BaseFragment implements SwipeRefreshLayou
         boolean mFinish;
 
         public StatusAPIWrapper(int page) {
-            this(page, DEFAULT_RETRY);
+            this(page, 2);
         }
 
         public StatusAPIWrapper(int page, int retry) {

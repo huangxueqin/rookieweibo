@@ -10,4 +10,14 @@
         android:layout_width="match_parent"
         android:layout_height="0dp" />
 
+    <com.huangxueqin.rookieweibo.ui.widget.PageIndicator
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/indicator"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        app:pic_size="5dp"
+        app:pic_spacing="5dp"
+        app:indicatorColor="@color/grey1"
+        app:indicatorTintColor="@color/grey2"/>
+
 </LinearLayout>

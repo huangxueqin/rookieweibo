@@ -31,4 +31,15 @@
     <declare-styleable name="ScrollableLayout">
         <attr name="nested_child_id" format="reference" />
     </declare-styleable>
+
+    <declare-styleable name="PageIndicator">
+        <attr name="pic_width" format="dimension" />
+        <attr name="pic_height" format="dimension" />
+        <attr name="pic_size" format="dimension" />
+        <attr name="pic_spacing" format="dimension" />
+
+        <attr name="indicatorColor" format="color" />
+        <attr name="indicatorTintColor" format="color" />
+    </declare-styleable>
+
 </resources>

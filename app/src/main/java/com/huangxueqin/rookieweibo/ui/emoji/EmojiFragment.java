@@ -6,28 +6,33 @@ import android.support.v4.app.Fragment;
 import android.support.v4.util.Pools;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridView;
 
+import com.huangxueqin.rookieweibo.BaseFragment;
 import com.huangxueqin.rookieweibo.R;
-import com.lsjwzh.widget.recyclerviewpager.RecyclerViewPager;
+import com.huangxueqin.rookieweibo.ui.widget.PageIndicator;
+
+import butterknife.BindView;
 
 /**
  * Created by huangxueqin on 2017/4/20.
  */
 
-public class EmojiFragment extends Fragment {
+public class EmojiFragment extends BaseFragment {
 
+    @BindView(R.id.emoji_list)
     ViewPager mEmojiList;
+    @BindView(R.id.indicator)
+    PageIndicator mIndicator;
+
     LayoutInflater mInflater;
 
-    EmojiHelper mEmojiHelper;
+    EmojiManager mEmojiHelper;
     Pair<String, Integer>[] mEmojiTable;
     int mColCount;
     int mRowCount;
@@ -35,26 +40,23 @@ public class EmojiFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mEmojiHelper = EmojiHelper.getInstance();
+        mEmojiHelper = EmojiManager.getInstance();
         mEmojiTable = mEmojiHelper.getEmojiTable();
         mColCount = 7;
         mRowCount = 3;
         mInflater = LayoutInflater.from(getContext());
     }
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_emoji, container, false);
-        mEmojiList = (ViewPager) rootView.findViewById(R.id.emoji_list);
-        return rootView;
+    protected int getLayoutId() {
+        return R.layout.fragment_emoji;
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mEmojiList.setAdapter(new EmojiAdapter());
-
+        mIndicator.setPageCount(4);
     }
 
     private class EmojiAdapter extends PagerAdapter {

@@ -3,13 +3,10 @@ package com.huangxueqin.rookieweibo.ui.comments;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
-import com.google.gson.Gson;
 import com.huangxueqin.rookieweibo.AppConfiguration;
-import com.huangxueqin.rookieweibo.BaseFragment;
+import com.huangxueqin.rookieweibo.LceFragment;
 import com.huangxueqin.rookieweibo.R;
 import com.huangxueqin.rookieweibo.common.list.LinearLineDecoration;
 import com.huangxueqin.rookieweibo.common.list.LoadingListener;
@@ -19,16 +16,14 @@ import com.sina.weibo.sdk.exception.WeiboException;
 import com.sina.weibo.sdk.net.RequestListener;
 import com.sina.weibo.sdk.openapi.CommentsAPI;
 import com.sina.weibo.sdk.openapi.models.CommentList;
-import com.sina.weibo.sdk.openapi.models.Status;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 
 /**
  * Created by huangxueqin on 2017/3/12.
  */
 
-public class CommentFragment extends BaseFragment {
+public class CommentListFragment extends LceFragment {
     private static final int COUNT_EACH_REQUEST = AppConfiguration.Comment.COUNT;
 
     @BindView(R.id.comment_list_view)
@@ -42,8 +37,8 @@ public class CommentFragment extends BaseFragment {
     private boolean mAllCommentLoaded;
     private boolean mIsLoading;
 
-    public static CommentFragment newInstance(String statusId) {
-        CommentFragment fragment = new CommentFragment();
+    public static CommentListFragment newInstance(String statusId) {
+        CommentListFragment fragment = new CommentListFragment();
         Bundle args = new Bundle();
         args.putString(Cons.IntentKey.STATUS_ID, statusId);
         fragment.setArguments(args);
@@ -60,11 +55,14 @@ public class CommentFragment extends BaseFragment {
         mCommentAdapter = new CommentListAdapter(getContext());
     }
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_comment, container, false);
-        ButterKnife.bind(this, view);
+    protected int getLayoutId() {
+        return R.layout.fragment_comment;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         // init comment list view
         final int sepColor = UIUtils.getColor(getContext(), R.color.comment_list_line_sep);
@@ -72,8 +70,6 @@ public class CommentFragment extends BaseFragment {
         mCommentList.addItemDecoration(decoration);
         mCommentList.setAdapter(mCommentAdapter);
         mCommentList.addOnScrollListener(mLoadingListener);
-
-        return view;
     }
 
     @Override
@@ -97,7 +93,7 @@ public class CommentFragment extends BaseFragment {
     };
 
     private void loadComments(int page) {
-        loadComments(page, DEFAULT_RETRY);
+        loadComments(page, 2);
     }
 
     private void loadComments(final int page, final int retryTime) {

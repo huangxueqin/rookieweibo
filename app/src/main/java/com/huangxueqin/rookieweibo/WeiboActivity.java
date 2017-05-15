@@ -1,42 +1,26 @@
 package com.huangxueqin.rookieweibo;
 
 import android.os.Bundle;
-import android.provider.SyncStateContract;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v4.widget.NestedScrollView;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
-import android.view.ViewTreeObserver;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
-import com.huangxueqin.rookieweibo.BaseActivity;
-import com.huangxueqin.rookieweibo.BlankFragment;
-import com.huangxueqin.rookieweibo.R;
-import com.huangxueqin.rookieweibo.auth.AccessTokenKeeper;
-import com.huangxueqin.rookieweibo.auth.AuthConstants;
-import com.huangxueqin.rookieweibo.common.list.LinearLineDecoration;
-import com.huangxueqin.rookieweibo.ui.comments.CommentFragment;
+import com.huangxueqin.rookieweibo.ui.comments.CommentListFragment;
 import com.huangxueqin.rookieweibo.cons.Cons;
 import com.huangxueqin.rookieweibo.cons.StatusType;
 import com.huangxueqin.rookieweibo.common.utils.StatusUtils;
-import com.huangxueqin.rookieweibo.ui.comments.CommentListAdapter;
-import com.huangxueqin.rookieweibo.ui.repost.RepostFragment;
+import com.huangxueqin.rookieweibo.ui.repost.RepostListFragment;
 import com.huangxueqin.rookieweibo.ui.widget.StatusTextView;
 import com.huangxueqin.rookieweibo.ui.widget.WeiboImageGrid;
 import com.huangxueqin.rookieweibo.ui.widget.SlideTabLayout;
-import com.sina.weibo.sdk.exception.WeiboException;
-import com.sina.weibo.sdk.net.RequestListener;
-import com.sina.weibo.sdk.openapi.CommentsAPI;
-import com.sina.weibo.sdk.openapi.models.CommentList;
 import com.sina.weibo.sdk.openapi.models.Status;
 
 import butterknife.BindView;
@@ -139,10 +123,10 @@ public class WeiboActivity extends BaseActivity {
             @Override
             public Fragment getItem(int position) {
                 if (position == 0) {
-                    CommentFragment fragment = CommentFragment.newInstance(mStatus.id);
+                    CommentListFragment fragment = CommentListFragment.newInstance(mStatus.id);
                     return fragment;
                 } if (position == 1) {
-                    RepostFragment fragment = RepostFragment.newInstance(mStatus.id);
+                    RepostListFragment fragment = RepostListFragment.newInstance(mStatus.id);
                     return fragment;
                 } else {
                     return new BlankFragment();

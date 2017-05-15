@@ -11,6 +11,7 @@ import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 import com.sina.weibo.sdk.openapi.models.User;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import butterknife.Optional;
 
 /**
@@ -40,6 +41,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
+
         if (mBackButton != null) {
             mBackButton.setOnClickListener(mToolbarActionListener);
         }

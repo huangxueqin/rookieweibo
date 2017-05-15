@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,21 +29,21 @@ import butterknife.ButterKnife;
  */
 
 public class RepostActivity extends BaseActivity {
-    private static final int EMOTION_PANEL = 0x100;
 
     @BindView(R.id.root_view)
     ViewGroup mContentView;
 
     @BindView(R.id.input_view)
     ViewGroup mInputView;
-    @BindView(R.id.editor)
+    @BindView(R.id.content_editor)
     EditText mContentEditor;
-    @BindView(R.id.show_emotion)
-    View mEmotionPickerButton;
+    @BindView(R.id.emotion_picker)
+    View mBtnEmotionPick;
 
     @BindView(R.id.bottom_panel)
     ViewGroup mBottomPanel;
 
+    // toolbar views
     @BindView(R.id.toolbar)
     ViewGroup mToolbar;
     @BindView(R.id.menu_send)
@@ -69,8 +68,9 @@ public class RepostActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_repost);
         ButterKnife.bind(this);
+
         mSendButton.setOnClickListener(mToolbarActionListener);
-        mEmotionPickerButton.setOnClickListener(mToolbarActionListener);
+        mBtnEmotionPick.setOnClickListener(mToolbarActionListener);
 
         final String statusStr = getIntent().getStringExtra(Cons.IntentKey.STATUS);
         mStatus = new Gson().fromJson(statusStr, Status.class);
@@ -167,14 +167,14 @@ public class RepostActivity extends BaseActivity {
             case R.id.menu_send:
                 doRepost();
                 break;
-            case R.id.show_emotion:
-                toggleEmotionPicker(!mEmotionPickerButton.isSelected());
+            case R.id.emotion_picker:
+                toggleEmotionPicker(!mBtnEmotionPick.isSelected());
                 break;
         }
     }
 
     private void toggleEmotionPicker(boolean open) {
-        mEmotionPickerButton.setSelected(open);
+        mBtnEmotionPick.setSelected(open);
         if (!open) {
             toggleBottomPanel(false);
             showKeyboard(InputMethodManager.SHOW_IMPLICIT);

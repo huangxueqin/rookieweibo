@@ -20,7 +20,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.huangxueqin.rookieweibo.cons.Cons;
-import com.huangxueqin.rookieweibo.ui.widget.ImagePreviewer;
 import com.huangxueqin.ultimateimageview.UltimateImageView;
 import com.lsjwzh.widget.recyclerviewpager.RecyclerViewPager;
 
@@ -37,7 +36,7 @@ import butterknife.ButterKnife;
  * Created by huangxueqin on 2017/3/2.
  */
 
-public class GalleryActivity extends BaseActivity implements ImagePreviewer.SnapDelegate {
+public class GalleryActivity extends BaseActivity {
     String[] mImageUrls;
     int mSelectedIndex;
 
@@ -56,7 +55,6 @@ public class GalleryActivity extends BaseActivity implements ImagePreviewer.Snap
         mImageUrls = bundle.getStringArrayExtra(Cons.IntentKey.IMAGE_LIST);
         mSelectedIndex = bundle.getIntExtra(Cons.IntentKey.SELECT_INDEX, 0);
         setContentView(R.layout.activity_gallery);
-        ButterKnife.bind(this);
         mImageList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mImageList.setAdapter(new ImageAdapter());
         mImageList.scrollToPosition(mSelectedIndex);
@@ -92,32 +90,6 @@ public class GalleryActivity extends BaseActivity implements ImagePreviewer.Snap
                         imageView.setImage(resource);
                     }
                 });
-    }
-
-    @Override
-    public int getRawHeight(ImageView imageView) {
-        final String url = mLoadMap.get(imageView);
-        DecoderOptions ops = mDecoderOpts.get(url);
-        return ops.rawHeight;
-    }
-
-    @Override
-    public int getRawWidth(ImageView imageView) {
-        final String url = mLoadMap.get(imageView);
-        DecoderOptions ops = mDecoderOpts.get(url);
-        return ops.rawWidth;
-    }
-
-    @Override
-    public void offsetRegion(ImageView imageView, float dx, float dy) {
-        final String url = mLoadMap.get(imageView);
-        DecoderOptions ops = mDecoderOpts.get(url);
-        ops.region.offset(0, (int) dy);
-        Bitmap image = ops.decoder.decodeRegion(ops.region, ops.options);
-        if (image != null) {
-            imageView.setImageBitmap(image);
-            mImageCache.put(url, image);
-        }
     }
 
     private class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {

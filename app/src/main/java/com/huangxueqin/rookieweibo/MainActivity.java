@@ -32,7 +32,6 @@ public class MainActivity extends BaseActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-
         createMainFragments();
         initFragmentPager();
 
@@ -49,12 +48,9 @@ public class MainActivity extends BaseActivity implements
                 fragment = new WeiboFlowFragment();
             } else if (i == AppConfiguration.Main.TabUserCenter) {
                 fragment = new ProfileFragment();
-            } else if (i == AppConfiguration.Main.TabMessage) {
+            } else  {
                 fragment = new MessageFragment();
-            } else {
-                fragment = new BlankFragment();
             }
-            fragment.setCallback(this);
             mFragments[i] = fragment;
         }
     }

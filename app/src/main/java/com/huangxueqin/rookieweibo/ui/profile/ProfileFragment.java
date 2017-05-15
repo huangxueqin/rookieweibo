@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.huangxueqin.rookieweibo.BaseFragment;
+import com.huangxueqin.rookieweibo.LceFragment;
 import com.huangxueqin.rookieweibo.R;
 import com.huangxueqin.rookieweibo.common.utils.L;
 import com.sina.weibo.sdk.openapi.models.User;
@@ -21,7 +22,7 @@ import butterknife.ButterKnife;
  * Created by huangxueqin on 2017/4/4.
  */
 
-public class ProfileFragment extends BaseFragment {
+public class ProfileFragment extends LceFragment {
 
     @BindView(R.id.avatar)
     ImageView mAvatar;
@@ -36,19 +37,14 @@ public class ProfileFragment extends BaseFragment {
     @BindView(R.id.fans_num)
     TextView mFansCount;
 
-    private User mUser;
-
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mUser = getUser();
+    protected int getLayoutId() {
+        return R.layout.fragment_profile;
     }
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_profile, container, false);
-        ButterKnife.bind(this, root);
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         Glide.with(this).load(mUser.avatar_hd).into(mAvatar);
         mUsername.setText(mUser.screen_name);
@@ -56,12 +52,5 @@ public class ProfileFragment extends BaseFragment {
         mWeiboCount.setText(String.valueOf(mUser.statuses_count));
         mWatchCount.setText(String.valueOf(mUser.friends_count));
         mFansCount.setText(String.valueOf(mUser.followers_count));
-
-        return root;
-    }
-
-    @Override
-    protected void prepareDataAndInit() {
-
     }
 }

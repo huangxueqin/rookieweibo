@@ -3,7 +3,9 @@ package com.huangxueqin.rookieweibo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.huangxueqin.rookieweibo.auth.AccessTokenKeeper;
 import com.huangxueqin.rookieweibo.auth.AuthConstants;
@@ -17,91 +19,25 @@ import com.sina.weibo.sdk.openapi.StatusesAPI;
 import com.sina.weibo.sdk.openapi.models.Status;
 import com.sina.weibo.sdk.openapi.models.User;
 
+import butterknife.ButterKnife;
+
 /**
  * Created by huangxueqin on 2017/2/23.
  */
 
-public class BaseFragment extends Fragment implements RequestListener {
+public abstract class BaseFragment extends Fragment {
 
-    public static final int DEFAULT_RETRY = 2;
+    protected abstract int getLayoutId();
 
-    private IFragmentCallback mCallback;
-    private boolean mDataPreparationPending = true;
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(getLayoutId(), container, false);
+    }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if (mDataPreparationPending && getUserVisibleHint()) {
-            mDataPreparationPending = false;
-            startPrepareData();
-        }
-    }
-
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser && getView() != null && mDataPreparationPending) {
-            mDataPreparationPending = false;
-            startPrepareData();
-        }
-    }
-
-    private void startPrepareData() {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                prepareDataAndInit();
-            }
-        });
-    }
-
-    protected void prepareDataAndInit() {
-
-    }
-
-    public void setCallback(IFragmentCallback callback) {
-        mCallback = callback;
-    }
-
-    protected User getUser() {
-        if (mCallback != null) {
-            return mCallback.getUser();
-        } else {
-            return UserKeeper.readUser(getContext());
-        }
-    }
-
-    protected String getAppKey() {
-        return AuthConstants.APP_KEY;
-    }
-
-    protected Oauth2AccessToken getAccessToken() {
-        if (mCallback != null) {
-            return mCallback.getAccessToken();
-        } else {
-            return AccessTokenKeeper.readAccessToken(getContext());
-        }
-    }
-
-    protected CommentsAPI createCommentsAPI() {
-        return new CommentsAPI(getContext(), getAppKey(), getAccessToken());
-    }
-
-    protected StatusesAPI getStatusAPI() {
-        return new StatusesAPI(getContext(), getAppKey(), getAccessToken());
-    }
-
-    protected com.sina.weibo.sdk.openapi.legacy.StatusesAPI getLegacyStatusAPI() {
-        return new com.sina.weibo.sdk.openapi.legacy.StatusesAPI(getContext(), getAppKey(), getAccessToken());
-    }
-
-    @Override
-    public void onComplete(String s) {
-
-    }
-
-    @Override
-    public void onWeiboException(WeiboException e) {
-
+        ButterKnife.bind(this, view);
     }
 }

@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.huangxueqin.rookieweibo.BaseFragment;
+import com.huangxueqin.rookieweibo.LceFragment;
 import com.huangxueqin.rookieweibo.R;
 import com.huangxueqin.rookieweibo.common.list.LinearLineDecoration;
 import com.huangxueqin.rookieweibo.common.list.LinearPaddingDecoration;
@@ -20,7 +21,7 @@ import butterknife.ButterKnife;
  * Created by huangxueqin on 2017/4/1.
  */
 
-public class MessageFragment extends BaseFragment {
+public class MessageFragment extends LceFragment {
 
     @BindView(R.id.message_list)
     RecyclerView mMessageList;
@@ -33,22 +34,19 @@ public class MessageFragment extends BaseFragment {
         mAdapter = new MessageListAdapter(getContext());
     }
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_message, container, false);
-        ButterKnife.bind(this, root);
+    protected int getLayoutId() {
+        return R.layout.fragment_message;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         mMessageList.setAdapter(mAdapter);
         // item decoration
         final int sepColor = ContextCompat.getColor(getContext(), R.color.grey1);
         final int sepLeftPadding = (int) (getResources().getDisplayMetrics().density * 77);
         mMessageList.addItemDecoration(new LinearLineDecoration(sepColor, sepLeftPadding, 0));
-        return root;
-    }
-
-    @Override
-    protected void prepareDataAndInit() {
-        super.prepareDataAndInit();
     }
 }

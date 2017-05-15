@@ -30,7 +30,7 @@
         android:layout_height="match_parent">
 
         <EditText
-            android:id="@+id/editor"
+            android:id="@+id/content_editor"
             android:layout_width="match_parent"
             android:layout_weight="1"
             android:layout_height="0dp"
@@ -52,9 +52,9 @@
             android:background="@color/white"
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="34dp">
+            android:layout_height="40dp">
             <ImageView
-                android:id="@+id/show_emotion"
+                android:id="@+id/emotion_picker"
                 android:layout_width="40dp"
                 android:layout_height="match_parent"
                 android:src="@drawable/open_emotion_panel_icon"
