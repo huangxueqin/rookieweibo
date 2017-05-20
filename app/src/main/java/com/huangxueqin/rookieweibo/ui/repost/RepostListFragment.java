@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.huangxueqin.rookieweibo.LceFragment;
-import com.huangxueqin.rookieweibo.common.utils.L;
+import com.huangxueqin.rookieweibo.common.Logger;
 import com.huangxueqin.rookieweibo.cons.Cons;
 import com.sina.weibo.sdk.exception.WeiboException;
 import com.sina.weibo.sdk.net.RequestListener;
@@ -71,7 +71,7 @@ public class RepostListFragment extends LceFragment {
         mStatusAPI.repostTimeline(Long.parseLong(mStatusId), 0, 0, COUNT_EACH_REQUEST, 1, 0, new RequestListener() {
             @Override
             public void onComplete(String s) {
-                L.d("TAG", s);
+                Logger.d("TAG", s);
             }
 
             @Override

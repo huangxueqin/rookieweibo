@@ -2,13 +2,19 @@ package com.huangxueqin.rookieweibo.ui.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.database.DataSetObserver;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.View;
 
 import com.huangxueqin.rookieweibo.R;
+
+import java.lang.ref.WeakReference;
 
 /**
  * Created by huangxueqin on 2017/4/25.
@@ -128,5 +134,46 @@ public class PageIndicator extends View {
         mPosition = position;
         mPositionOffset = offset;
         invalidate();
+    }
+
+    public void setViewPager(final ViewPager viewPager) {
+        final DataSetObserver observer = new DataSetObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                setPageCount(viewPager.getAdapter().getCount());
+            }
+        };
+
+        if (viewPager.getAdapter() != null) {
+            viewPager.getAdapter().registerDataSetObserver(observer);
+        }
+
+        viewPager.addOnAdapterChangeListener(new ViewPager.OnAdapterChangeListener() {
+            @Override
+            public void onAdapterChanged(@NonNull ViewPager viewPager, @Nullable PagerAdapter oldAdapter, @Nullable PagerAdapter newAdapter) {
+                if (oldAdapter != null) {
+                    oldAdapter.unregisterDataSetObserver(observer);
+                }
+                if (newAdapter != null) {
+                    newAdapter.registerDataSetObserver(observer);
+                }
+            }
+        });
+
+        viewPager.addOnPageChangeListener(new PageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                PageIndicator.this.onPageScrolled(position, positionOffset);
+            }
+        });
+    }
+
+    public static abstract class PageChangeListener implements ViewPager.OnPageChangeListener {
+        @Override
+        public void onPageSelected(int position) {}
+
+        @Override
+        public void onPageScrollStateChanged(int state) {}
     }
 }

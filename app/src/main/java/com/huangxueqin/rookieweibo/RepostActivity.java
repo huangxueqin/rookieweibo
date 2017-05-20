@@ -15,7 +15,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.huangxueqin.rookieweibo.auth.AuthConstants;
 import com.huangxueqin.rookieweibo.cons.Cons;
-import com.huangxueqin.rookieweibo.ui.emoji.EmojiFragment;
+import com.huangxueqin.rookieweibo.ui.emoji.EmojiPanelFragment;
 import com.sina.weibo.sdk.exception.WeiboException;
 import com.sina.weibo.sdk.net.RequestListener;
 import com.sina.weibo.sdk.openapi.legacy.StatusesAPI;
@@ -61,7 +61,7 @@ public class RepostActivity extends BaseActivity {
     boolean mKeyboardVisible;
     boolean mBottomPanelVisible;
 
-    EmojiFragment mEmojiFragment;
+    EmojiPanelFragment mEmojiFragment;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -182,7 +182,7 @@ public class RepostActivity extends BaseActivity {
             toggleBottomPanel(true);
             // show emotion picker
             if (mEmojiFragment == null) {
-                mEmojiFragment = new EmojiFragment();
+                mEmojiFragment = new EmojiPanelFragment();
                 getSupportFragmentManager()
                         .beginTransaction()
                         .replace(R.id.bottom_panel, mEmojiFragment)

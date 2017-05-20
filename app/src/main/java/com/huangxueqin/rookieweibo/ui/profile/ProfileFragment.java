@@ -2,21 +2,15 @@ package com.huangxueqin.rookieweibo.ui.profile;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.huangxueqin.rookieweibo.BaseFragment;
 import com.huangxueqin.rookieweibo.LceFragment;
 import com.huangxueqin.rookieweibo.R;
-import com.huangxueqin.rookieweibo.common.utils.L;
-import com.sina.weibo.sdk.openapi.models.User;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 
 /**
  * Created by huangxueqin on 2017/4/4.

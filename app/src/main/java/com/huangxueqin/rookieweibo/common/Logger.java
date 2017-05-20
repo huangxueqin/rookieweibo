@@ -1,4 +1,4 @@
-package com.huangxueqin.rookieweibo.common.utils;
+package com.huangxueqin.rookieweibo.common;
 
 import android.util.Log;
 
@@ -8,7 +8,7 @@ import com.huangxueqin.rookieweibo.BuildConfig;
  * Created by huangxueqin on 2017/3/30.
  */
 
-public class L {
+public class Logger {
     private final static boolean ENABLE_LOG = BuildConfig.DEBUG;
 
 

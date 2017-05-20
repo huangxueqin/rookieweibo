@@ -7,7 +7,6 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -16,7 +15,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.ImageView;
 
-import com.huangxueqin.rookieweibo.common.utils.L;
+import com.huangxueqin.rookieweibo.common.Logger;
 
 /**
  * Created by huangxueqin on 2017/3/26.
@@ -216,24 +215,24 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
 
         final int zoomedW = Math.round(mDrawableWidth * targetScale);
         final int zoomedH = Math.round(mDrawableHeight * targetScale);
-        L.d("TAG", "drawableWidth = " + mDrawableWidth + ", drawableHeight = " + mDrawableHeight);
-        L.d("TAG", "zoomedW = " + zoomedW + ", zoomedH = " + zoomedH);
+        Logger.d("TAG", "drawableWidth = " + mDrawableWidth + ", drawableHeight = " + mDrawableHeight);
+        Logger.d("TAG", "zoomedW = " + zoomedW + ", zoomedH = " + zoomedH);
         // compute tx and ty
         float targetTx = (getWidth() - zoomedW) / 2;
         if (anchorX >= 0 && zoomedW > getWidth()) {
             final float tAnchorX = anchorX - rect.left;
             targetTx = Math.max(getWidth()-zoomedW, Math.min(0, anchorX - tAnchorX * targetScale/currScale));
-            L.d("TAG", "anchorX = " + anchorX + ", scale = " + targetScale + ", tAnchorX = " + tAnchorX);
+            Logger.d("TAG", "anchorX = " + anchorX + ", scale = " + targetScale + ", tAnchorX = " + tAnchorX);
         }
 
         float targetTy = (getHeight() - zoomedH) / 2;
         if (anchorY >= 0 && zoomedH > getHeight()) {
             final float tAnchorY = anchorY - rect.top;
             targetTy = Math.max(getHeight()-zoomedH, Math.min(0, anchorY - tAnchorY * targetScale/currScale));
-            L.d("TAG", "anchorY = " + anchorY + ", scale = " + targetScale + ", tAnchorY = " + tAnchorY);
+            Logger.d("TAG", "anchorY = " + anchorY + ", scale = " + targetScale + ", tAnchorY = " + tAnchorY);
         }
 
-        L.d("TAG", "targetTx = " + targetTx + ", targetTy = " + targetTy);
+        Logger.d("TAG", "targetTx = " + targetTx + ", targetTy = " + targetTy);
         // start translation
         if (animated) {
             post(new ZoomRunnable(targetScale, targetTx, targetTy, duration));
@@ -358,7 +357,7 @@ public class ImagePreviewer extends android.support.v7.widget.AppCompatImageView
             if (mSnapDelegate != null) {
                 float unConsumedX = distanceX - consumed[0];
                 float unConsumedY = distanceY - consumed[1];
-                L.d("TAG", "unConsumedX = " + unConsumedX + ", unConsumedY = " + unConsumedY);
+                Logger.d("TAG", "unConsumedX = " + unConsumedX + ", unConsumedY = " + unConsumedY);
                 float currScale = getImageTranslateValues()[Matrix.MSCALE_X];
                 mSnapDelegate.offsetRegion(ImagePreviewer.this, unConsumedX/currScale, unConsumedY/currScale);
             }
