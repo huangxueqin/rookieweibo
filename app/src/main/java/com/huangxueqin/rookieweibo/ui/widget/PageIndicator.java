@@ -146,6 +146,8 @@ public class PageIndicator extends View {
         };
 
         if (viewPager.getAdapter() != null) {
+            int count = viewPager.getAdapter().getCount();
+            setPageCount(count);
             viewPager.getAdapter().registerDataSetObserver(observer);
         }
 

@@ -1,13 +1,10 @@
 package com.huangxueqin.rookieweibo.ui.emoji;
 
-import android.support.annotation.IdRes;
 import android.util.Pair;
 
 import com.huangxueqin.rookieweibo.R;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -15,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by huangxueqin on 2017/4/20.
  */
 
-public class EmojiManager {
+public class DefaultEmoji {
     @SuppressWarnings("unchecked")
     public final static Pair<String, Integer>[] EMOJI_TABLE = (Pair<String, Integer>[]) new Pair[] {
             new Pair("爱你", R.mipmap.d_aini),
@@ -88,14 +85,4 @@ public class EmojiManager {
             new Pair("最右", R.mipmap.d_zuiyou),
             new Pair("左哼哼", R.mipmap.d_zuohengheng)
     };
-
-    public static final Map<String, Integer> EMOJI_MAP;
-
-    static {
-        ConcurrentHashMap<String, Integer> map = new ConcurrentHashMap<>(EMOJI_TABLE.length);
-        for (Pair<String, Integer> pair : EMOJI_TABLE) {
-            map.put(pair.first, pair.second);
-        }
-        EMOJI_MAP = Collections.unmodifiableMap(map);
-    }
 }

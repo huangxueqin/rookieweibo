@@ -182,7 +182,7 @@ public class RepostActivity extends BaseActivity {
             toggleBottomPanel(true);
             // show emotion picker
             if (mEmojiFragment == null) {
-                mEmojiFragment = new EmojiPanelFragment();
+                mEmojiFragment = EmojiPanelFragment.newInstance();
                 getSupportFragmentManager()
                         .beginTransaction()
                         .replace(R.id.bottom_panel, mEmojiFragment)
