@@ -103,9 +103,15 @@ public class PageIndicator extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        // draw unselected circle
         for (int i = 0; i < mPageCount; i++) {
-            drawCircle(canvas, i);
+            if (i != mPosition) {
+                drawCircle(canvas, i);
+            }
         }
+
+        // draw selected circle
+        drawCircle(canvas, mPosition);
     }
 
     private void drawCircle(Canvas canvas, int index) {

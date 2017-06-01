@@ -15,7 +15,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.huangxueqin.rookieweibo.auth.AuthConstants;
 import com.huangxueqin.rookieweibo.cons.Cons;
-import com.huangxueqin.rookieweibo.ui.emoji.EmojiPanelFragment;
+import com.huangxueqin.rookieweibo.ui.emoji.EmoticonFragment;
 import com.sina.weibo.sdk.exception.WeiboException;
 import com.sina.weibo.sdk.net.RequestListener;
 import com.sina.weibo.sdk.openapi.legacy.StatusesAPI;
@@ -58,10 +58,10 @@ public class RepostActivity extends BaseActivity {
     int mInputViewTop;
     int mBottomPanelHeight;
 
-    boolean mKeyboardVisible;
-    boolean mBottomPanelVisible;
+    boolean mIsKeyboardShowing;
+    boolean mIsBottomPanelShowing;
 
-    EmojiPanelFragment mEmojiFragment;
+    EmoticonFragment mEmojiFragment;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -112,6 +112,14 @@ public class RepostActivity extends BaseActivity {
         @Override
         public void onGlobalLayout() {
             mContentView.getWindowVisibleDisplayFrame(rect);
+
+            if (mWindowVisibleBottom == -1) {
+                // first time
+                mWindowVisibleBottom = rect.bottom;
+                mInputViewTop = mInputView.getTop();
+                return;
+            }
+
             final int curVisibleBottom = rect.bottom;
             final int oldVisibleBottom = mWindowVisibleBottom;
 
@@ -119,13 +127,7 @@ public class RepostActivity extends BaseActivity {
                 return;
             }
 
-            if (mWindowVisibleBottom == -1) {
-                mWindowVisibleBottom = curVisibleBottom;
-                mInputViewTop = mInputView.getTop();
-                return;
-            }
-
-            mKeyboardVisible = curVisibleBottom < oldVisibleBottom;
+            mIsKeyboardShowing = curVisibleBottom < oldVisibleBottom;
             if (curVisibleBottom < oldVisibleBottom) {
                 mBottomPanelHeight = oldVisibleBottom - curVisibleBottom;
                 toggleEmotionPicker(false);
@@ -182,7 +184,7 @@ public class RepostActivity extends BaseActivity {
             toggleBottomPanel(true);
             // show emotion picker
             if (mEmojiFragment == null) {
-                mEmojiFragment = EmojiPanelFragment.newInstance();
+                mEmojiFragment = EmoticonFragment.newInstance();
                 getSupportFragmentManager()
                         .beginTransaction()
                         .replace(R.id.bottom_panel, mEmojiFragment)
@@ -192,12 +194,12 @@ public class RepostActivity extends BaseActivity {
     }
 
     private void toggleBottomPanel(boolean open) {
-        if (mBottomPanelVisible == open) {
+        if (mIsBottomPanelShowing == open) {
             return;
         }
-        mBottomPanelVisible = open;
+        mIsBottomPanelShowing = open;
         if (open) {
-            if (mKeyboardVisible) {
+            if (mIsKeyboardShowing) {
                 hideKeyboard();
             } else {
                 adjustInputViewBottomForBottomPanel(true);

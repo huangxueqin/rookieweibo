@@ -15,7 +15,6 @@ import android.widget.ImageView;
 
 import com.huangxueqin.rookieweibo.BaseFragment;
 import com.huangxueqin.rookieweibo.R;
-import com.huangxueqin.rookieweibo.common.Logger;
 import com.huangxueqin.rookieweibo.ui.widget.PageIndicator;
 
 import butterknife.BindView;
@@ -24,10 +23,14 @@ import butterknife.BindView;
  * Created by huangxueqin on 2017/4/20.
  */
 
-public class EmojiPanelFragment extends BaseFragment {
+public class EmoticonFragment extends BaseFragment {
 
-    private static final int COLS_SMALL = 7;
-    private static final int ROWS_SMALL = 3;
+    public interface OnEmoticonClickListener {
+        void onClick(View v, Emoticon e);
+    }
+
+    private static final int DEFAULT_COLS = 7;
+    private static final int DEFAULT_ROWS = 3;
 
     @BindView(R.id.emoji_pager)
     ViewPager mEmojiPager;
@@ -37,16 +40,18 @@ public class EmojiPanelFragment extends BaseFragment {
     private LayoutInflater mInflater;
     private int mCols;
     private int mRows;
+    private Emoticon[] mEmoticons;
+    private OnEmoticonClickListener mListener;
 
-    public static EmojiPanelFragment newInstance() {
-        return newInstance(COLS_SMALL, ROWS_SMALL);
+    public static EmoticonFragment newInstance() {
+        return newInstance(DEFAULT_COLS, DEFAULT_ROWS);
     }
 
-    public static EmojiPanelFragment newInstance(int cols, int rows) {
+    public static EmoticonFragment newInstance(int cols, int rows) {
         Bundle argument = new Bundle();
         argument.putInt("cols", cols);
         argument.putInt("rows", rows);
-        EmojiPanelFragment fragment = new EmojiPanelFragment();
+        EmoticonFragment fragment = new EmoticonFragment();
         fragment.setArguments(argument);
         return fragment;
     }
@@ -58,6 +63,7 @@ public class EmojiPanelFragment extends BaseFragment {
         mCols = args.getInt("cols");
         mRows = args.getInt("rows");
         mInflater = LayoutInflater.from(getContext());
+        loadEmoticons();
     }
 
     @Override
@@ -70,6 +76,14 @@ public class EmojiPanelFragment extends BaseFragment {
         super.onViewCreated(view, savedInstanceState);
         mEmojiPager.setAdapter(new EmojiPanelAdapter());
         mIndicator.setViewPager(mEmojiPager);
+    }
+
+    public void setOnEmoticonClickListener(OnEmoticonClickListener listener) {
+        mListener = listener;
+    }
+
+    private void loadEmoticons() {
+        mEmoticons = EmoticonManager.getInstance().getDefaultEmoticons();
     }
 
     private class EmojiPanelAdapter extends PagerAdapter {
@@ -96,7 +110,7 @@ public class EmojiPanelFragment extends BaseFragment {
         @Override
         public int getCount() {
             final int groupCount = mCols*mRows;
-            final int totalCount = DefaultEmoji.EMOJI_TABLE.length;
+            final int totalCount = mEmoticons.length;
             return (totalCount+groupCount-1) / groupCount;
         }
 
@@ -113,12 +127,14 @@ public class EmojiPanelFragment extends BaseFragment {
                 int col = holder.col;
                 int row = holder.row;
                 int resIndex = position * count + row * mCols + col;
-                if (resIndex < DefaultEmoji.EMOJI_TABLE.length) {
+                if (resIndex < mEmoticons.length) {
+                    Emoticon e = mEmoticons[resIndex];
+                    holder.emoticon = e;
                     holder.itemView.setVisibility(View.VISIBLE);
-                    holder.emojiIcon.setImageResource(DefaultEmoji.EMOJI_TABLE[resIndex].second);
+                    holder.iconView.setImageResource(e.resId);
                 } else {
-//                    holder.itemView.setVisibility(View.INVISIBLE);
-                    holder.emojiIcon.setImageResource(0);
+                    holder.itemView.setVisibility(View.INVISIBLE);
+                    holder.iconView.setImageResource(0);
                 }
             }
         }
@@ -151,20 +167,21 @@ public class EmojiPanelFragment extends BaseFragment {
 
         class EmojiViewHolder {
             View itemView;
-            ImageView emojiIcon;
+            ImageView iconView;
+            Emoticon emoticon;
             int col;
             int row;
 
             public EmojiViewHolder(View itemView, int col, int row) {
                 this.itemView = itemView;
-                this.emojiIcon = (ImageView) itemView.findViewById(R.id.emoji);
+                this.iconView = (ImageView) itemView.findViewById(R.id.emoji);
                 this.col = col;
                 this.row = row;
 
                 itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Logger.d("TAG", "itemView height = " + v.getHeight() + ", width = " + v.getWidth());
+                        mListener.onClick(v, emoticon);
                     }
                 });
             }
