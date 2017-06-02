@@ -1,13 +1,11 @@
 package com.huangxueqin.rookieweibo;
 
 import android.content.Context;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -16,6 +14,7 @@ import com.google.gson.Gson;
 import com.huangxueqin.rookieweibo.auth.AuthConstants;
 import com.huangxueqin.rookieweibo.cons.Cons;
 import com.huangxueqin.rookieweibo.ui.emoji.EmoticonFragment;
+import com.huangxueqin.rookieweibo.common.KeyboardObserver;
 import com.sina.weibo.sdk.exception.WeiboException;
 import com.sina.weibo.sdk.net.RequestListener;
 import com.sina.weibo.sdk.openapi.legacy.StatusesAPI;
@@ -28,7 +27,7 @@ import butterknife.ButterKnife;
  * Created by huangxueqin on 2017/4/18.
  */
 
-public class RepostActivity extends BaseActivity {
+public class RepostActivity extends BaseActivity implements KeyboardObserver.KeyboardStateListener {
 
     @BindView(R.id.root_view)
     ViewGroup mContentView;
@@ -54,14 +53,14 @@ public class RepostActivity extends BaseActivity {
     int mTextCount = 0;
 
     // used for handle toggling bottom panel
-    int mWindowVisibleBottom = -1;
-    int mInputViewTop;
     int mBottomPanelHeight;
 
     boolean mIsKeyboardShowing;
     boolean mIsBottomPanelShowing;
 
     EmoticonFragment mEmojiFragment;
+
+    KeyboardObserver mKeyboardObserver;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -78,7 +77,21 @@ public class RepostActivity extends BaseActivity {
 
         initViews();
 
-        mContentView.getViewTreeObserver().addOnGlobalLayoutListener(mKeyboardObserver);
+        mKeyboardObserver = new KeyboardObserver(mContentView);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mKeyboardObserver.setKeyboardStateListener(this);
+        mKeyboardObserver.startObserve();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mKeyboardObserver.stopObserve();
+        mKeyboardObserver.setKeyboardStateListener(null);
     }
 
     @Override
@@ -105,46 +118,32 @@ public class RepostActivity extends BaseActivity {
         mBottomPanelHeight = 600;
     }
 
-    private ViewTreeObserver.OnGlobalLayoutListener mKeyboardObserver = new ViewTreeObserver.OnGlobalLayoutListener() {
+    @Override
+    public void onKeyboardShow(int keyboardHeight) {
+        mIsKeyboardShowing = true;
+        mBottomPanelHeight = keyboardHeight;
+        adjustInputViewHeight(mContentView.getHeight()-mInputView.getTop());
+    }
 
-        private Rect rect = new Rect();
-
-        @Override
-        public void onGlobalLayout() {
-            mContentView.getWindowVisibleDisplayFrame(rect);
-
-            if (mWindowVisibleBottom == -1) {
-                // first time
-                mWindowVisibleBottom = rect.bottom;
-                mInputViewTop = mInputView.getTop();
-                return;
-            }
-
-            final int curVisibleBottom = rect.bottom;
-            final int oldVisibleBottom = mWindowVisibleBottom;
-
-            if (curVisibleBottom == oldVisibleBottom) {
-                return;
-            }
-
-            mIsKeyboardShowing = curVisibleBottom < oldVisibleBottom;
-            if (curVisibleBottom < oldVisibleBottom) {
-                mBottomPanelHeight = oldVisibleBottom - curVisibleBottom;
-                toggleEmotionPicker(false);
-                adjustInputViewHeight();
-            } else {
-                toggleEmotionPicker(true);
-            }
-            mWindowVisibleBottom = curVisibleBottom;
+    @Override
+    public void onKeyboardDismiss() {
+        mIsKeyboardShowing = false;
+        if (!mIsBottomPanelShowing) {
+            restoreInputViewHeight();
         }
-    };
+    }
 
-    private void adjustInputViewHeight() {
-        final ViewGroup.LayoutParams lp = mInputView.getLayoutParams();
-        lp.height = mContentView.getHeight()-mInputViewTop;
+    private void adjustInputViewHeight(int height) {
+        ViewGroup.LayoutParams lp = mInputView.getLayoutParams();
+        lp.height = height;
         mInputView.setLayoutParams(lp);
     }
 
+    private void restoreInputViewHeight() {
+        ViewGroup.LayoutParams lp = mInputView.getLayoutParams();
+        lp.height = ViewGroup.LayoutParams.MATCH_PARENT;
+        mInputView.setLayoutParams(lp);
+    }
 
     private void showKeyboard(final int flags) {
         final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -155,12 +154,11 @@ public class RepostActivity extends BaseActivity {
     }
 
     private void hideKeyboard() {
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm != null) {
-            imm.hideSoftInputFromWindow(mContentEditor.getWindowToken(), 0);
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.hideSoftInputFromWindow(mContentEditor.getWindowToken(), 0);
         }
     }
-
 
     @Override
     protected void onToolbarButtonPress(View v) {
@@ -202,16 +200,10 @@ public class RepostActivity extends BaseActivity {
             if (mIsKeyboardShowing) {
                 hideKeyboard();
             } else {
-                adjustInputViewBottomForBottomPanel(true);
+                adjustInputViewHeight(mContentView.getHeight()-mInputView.getTop()-mBottomPanelHeight);
             }
         }
-        mBottomPanel.setVisibility(open ? View.VISIBLE : View.GONE);
-    }
-
-    private void adjustInputViewBottomForBottomPanel(boolean open) {
-        final ViewGroup.LayoutParams lp = mInputView.getLayoutParams();
-        lp.height = mContentView.getHeight() - mInputViewTop - (open ? mBottomPanelHeight : 0);
-        mInputView.setLayoutParams(lp);
+        mBottomPanel.setVisibility(open ? View.VISIBLE : View.INVISIBLE);
     }
 
     private void doRepost() {
