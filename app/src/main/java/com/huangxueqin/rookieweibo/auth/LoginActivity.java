@@ -29,7 +29,6 @@ import butterknife.ButterKnife;
 
 public class LoginActivity extends BaseActivity {
 
-    @BindView(R.id.close) View mToolbarClose;
     @BindView(R.id.login_button) Button mLoginButton;
     @BindView(R.id.dim_view) View mDimVim;
 
@@ -40,8 +39,7 @@ public class LoginActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
-        mToolbarClose.setOnClickListener(mToolbarActionListener);
+        ButterKnife.bind(this);
         mSsoHandler = new SsoHandler(this, new AuthInfo(this, AuthConstants.APP_KEY, AuthConstants.REDIRECT_URL, AuthConstants.SCOPE));
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override

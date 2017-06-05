@@ -28,8 +28,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     @BindView(R.id.close)
     View mCloseButton;
 
-    User mUser;
-    Oauth2AccessToken mAccessToken;
+    protected User mUser;
+    protected Oauth2AccessToken mAccessToken;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

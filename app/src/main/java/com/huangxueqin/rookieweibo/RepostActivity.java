@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.huangxueqin.rookieweibo.auth.AuthConstants;
+import com.huangxueqin.rookieweibo.common.KeyboardPanelActivity;
 import com.huangxueqin.rookieweibo.cons.Cons;
 import com.huangxueqin.rookieweibo.ui.emoji.EmoticonFragment;
 import com.huangxueqin.rookieweibo.common.KeyboardObserver;
@@ -27,20 +28,12 @@ import butterknife.ButterKnife;
  * Created by huangxueqin on 2017/4/18.
  */
 
-public class RepostActivity extends BaseActivity implements KeyboardObserver.KeyboardStateListener {
+public class RepostActivity extends KeyboardPanelActivity {
 
-    @BindView(R.id.root_view)
-    ViewGroup mContentView;
-
-    @BindView(R.id.input_view)
-    ViewGroup mInputView;
     @BindView(R.id.content_editor)
     EditText mContentEditor;
     @BindView(R.id.emotion_picker)
     View mBtnEmotionPick;
-
-    @BindView(R.id.bottom_panel)
-    ViewGroup mBottomPanel;
 
     // toolbar views
     @BindView(R.id.toolbar)
@@ -50,22 +43,11 @@ public class RepostActivity extends BaseActivity implements KeyboardObserver.Key
 
     Status mStatus;
     StatusesAPI mStatusesAPI;
-    int mTextCount = 0;
-
-    // used for handle toggling bottom panel
-    int mBottomPanelHeight;
-
-    boolean mIsKeyboardShowing;
-    boolean mIsBottomPanelShowing;
-
     EmoticonFragment mEmojiFragment;
-
-    KeyboardObserver mKeyboardObserver;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_repost);
         ButterKnife.bind(this);
 
         mSendButton.setOnClickListener(mToolbarActionListener);
@@ -76,22 +58,42 @@ public class RepostActivity extends BaseActivity implements KeyboardObserver.Key
         mStatusesAPI = new StatusesAPI(this, AuthConstants.APP_KEY, mAccessToken);
 
         initViews();
-
-        mKeyboardObserver = new KeyboardObserver(mContentView);
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        mKeyboardObserver.setKeyboardStateListener(this);
-        mKeyboardObserver.startObserve();
+    protected int getContentViewId() {
+        return R.id.input_view;
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        mKeyboardObserver.stopObserve();
-        mKeyboardObserver.setKeyboardStateListener(null);
+    protected int getPanelViewId() {
+        return R.id.bottom_panel;
+    }
+
+    @Override
+    protected int getRootViewId() {
+        return R.id.root_view;
+    }
+
+    @Override
+    protected int getLayoutId() {
+        return R.layout.activity_repost;
+    }
+
+    @Override
+    protected void onKeyboardShow(int keyboardHeight) {
+        super.onKeyboardShow(keyboardHeight);
+        if (isBottomPanelOpen()) {
+            mBtnEmotionPick.setSelected(false);
+        }
+    }
+
+    @Override
+    protected void onKeyboardDismiss() {
+        super.onKeyboardDismiss();
+        if (isBottomPanelOpen()) {
+            mBtnEmotionPick.setSelected(true);
+        }
     }
 
     @Override
@@ -100,7 +102,7 @@ public class RepostActivity extends BaseActivity implements KeyboardObserver.Key
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                showKeyboard(InputMethodManager.SHOW_IMPLICIT);
+                showKeyboard(mContentEditor);
                 mContentEditor.setSelection(0);
             }
         });
@@ -109,54 +111,8 @@ public class RepostActivity extends BaseActivity implements KeyboardObserver.Key
     private void initViews() {
         if (mStatus.retweeted_status != null) {
             final String initContent = "//@" + mStatus.user.screen_name + ":" + mStatus.text;
-            mTextCount = initContent.length();
             mContentEditor.setText(initContent);
             mContentEditor.setSelection(0);
-        }
-
-        mBottomPanel.setVisibility(View.GONE);
-        mBottomPanelHeight = 600;
-    }
-
-    @Override
-    public void onKeyboardShow(int keyboardHeight) {
-        mIsKeyboardShowing = true;
-        mBottomPanelHeight = keyboardHeight;
-        adjustInputViewHeight(mContentView.getHeight()-mInputView.getTop());
-    }
-
-    @Override
-    public void onKeyboardDismiss() {
-        mIsKeyboardShowing = false;
-        if (!mIsBottomPanelShowing) {
-            restoreInputViewHeight();
-        }
-    }
-
-    private void adjustInputViewHeight(int height) {
-        ViewGroup.LayoutParams lp = mInputView.getLayoutParams();
-        lp.height = height;
-        mInputView.setLayoutParams(lp);
-    }
-
-    private void restoreInputViewHeight() {
-        ViewGroup.LayoutParams lp = mInputView.getLayoutParams();
-        lp.height = ViewGroup.LayoutParams.MATCH_PARENT;
-        mInputView.setLayoutParams(lp);
-    }
-
-    private void showKeyboard(final int flags) {
-        final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm != null) {
-            mContentEditor.requestFocus();
-            imm.showSoftInput(mContentEditor, flags);
-        }
-    }
-
-    private void hideKeyboard() {
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                if (imm != null) {
-                    imm.hideSoftInputFromWindow(mContentEditor.getWindowToken(), 0);
         }
     }
 
@@ -175,12 +131,7 @@ public class RepostActivity extends BaseActivity implements KeyboardObserver.Key
 
     private void toggleEmotionPicker(boolean open) {
         mBtnEmotionPick.setSelected(open);
-        if (!open) {
-            toggleBottomPanel(false);
-            showKeyboard(InputMethodManager.SHOW_IMPLICIT);
-        } else {
-            toggleBottomPanel(true);
-            // show emotion picker
+        if (open) {
             if (mEmojiFragment == null) {
                 mEmojiFragment = EmoticonFragment.newInstance();
                 getSupportFragmentManager()
@@ -188,22 +139,10 @@ public class RepostActivity extends BaseActivity implements KeyboardObserver.Key
                         .replace(R.id.bottom_panel, mEmojiFragment)
                         .commit();
             }
+            openBottomPanel(mContentEditor);
+        } else {
+            closeBottomPanel();
         }
-    }
-
-    private void toggleBottomPanel(boolean open) {
-        if (mIsBottomPanelShowing == open) {
-            return;
-        }
-        mIsBottomPanelShowing = open;
-        if (open) {
-            if (mIsKeyboardShowing) {
-                hideKeyboard();
-            } else {
-                adjustInputViewHeight(mContentView.getHeight()-mInputView.getTop()-mBottomPanelHeight);
-            }
-        }
-        mBottomPanel.setVisibility(open ? View.VISIBLE : View.INVISIBLE);
     }
 
     private void doRepost() {
