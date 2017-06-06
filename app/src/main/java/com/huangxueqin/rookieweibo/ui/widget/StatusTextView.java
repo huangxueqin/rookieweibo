@@ -99,7 +99,7 @@ public class StatusTextView extends android.support.v7.widget.AppCompatTextView 
                 mLinkHandler.handleAt(StatusTextView.this, spanURL.substring(WeiboPattern.SCHEME_AT.length()));
             } else if (spanURL.startsWith(WeiboPattern.SCHEME_TOPIC)) {
                 mLinkHandler.handleTopic(StatusTextView.this, spanURL.substring(WeiboPattern.SCHEME_TOPIC.length())
-                        .substring(1, spanURL.length()-1));
+                        .substring(1, spanURL.length()-WeiboPattern.SCHEME_TOPIC.length()-1));
             }
         }
 

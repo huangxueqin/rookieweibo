@@ -55,6 +55,8 @@ public class GalleryActivity extends BaseActivity {
         mImageUrls = bundle.getStringArrayExtra(Cons.IntentKey.IMAGE_LIST);
         mSelectedIndex = bundle.getIntExtra(Cons.IntentKey.SELECT_INDEX, 0);
         setContentView(R.layout.activity_gallery);
+        ButterKnife.bind(this);
+
         mImageList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mImageList.setAdapter(new ImageAdapter());
         mImageList.scrollToPosition(mSelectedIndex);
