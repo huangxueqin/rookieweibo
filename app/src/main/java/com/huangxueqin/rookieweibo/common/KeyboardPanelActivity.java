@@ -10,7 +10,6 @@ import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 
 import com.huangxueqin.rookieweibo.BaseActivity;
-import com.huangxueqin.rookieweibo.R;
 
 /**
  * Created by huangxueqin on 2017/6/5.
@@ -26,11 +25,8 @@ public abstract class KeyboardPanelActivity extends BaseActivity {
 
     private KeyboardStatusObserver mKeyboardObserver;
     private boolean mKeyboardOpen;
-    private boolean mKeyboardShouldOpen;
     private boolean mBottomPanelOpen;
     private int mBottomPanelHeight = -1;
-
-    private View mLastInputViewForBottomPanel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,10 +52,15 @@ public abstract class KeyboardPanelActivity extends BaseActivity {
         mKeyboardObserver.stopObserve();
     }
 
+    // interfaces
     protected abstract int getContentViewId();
     protected abstract int getPanelViewId();
     protected abstract int getRootViewId();
     protected abstract int getLayoutId();
+    protected abstract void onKeyboardShow();
+    protected abstract void onKeyboardDismiss();
+    protected abstract void onBottomPanelShow();
+    protected abstract void onBottomPanelDismiss();
 
     protected int getDefaultPanelHeight() {
         return 600;
@@ -69,57 +70,52 @@ public abstract class KeyboardPanelActivity extends BaseActivity {
         return mBottomPanelHeight > 0 ? mBottomPanelHeight : getDefaultPanelHeight();
     }
 
-    protected void onKeyboardShow(int keyboardHeight) {
+    private void handleKeyboardShow(int keyboardHeight) {
         mKeyboardOpen = true;
+        mBottomPanelOpen = false;
         mBottomPanelHeight = keyboardHeight;
         mPanelViewLP.height = 0;
         mPanelView.setLayoutParams(mPanelViewLP);
         mContentViewLP.height = mRootView.getHeight()-mContentView.getTop();
         mContentView.setLayoutParams(mContentViewLP);
+        onKeyboardShow();
     }
 
-    protected void onKeyboardDismiss() {
+    private void handleKeyboardDismiss() {
         mKeyboardOpen = false;
         if (mBottomPanelOpen) {
+            mContentViewLP.height = mRootView.getHeight() - mContentView.getTop() - getPanelHeight();
+            mContentView.setLayoutParams(mContentViewLP);
             mPanelViewLP.height = getPanelHeight();
             mPanelView.setLayoutParams(mPanelViewLP);
-            mContentViewLP.height = mRootView.getHeight()-mContentView.getTop()-getPanelHeight();
-            mContentView.setLayoutParams(mContentViewLP);
         } else {
-            mContentViewLP.height = mRootView.getHeight()-mContentView.getTop();
+            mContentViewLP.height = mRootView.getHeight() - mContentView.getTop();
             mContentView.setLayoutParams(mContentViewLP);
         }
+        onKeyboardDismiss();
     }
 
-    protected void openBottomPanel(View view) {
+    protected void showBottomPanel() {
         mBottomPanelOpen = true;
         if (mKeyboardOpen) {
-            mKeyboardShouldOpen = true;
-            mLastInputViewForBottomPanel = view;
             hideKeyboard();
         } else {
             mPanelViewLP.height = getPanelHeight();
             mPanelView.setLayoutParams(mPanelViewLP);
             mContentViewLP.height = mRootView.getHeight() - mContentView.getTop() - getPanelHeight();
             mContentView.setLayoutParams(mContentViewLP);
+            onBottomPanelShow();
         }
     }
 
-    protected boolean isBottomPanelOpen() {
-        return mBottomPanelOpen;
-    }
-
-    protected void closeBottomPanel() {
+    protected void hideBottomPanel(boolean keyboardWillShow) {
         mBottomPanelOpen = false;
-        if (mKeyboardShouldOpen) {
-            showKeyboard(mLastInputViewForBottomPanel);
-            mKeyboardShouldOpen = false;
-            mLastInputViewForBottomPanel = null;
-        } else {
+        if (!keyboardWillShow) {
             mPanelViewLP.height = 0;
             mPanelView.setLayoutParams(mPanelViewLP);
             mContentViewLP.height = mRootView.getHeight() - mContentView.getTop();
             mContentView.setLayoutParams(mContentViewLP);
+            onBottomPanelDismiss();
         }
     }
 
@@ -138,6 +134,14 @@ public abstract class KeyboardPanelActivity extends BaseActivity {
         if (imm != null) {
             imm.hideSoftInputFromWindow(mContentView.getWindowToken(), 0);
         }
+    }
+
+    protected boolean isBottomPanelOpen() {
+        return mBottomPanelOpen;
+    }
+
+    protected boolean isKeyboardOpen() {
+        return mKeyboardOpen;
     }
 
     private class KeyboardStatusObserver implements ViewTreeObserver.OnGlobalLayoutListener {
@@ -161,10 +165,10 @@ public abstract class KeyboardPanelActivity extends BaseActivity {
             if (Math.abs(curWindowBottom-oldWindowBottom) > 100) {
                 if (curWindowBottom > oldWindowBottom) {
                     // keyboard dismiss
-                    onKeyboardDismiss();
+                    handleKeyboardDismiss();
                 } else if (curWindowBottom < oldWindowBottom) {
                     // keyboard show
-                    onKeyboardShow(oldWindowBottom-curWindowBottom);
+                    handleKeyboardShow(oldWindowBottom-curWindowBottom);
                 }
             }
             attachedWindowBottom = curWindowBottom;

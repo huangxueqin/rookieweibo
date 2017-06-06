@@ -16,6 +16,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.huangxueqin.rookieweibo.R;
+import com.huangxueqin.rookieweibo.common.EmoticonStringFormatter;
 import com.huangxueqin.rookieweibo.cons.WeiboPattern;
 import com.huangxueqin.rookieweibo.interfaces.StatusLinkHandler;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
@@ -79,7 +80,7 @@ public class StatusTextView extends android.support.v7.widget.AppCompatTextView 
                 ssb.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
-        return ssb;
+        return EmoticonStringFormatter.format(getContext(), ssb, getTextSize());
     }
 
     private class StatusClickSpan extends ClickableSpan {

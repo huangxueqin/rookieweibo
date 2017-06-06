@@ -12,4 +12,12 @@ public class Emoticon {
         this.name = name;
         this.resId = resId;
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getResId() {
+        return resId;
+    }
 }
