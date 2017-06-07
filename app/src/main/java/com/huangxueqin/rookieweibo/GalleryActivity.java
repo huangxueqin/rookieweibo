@@ -11,14 +11,17 @@ import android.support.v4.util.LruCache;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.huangxueqin.rookieweibo.common.Logger;
 import com.huangxueqin.rookieweibo.cons.Cons;
 import com.huangxueqin.ultimateimageview.UltimateImageView;
 import com.lsjwzh.widget.recyclerviewpager.RecyclerViewPager;
@@ -38,49 +41,21 @@ import butterknife.ButterKnife;
 
 public class GalleryActivity extends BaseActivity {
     String[] mImageUrls;
-    int mSelectedIndex;
 
     @BindView(R.id.image_list)
     RecyclerViewPager mImageList;
-
-    LruCache<String, Bitmap> mImageCache;
-    HashMap<ImageView, String> mLoadMap;
-    HashMap<String, DecoderOptions> mDecoderOpts;
-    int mMaxBitmapSize;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         final Intent bundle = getIntent();
         mImageUrls = bundle.getStringArrayExtra(Cons.IntentKey.IMAGE_LIST);
-        mSelectedIndex = bundle.getIntExtra(Cons.IntentKey.SELECT_INDEX, 0);
         setContentView(R.layout.activity_gallery);
         ButterKnife.bind(this);
 
         mImageList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mImageList.setAdapter(new ImageAdapter());
-        mImageList.scrollToPosition(mSelectedIndex);
-
-        final int maxMemory = (int) Runtime.getRuntime().maxMemory()/1024;
-        mImageCache = new LruCache<String, Bitmap>(maxMemory/8) {
-            @Override
-            protected int sizeOf(String key, Bitmap value) {
-                return value.getByteCount() / 1024;
-            }
-        };
-        mLoadMap = new HashMap<>();
-        mDecoderOpts = new HashMap<>();
-
-        final DisplayMetrics metrics = getResources().getDisplayMetrics();
-        mMaxBitmapSize = Math.max(metrics.widthPixels, metrics.heightPixels);
-    }
-
-    private static int computeSampling(final int srcSize, final int dstSize) {
-        int sampling = 1;
-        while (srcSize / (sampling+1) >= dstSize) {
-            sampling += 1;
-        }
-        return sampling;
+        mImageList.scrollToPosition(bundle.getIntExtra(Cons.IntentKey.SELECT_INDEX, 0));
     }
 
     private void setImageUrl(final String url, final UltimateImageView imageView) {
@@ -109,7 +84,12 @@ public class GalleryActivity extends BaseActivity {
             holder.gifView.setVisibility(isGif ? View.VISIBLE : View.GONE);
             holder.image.setVisibility(isGif ? View.GONE : View.VISIBLE);
             if (isGif) {
-                Glide.with(GalleryActivity.this).load(imageURL).asGif().into(holder.gifView);
+                Log.d("TAG", "isGif");
+                Glide.with(GalleryActivity.this)
+                        .load(imageURL)
+                        .asGif()
+                        .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                        .into(holder.gifView);
             } else {
                 setImageUrl(imageURL, holder.image);
             }
@@ -143,7 +123,17 @@ public class GalleryActivity extends BaseActivity {
         exitImmersiveMode();
     }
 
+    @Override
+    protected void onToolbarClosePress() {
+        super.onToolbarClosePress();
+        overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out);
+    }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out);
+    }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
@@ -160,26 +150,14 @@ public class GalleryActivity extends BaseActivity {
                                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                                 | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
-                                | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
-                                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+//                                | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+//                                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                );
     }
 
     private void exitImmersiveMode() {
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-    }
-
-    private static class DecoderOptions {
-        final int rawWidth;
-        final int rawHeight;
-        BitmapRegionDecoder decoder;
-        Rect region;
-        BitmapFactory.Options options;
-
-        public DecoderOptions(final int rawWidth, final int rawHeight) {
-            this.rawWidth = rawWidth;
-            this.rawHeight = rawHeight;
-        }
     }
 }

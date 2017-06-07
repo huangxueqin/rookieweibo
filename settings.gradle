@@ -1,2 +1,2 @@
-include ':app', ':ultimateimageview'
+include ':app', ':ultimateimageview', ':test'
 include ':weiboSDK'

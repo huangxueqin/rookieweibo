@@ -7,21 +7,17 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.huangxueqin.rookieweibo.AppConfiguration;
-import com.huangxueqin.rookieweibo.BaseFragment;
 import com.huangxueqin.rookieweibo.BrowserActivity;
 import com.huangxueqin.rookieweibo.LceFragment;
 import com.huangxueqin.rookieweibo.R;
 import com.huangxueqin.rookieweibo.RepostActivity;
 import com.huangxueqin.rookieweibo.common.list.LoadingListener;
-import com.huangxueqin.rookieweibo.WeiboAPIWrapper;
-import com.huangxueqin.rookieweibo.auth.AuthConstants;
+import com.huangxueqin.rookieweibo.WeiboApiWrapper;
 import com.huangxueqin.rookieweibo.cons.Cons;
 import com.huangxueqin.rookieweibo.cons.StatusAction;
 import com.huangxueqin.rookieweibo.interfaces.StatusLinkHandler;
@@ -37,7 +33,6 @@ import com.sina.weibo.sdk.openapi.models.User;
 import java.util.ArrayList;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -151,7 +146,7 @@ public class WeiboFlowFragment extends LceFragment implements SwipeRefreshLayout
         }
     };
 
-    private class StatusAPIWrapper extends WeiboAPIWrapper {
+    private class StatusAPIWrapper extends WeiboApiWrapper {
         int RETRY;
         final int PAGE;
         boolean mFinish;

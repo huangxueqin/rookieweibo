@@ -8,7 +8,6 @@ import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
-import android.support.v4.util.Pools;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -23,6 +22,7 @@ import android.view.ViewParent;
 
 import com.huangxueqin.ultimateimageview.factory.FileImageBlockSource;
 import com.huangxueqin.ultimateimageview.factory.ImageBlockSource;
+import com.huangxueqin.ultimateimageview.utils.RectPool;
 
 import java.io.File;
 import java.util.List;
@@ -49,7 +49,7 @@ public class UltimateImageView extends View implements ImageBlockTarget {
     private Matrix mSuppMatrix = new Matrix();
     private Matrix mImageMatrix = new Matrix();
 
-    private RectCache mRectCache = new RectCache();
+    private RectPool mRectPool = new RectPool(10);
     private float[] mMatrixValues = new float[9];
     private Matrix mTempMatrix = new Matrix();
 
@@ -115,6 +115,7 @@ public class UltimateImageView extends View implements ImageBlockTarget {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+        Log.d("UltimateImageView", "onDetachedFromWindow");
         if (mImageLoader != null) {
             mImageLoader.finalize();
         }
@@ -158,13 +159,13 @@ public class UltimateImageView extends View implements ImageBlockTarget {
             return;
         }
 
-        final Rect drawRect = mRectCache.obtainRect();
+        final Rect drawRect = mRectPool.acquireRect();
         getImageDrawRect(drawRect);
         mImageMatrix.getValues(mMatrixValues);
         final float scale = mMatrixValues[Matrix.MSCALE_X];
         List<DrawBlock> drawDatas = mImageLoader.getDrawData(1/scale, drawRect);
-        final RectF dstRectF = mRectCache.obtainRectF();
-        final Rect dstRect = mRectCache.obtainRect();
+        final RectF dstRectF = mRectPool.acquireRectF();
+        final Rect dstRect = mRectPool.acquireRect();
         for (DrawBlock data : drawDatas) {
             dstRectF.set(data.imgRect);
             mImageMatrix.mapRect(dstRectF);
@@ -172,9 +173,9 @@ public class UltimateImageView extends View implements ImageBlockTarget {
             canvas.drawBitmap(data.bitmap, data.srcRect, dstRect, null);
         }
 
-        mRectCache.recycle(drawRect);
-        mRectCache.recycle(dstRectF);
-        mRectCache.recycle(dstRect);
+        mRectPool.release(drawRect);
+        mRectPool.release(dstRectF);
+        mRectPool.release(dstRect);
     }
 
     private void updateImageMatrix() {
@@ -194,7 +195,7 @@ public class UltimateImageView extends View implements ImageBlockTarget {
     }
 
     private void transitDrawable(float dx, float dy) {
-        final RectF dispRectF = mRectCache.obtainRectF();
+        final RectF dispRectF = mRectPool.acquireRectF();
         getDisplayRect(dispRectF);
 
         final float dxMin = Math.min(0, getWidth() - dispRectF.right);
@@ -208,11 +209,11 @@ public class UltimateImageView extends View implements ImageBlockTarget {
         mSuppMatrix.postTranslate(tx, ty);
         updateImageMatrix();
 
-        mRectCache.recycle(dispRectF);
+        mRectPool.release(dispRectF);
     }
 
     private boolean canDragVertically(int directionY) {
-        final RectF rectF = mRectCache.obtainRectF();
+        final RectF rectF = mRectPool.acquireRectF();
         getDisplayRect(rectF);
         try {
             if (directionY > 0) {
@@ -221,22 +222,22 @@ public class UltimateImageView extends View implements ImageBlockTarget {
                 return Math.round(rectF.bottom) > getHeight();
             }
         } finally {
-            mRectCache.recycle(rectF);
+            mRectPool.release(rectF);
         }
     }
 
     private boolean canDragHorizontally() {
-        final RectF rectF = mRectCache.obtainRectF();
+        final RectF rectF = mRectPool.acquireRectF();
         getDisplayRect(rectF);
         try {
             return Math.round(rectF.width()) > getWidth();
         } finally {
-            mRectCache.recycle(rectF);
+            mRectPool.release(rectF);
         }
     }
 
     private boolean canDragHorizontally(int directionX) {
-        final RectF rectF = mRectCache.obtainRectF();
+        final RectF rectF = mRectPool.acquireRectF();
         getDisplayRect(rectF);
         try {
             if (directionX > 0) {
@@ -245,28 +246,28 @@ public class UltimateImageView extends View implements ImageBlockTarget {
                 return Math.round(rectF.right) > getWidth();
             }
         } finally {
-            mRectCache.recycle(rectF);
+            mRectPool.release(rectF);
         }
     }
 
     private boolean canDragVertically() {
-        final RectF rectF = mRectCache.obtainRectF();
+        final RectF rectF = mRectPool.acquireRectF();
         getDisplayRect(rectF);
         try {
             return Math.round(rectF.height()) > getHeight();
         } finally {
-            mRectCache.recycle(rectF);
+            mRectPool.release(rectF);
         }
     }
 
     private boolean canDrag() {
-        final RectF rectF = mRectCache.obtainRectF();
+        final RectF rectF = mRectPool.acquireRectF();
         getDisplayRect(rectF);
         try {
             return Math.round(rectF.height()) > getHeight() ||
                     Math.round(rectF.width()) > getWidth();
         } finally {
-            mRectCache.recycle(rectF);
+            mRectPool.release(rectF);
         }
     }
 
@@ -284,8 +285,8 @@ public class UltimateImageView extends View implements ImageBlockTarget {
     }
 
     private void getImageDrawRect(Rect rect) {
-        final RectF imageRectF = mRectCache.obtainRectF(0, 0, mDrawableWidth, mDrawableHeight);
-        final RectF viewRectF = mRectCache.obtainRectF(0, 0, getWidth(), getHeight());
+        final RectF imageRectF = mRectPool.acquireRectF(0, 0, mDrawableWidth, mDrawableHeight);
+        final RectF viewRectF = mRectPool.acquireRectF(0, 0, getWidth(), getHeight());
         final Matrix invertedMatrix = mTempMatrix;
         mImageMatrix.invert(invertedMatrix);
         invertedMatrix.mapRect(viewRectF);
@@ -298,8 +299,8 @@ public class UltimateImageView extends View implements ImageBlockTarget {
                 Math.round(imageRectF.bottom));
 
         // release temp rectFs
-        mRectCache.recycle(viewRectF);
-        mRectCache.recycle(imageRectF);
+        mRectPool.release(viewRectF);
+        mRectPool.release(imageRectF);
     }
 
     private void zoomImage(float targetScale, float anchorX, float anchorY, boolean animated) {
@@ -316,7 +317,7 @@ public class UltimateImageView extends View implements ImageBlockTarget {
      * @param animated
      */
     private void zoomImage(float targetScale, float anchorX, float anchorY, int duration, boolean animated) {
-        RectF rect = mRectCache.obtainRectF();
+        RectF rect = mRectPool.acquireRectF();
         getDisplayRect(rect);
 
         mImageMatrix.getValues(mMatrixValues);
@@ -514,6 +515,11 @@ public class UltimateImageView extends View implements ImageBlockTarget {
             return super.onFling(e1, e2, velocityX, velocityY);
         }
 
+        @Override
+        public void onLongPress(MotionEvent e) {
+
+        }
+
         // scale gesture
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
@@ -575,46 +581,5 @@ public class UltimateImageView extends View implements ImageBlockTarget {
             requestLayout();
         }
         invalidate();
-    }
-
-    private static class RectCache {
-        private Pools.SimplePool<Rect> mRectPool = new Pools.SimplePool<>(5);
-        private Pools.SimplePool<RectF> mRectFPool = new Pools.SimplePool<>(5);
-
-        public Rect obtainRect() {
-            Rect rect = mRectPool.acquire();
-            if (rect == null) {
-                rect = new Rect();
-            }
-            return rect;
-        }
-
-        private Rect obtainRect(int left, int top, int right, int bottom) {
-            Rect rect = obtainRect();
-            rect.set(left, top, right, bottom);
-            return rect;
-        }
-
-        public RectF obtainRectF() {
-            RectF rectF = mRectFPool.acquire();
-            if (rectF == null) {
-                rectF = new RectF();
-            }
-            return rectF;
-        }
-
-        private RectF obtainRectF(float left, float top, float right, float bottom) {
-            RectF rectF = obtainRectF();
-            rectF.set(left, top, right, bottom);
-            return rectF;
-        }
-
-        public void recycle(Rect rect) {
-            mRectPool.release(rect);
-        }
-
-        public void recycle(RectF rectF) {
-            mRectFPool.release(rectF);
-        }
     }
 }

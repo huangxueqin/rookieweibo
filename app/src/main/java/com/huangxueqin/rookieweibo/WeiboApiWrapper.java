@@ -9,7 +9,7 @@ import java.lang.ref.WeakReference;
  * Created by huangxueqin on 2017/2/24.
  */
 
-public abstract class WeiboAPIWrapper implements RequestListener {
+public abstract class WeiboApiWrapper implements RequestListener {
     private boolean mCancel;
 
     @Override
