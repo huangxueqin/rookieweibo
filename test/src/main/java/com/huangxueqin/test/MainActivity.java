@@ -20,7 +20,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         final RwImageView imageView = (RwImageView) findViewById(R.id.image);
         Glide.with(this)
-                .load("http://wx2.sinaimg.cn/mw690/718878b5ly1fgcpj1fchmj20u08qdqv6.jpg")
+                .load("http://wx4.sinaimg.cn/mw1024/718878b5ly1fgcxdq8czhj20u08ss7wi.jpg")
+//                .load("http://static.cnbetacdn.com/thumb/article/2017/0607/ee9dd19a2ef6346.jpg")
+//                .into(imageView);
                 .downloadOnly(new SimpleTarget<File>() {
                     @Override
                     public void onResourceReady(File resource, GlideAnimation<? super File> glideAnimation) {

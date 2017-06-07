@@ -12,8 +12,6 @@ import android.os.Message;
 import android.os.SystemClock;
 import android.util.Log;
 
-
-import com.bumptech.glide.load.engine.Resource;
 import com.huangxueqin.ultimateimageview.factory.ImageBlockSource;
 
 import java.util.ArrayList;
