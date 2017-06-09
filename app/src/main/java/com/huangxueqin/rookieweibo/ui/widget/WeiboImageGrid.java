@@ -1,6 +1,8 @@
 package com.huangxueqin.rookieweibo.ui.widget;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -10,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 
 /**
  * Created by huangxueqin on 2017/2/24.
@@ -41,8 +45,7 @@ public class WeiboImageGrid extends ViewGroup {
         super(context, attrs, defStyleAttr);
         mImageSpacing = (int) (getResources().getDisplayMetrics().density * IMAGE_SPACING_DP);
         for (int i = 0; i < MAX_IMAGE_COUNT; i++) {
-            ImageView im = new ImageView(context);
-            im.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            ImageView im = new WeiboStatusImageView(context);
             im.setVisibility(GONE);
             addView(im);
         }
@@ -51,11 +54,14 @@ public class WeiboImageGrid extends ViewGroup {
     public void setImage(String[] imageUrls) {
         mImageUrls = imageUrls;
         for (int i = 0; i < MAX_IMAGE_COUNT; i++) {
-            ImageView im = (ImageView) getChildAt(i);
+            final ImageView im = (ImageView) getChildAt(i);
             im.setVisibility(i < imageUrls.length ? VISIBLE : GONE);
             if (i < imageUrls.length) {
                 // avoid show gif
-                Glide.with(getContext()).load(imageUrls[i]).asBitmap().into(im);
+                Glide.with(getContext())
+                        .load(imageUrls[i])
+                        .asBitmap()
+                        .into(im);
             }
         }
     }

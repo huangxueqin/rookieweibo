@@ -1,8 +1,9 @@
-package com.huangxueqin.rookieweibo.common.utils;
+package com.huangxueqin.rookieweibo.common;
 
 import android.text.TextUtils;
 import android.util.LruCache;
 
+import com.huangxueqin.rookieweibo.common.DateUtils;
 import com.huangxueqin.rookieweibo.cons.StatusType;
 import com.sina.weibo.sdk.openapi.models.Status;
 

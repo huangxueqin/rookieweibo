@@ -2,16 +2,21 @@ package com.huangxueqin.ultimateimageview;
 
 import android.content.Context;
 import android.graphics.Matrix;
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.ViewConfigurationCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 
 import com.huangxueqin.ultimateimageview.utils.MathUtils;
 import com.huangxueqin.ultimateimageview.utils.RectPool;
@@ -20,15 +25,26 @@ import java.io.File;
 
 /**
  * Created by huangxueqin on 2017/6/7.
+ * currently can only support nested in horizontal view pager
  */
 
-public class RwImageView extends android.support.v7.widget.AppCompatImageView implements LargeImageDrawable.ImageSourceCallback {
+public class RwImageView extends android.support.v7.widget.AppCompatImageView {
 
     private static final String TAG = "RwImageView";
+
+    private static final int INVALID_POINTER_ID = -1;
 
     private GestureDetector mGestureDetector;
     private Matrix mTempMatrix = new Matrix();
     private float[] mTempValues = new float[9];
+
+    // touch events
+    private int mActivePointerId = INVALID_POINTER_ID;
+    private int mLastMotionX;
+    private int mLastMotionY;
+    private boolean mIsBeingDraggedX;
+    private boolean mIsBeingDraggedY;
+    private int mTouchSlop;
 
     public RwImageView(Context context) {
         this(context, null);
@@ -44,6 +60,7 @@ public class RwImageView extends android.support.v7.widget.AppCompatImageView im
         setOnTouchListener(mOnTouchListener);
         setScaleType(ScaleType.MATRIX);
         setClickable(true);
+        mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
     }
 
     @Override
@@ -71,10 +88,9 @@ public class RwImageView extends android.support.v7.widget.AppCompatImageView im
         return getMeasuredWidth() > 0 && getMeasuredHeight() > 0;
     }
 
-    public void setLargeImage(File imageFile) {
-        LargeImageDrawable d = new LargeImageDrawable(getContext(), imageFile);
+    public void setLargeImage(File imageFile, int width, int height) {
+        LargeImageDrawable d = new LargeImageDrawable(getContext(), imageFile, width, height);
         setImageDrawable(d);
-        d.setImageSourceCallback(this);
     }
 
     private void getDrawableDisplayBounds(RectF rectf) {
@@ -99,9 +115,123 @@ public class RwImageView extends android.support.v7.widget.AppCompatImageView im
         mRectPool.release(viewRect);
     }
 
+    // Those five method below determine if the drawable can be drag
+    private RectF mTempRectF = new RectF();
+
+    private boolean canDragVertically (int directionY) {
+        getDrawableDisplayBounds(mTempRectF);
+        if (directionY > 0) {
+            return MathUtils.roundTo(mTempRectF.top) < 0;
+        } else {
+            return MathUtils.roundTo(mTempRectF.bottom) > getMeasuredHeight();
+        }
+    }
+
+    private boolean canDragHorizontally(int directionX) {
+        getDrawableDisplayBounds(mTempRectF);
+        if (directionX > 0) {
+            return MathUtils.roundTo(mTempRectF.left) < 0;
+        } else {
+            return MathUtils.roundTo(mTempRectF.right) > getMeasuredWidth();
+        }
+    }
+
+    private boolean canDragVertically() {
+        getDrawableDisplayBounds(mTempRectF);
+        return mTempRectF.height() > getMeasuredHeight();
+    }
+
+    private boolean canDragHorizontally() {
+        getDrawableDisplayBounds(mTempRectF);
+        return mTempRectF.width() > getMeasuredWidth();
+    }
+
+    private boolean canDrag() {
+        getDrawableDisplayBounds(mTempRectF);
+        return mTempRectF.width() > getMeasuredWidth() || mTempRectF.height() > getMeasuredHeight();
+    }
+
+    private boolean detectNestedScroll(int direction) {
+        ViewParent parent = getParent();
+        while (parent != null && parent instanceof ViewGroup) {
+            ViewGroup vg = (ViewGroup) parent;
+            if (ViewCompat.canScrollHorizontally(vg, direction)) {
+                return true;
+            }
+            parent = vg.getParent();
+        }
+        return false;
+    }
+
+    private void handleNestedScroll(View v, MotionEvent event) {
+        final int action = event.getActionMasked();
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                mActivePointerId = event.getPointerId(0);
+                mLastMotionX = (int) event.getX();
+                mLastMotionY = (int) event.getY();
+//                if (v.getParent() != null) {
+                    v.getParent().requestDisallowInterceptTouchEvent(true);
+//                }
+                break;
+            case MotionEvent.ACTION_MOVE:
+                final int pointerId = mActivePointerId;
+                if (pointerId == -1) {
+                    break;
+                }
+                final int pointerIndex = event.findPointerIndex(pointerId);
+                if (pointerIndex == -1) {
+                    break;
+                }
+                final int x = (int) event.getX(pointerIndex);
+                final int y = (int) event.getY(pointerIndex);
+                final int xDiff = x - mLastMotionX;
+                final int yDiff = y - mLastMotionY;
+                if (detectNestedScroll(-xDiff)) {
+                    if (mIsBeingDraggedX && !canDragHorizontally(xDiff)) {
+                        if (!canDragVertically(yDiff) || !mIsBeingDraggedY) {
+                            v.getParent().requestDisallowInterceptTouchEvent(false);
+                        }
+                    }
+                }
+
+                if (Math.abs(xDiff) > mTouchSlop && !mIsBeingDraggedX) {
+                    mIsBeingDraggedX = true;
+                }
+                if (Math.abs(yDiff) > mTouchSlop && !mIsBeingDraggedY) {
+                    mIsBeingDraggedY = true;
+                }
+
+                if (mIsBeingDraggedX) {
+                    mLastMotionX = x;
+                }
+                if (mIsBeingDraggedY) {
+                    mLastMotionY = y;
+                }
+                break;
+            case MotionEvent.ACTION_POINTER_UP:
+
+                break;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                mIsBeingDraggedX = false;
+                mIsBeingDraggedY = false;
+                mActivePointerId = -1;
+                break;
+        }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        Log.d(TAG, "onTouchEvent: event = " + event);
+        return super.onTouchEvent(event);
+    }
+
     private OnTouchListener mOnTouchListener = new OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
+            Log.d(TAG, "onTouchListener: event = " + event);
+            handleNestedScroll(v, event);
             return mGestureDetector.onTouchEvent(event);
         }
     };
@@ -113,7 +243,26 @@ public class RwImageView extends android.support.v7.widget.AppCompatImageView im
             offsetDrawable(-distanceX, -distanceY);
             return true;
         }
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            Log.d(TAG, "onDoubleTapped");
+            final float tapX = e.getX();
+            final float tapY = e.getY();
+            final float currentScale = getCurrentScale();
+            final float targetScale = determineTargetScale(currentScale);
+            zoomDrawable(targetScale, tapX, tapY, ZOOM_DURATION, true);
+            return true;
+        }
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            Log.d(TAG, "onSingleTapUp");
+            return super.onSingleTapUp(e);
+        }
     };
+
+    private static final int ZOOM_DURATION = 200;
 
     private int mDrawableWidth;
     private int mDrawableHeight;
@@ -175,6 +324,7 @@ public class RwImageView extends android.support.v7.widget.AppCompatImageView im
         updateDrawableMatrix();
     }
 
+    // Translate
     private void offsetDrawable(float tx, float ty) {
         RectF displayRect = mRectPool.acquireRectF();
         getDrawableDisplayBounds(displayRect);
@@ -193,13 +343,82 @@ public class RwImageView extends android.support.v7.widget.AppCompatImageView im
         mRectPool.release(displayRect);
     }
 
-    @Override
-    public void onImageSizeReady(int width, int height) {
-        mDrawableWidth = width;
-        mDrawableHeight = height;
-        Log.d("TAG", "size ready, width = " + width + ", height = " + height);
-        if (sizeReady()) {
-            initImageMatrix();
+    // ZOOM
+    private float getCurrentScale() {
+        Matrix matrix = getImageMatrix();
+        matrix.getValues(mTempValues);
+        return mTempValues[Matrix.MSCALE_X];
+    }
+
+    private float determineTargetScale(float currentScale) {
+        if (Math.abs(currentScale-mBaseScale) < 0.01) {
+            currentScale = mBaseScale;
+        } else if (Math.abs(currentScale-mMaxScale) < 0.01) {
+            currentScale = mMaxScale;
+        }
+        if (currentScale < mBaseScale || currentScale >= mMaxScale) {
+            return mBaseScale;
+        } else {
+            return mMaxScale;
+        }
+    }
+
+    private class ZoomRunnable implements Runnable {
+        private final float fromScale, toScale;
+        private final float fromOffsetX, toOffsetX;
+        private final float fromOffsetY, toOffsetY;
+        private final int duration;
+        private final long startTime;
+
+        public ZoomRunnable(float toScale, float toOffsetX, float toOffsetY, int duration) {
+            getImageMatrix().getValues(mTempValues);
+            this.fromScale = mTempValues[Matrix.MSCALE_X];
+            this.fromOffsetX = mTempValues[Matrix.MTRANS_X];
+            this.fromOffsetY = mTempValues[Matrix.MTRANS_Y];
+            this.toScale = toScale;
+            this.toOffsetX = toOffsetX;
+            this.toOffsetY = toOffsetY;
+            this.duration = duration;
+            this.startTime = SystemClock.uptimeMillis();
+        }
+
+        @Override
+        public void run() {
+            final float t = Math.min(1f, 1f * (SystemClock.uptimeMillis() - startTime) / duration);
+            final float currScale = fromScale + t * (toScale - fromScale);
+            final float currOffsetX = fromOffsetX + t * (toOffsetX - fromOffsetX);
+            final float currOffsetY = fromOffsetY + t * (toOffsetY - fromOffsetY);
+
+            setDrawableTranslation(currScale, currOffsetX, currOffsetY);
+
+            if (t < 1f) {
+                postOnAnimation(this);
+            }
+        }
+    }
+
+    private void zoomDrawable(float toScale, float anchorX, float anchorY, int duration, boolean animated) {
+        getDrawableDisplayBounds(mTempRectF);
+        final float curScale = getCurrentScale();
+        final float toDw = mDrawableWidth * toScale;
+        final float toDh = mDrawableHeight * toScale;
+
+        float targetTx = (getMeasuredWidth() - toDw) / 2;
+        if (toDw > getMeasuredWidth() && anchorX >= 0) {
+            float delta = anchorX - mTempRectF.left;
+            targetTx = Math.max(getMeasuredWidth()-toDw, Math.min(0, anchorX-delta*toScale/curScale));
+        }
+
+        float targetTy = (getMeasuredHeight() - toDh) / 2;
+        if (toDh > getMeasuredHeight() && anchorY >= 0) {
+            float delta = anchorY - mTempRectF.top;
+            targetTy = Math.max(getMeasuredHeight()-toDh, Math.min(0, anchorY - delta*toScale/curScale));
+        }
+
+        if (animated) {
+            post(new ZoomRunnable(toScale, targetTx, targetTy, duration));
+        } else {
+            setDrawableTranslation(toScale, targetTx, targetTy);
         }
     }
 }

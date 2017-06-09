@@ -21,8 +21,11 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.huangxueqin.rookieweibo.common.ImageUtils;
 import com.huangxueqin.rookieweibo.common.Logger;
+import com.huangxueqin.rookieweibo.common.Size;
 import com.huangxueqin.rookieweibo.cons.Cons;
+import com.huangxueqin.ultimateimageview.RwImageView;
 import com.huangxueqin.ultimateimageview.UltimateImageView;
 import com.lsjwzh.widget.recyclerviewpager.RecyclerViewPager;
 
@@ -31,6 +34,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -40,10 +45,16 @@ import butterknife.ButterKnife;
  */
 
 public class GalleryActivity extends BaseActivity {
+    private static final String TAG = "GalleryActivity";
+
     String[] mImageUrls;
 
     @BindView(R.id.image_list)
     RecyclerViewPager mImageList;
+
+    private Map<ImageView, String> mDisplayMap = new ConcurrentHashMap<>();
+    private Map<String, Size> mImageSizeMap = new ConcurrentHashMap<>();
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -58,17 +69,6 @@ public class GalleryActivity extends BaseActivity {
         mImageList.scrollToPosition(bundle.getIntExtra(Cons.IntentKey.SELECT_INDEX, 0));
     }
 
-    private void setImageUrl(final String url, final UltimateImageView imageView) {
-        Glide.with(GalleryActivity.this)
-                .load(url)
-                .downloadOnly(new SimpleTarget<File>() {
-                    @Override
-                    public void onResourceReady(File resource, GlideAnimation<? super File> glideAnimation) {
-                        imageView.setImage(resource);
-                    }
-                });
-    }
-
     private class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -77,22 +77,63 @@ public class GalleryActivity extends BaseActivity {
             return new ViewHolder(itemView);
         }
 
+        private void showGif(RwImageView imageView, String url) {
+            Glide.with(GalleryActivity.this)
+                    .load(url)
+                    .asGif()
+                    .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                    .into(imageView);
+        }
+
+        private void showStaticImage(final RwImageView imageView, final String url) {
+            Glide.with(GalleryActivity.this)
+                    .load(url)
+                    .downloadOnly(new SimpleTarget<File>() {
+                        @Override
+                        public void onResourceReady(File resource, GlideAnimation<? super File> glideAnimation) {
+                            Size imageSize = mImageSizeMap.get(url);
+                            if (imageSize == null) {
+                                Logger.d(TAG, "decode image size from disk...");
+                                BitmapFactory.Options op = new BitmapFactory.Options();
+                                op.inJustDecodeBounds = true;
+                                BitmapFactory.decodeFile(resource.getAbsolutePath(), op);
+                                imageSize = new Size(op.outWidth, op.outHeight);
+                                mImageSizeMap.put(url, imageSize);
+                            }
+                            Logger.d(TAG, "image: " + url + ", width = " + imageSize.width + ", height = " + imageSize.height);
+                            if (url.equals(mDisplayMap.get(imageView))) {
+                                final int imgW = imageSize.width;
+                                final int imgH = imageSize.height;
+                                if (ImageUtils.isLongImage(imgW, imgH)) {
+                                    imageView.setLargeImage(resource, imgW, imgH);
+                                } else {
+                                    Glide.with(GalleryActivity.this).load(url).into(imageView);
+                                }
+                            }
+                        }
+                    });
+        }
+
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
             final String imageURL = mImageUrls[position];
-            final boolean isGif = imageURL.endsWith(".gif");
-            holder.gifView.setVisibility(isGif ? View.VISIBLE : View.GONE);
-            holder.image.setVisibility(isGif ? View.GONE : View.VISIBLE);
-            if (isGif) {
-                Log.d("TAG", "isGif");
-                Glide.with(GalleryActivity.this)
-                        .load(imageURL)
-                        .asGif()
-                        .diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                        .into(holder.gifView);
+            final RwImageView imageView = holder.image;
+            mDisplayMap.put(imageView, imageURL);
+            if (imageURL.endsWith(".gif")) {
+                Logger.d(TAG, "position " + position + " is a gif");
+                showGif(imageView, imageURL);
             } else {
-                setImageUrl(imageURL, holder.image);
+                Logger.d(TAG, "position " + position + " is a static image");
+                showStaticImage(imageView, imageURL);
             }
+
+//            Glide.with(GalleryActivity.this).load(imageURL)
+//                    .downloadOnly(new SimpleTarget<File>() {
+//                        @Override
+//                        public void onResourceReady(File resource, GlideAnimation<? super File> glideAnimation) {
+//                            holder.image.setImage(resource);
+//                        }
+//                    });
         }
 
         @Override
@@ -101,12 +142,12 @@ public class GalleryActivity extends BaseActivity {
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
-            UltimateImageView image;
-            ImageView gifView;
+            RwImageView image;
+//            UltimateImageView image;
             public ViewHolder(View itemView) {
                 super(itemView);
-                image = (UltimateImageView) itemView.findViewById(R.id.image);
-                gifView = (ImageView) itemView.findViewById(R.id.gif_image);
+                image = (RwImageView) itemView.findViewById(R.id.image);
+//                image = (UltimateImageView) itemView.findViewById(R.id.image);
             }
         }
     }

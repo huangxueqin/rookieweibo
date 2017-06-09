@@ -11,7 +11,7 @@ import com.bumptech.glide.Glide;
 import com.huangxueqin.rookieweibo.R;
 import com.huangxueqin.rookieweibo.cons.StatusAction;
 import com.huangxueqin.rookieweibo.cons.StatusType;
-import com.huangxueqin.rookieweibo.common.utils.StatusUtils;
+import com.huangxueqin.rookieweibo.common.StatusUtils;
 import com.huangxueqin.rookieweibo.interfaces.StatusLinkHandler;
 import com.huangxueqin.rookieweibo.interfaces.StatusListener;
 import com.huangxueqin.rookieweibo.ui.widget.StatusTextView;

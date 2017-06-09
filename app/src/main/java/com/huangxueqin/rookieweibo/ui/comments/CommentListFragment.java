@@ -10,7 +10,7 @@ import com.huangxueqin.rookieweibo.LceFragment;
 import com.huangxueqin.rookieweibo.R;
 import com.huangxueqin.rookieweibo.common.list.LinearLineDecoration;
 import com.huangxueqin.rookieweibo.common.list.LoadingListener;
-import com.huangxueqin.rookieweibo.common.utils.UIUtils;
+import com.huangxueqin.rookieweibo.common.UIUtils;
 import com.huangxueqin.rookieweibo.cons.Cons;
 import com.sina.weibo.sdk.exception.WeiboException;
 import com.sina.weibo.sdk.net.RequestListener;

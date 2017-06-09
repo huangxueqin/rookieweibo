@@ -13,6 +13,8 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 
 import com.huangxueqin.ultimateimageview.factory.FileImageBlockSource;
+import com.huangxueqin.ultimateimageview.utils.Size;
+import com.huangxueqin.ultimateimageview.utils.UIUtils;
 
 import java.io.File;
 import java.util.List;
@@ -23,17 +25,19 @@ import java.util.List;
 
 public class LargeImageDrawable extends Drawable implements ImageBlockTarget {
 
-    private float mSample;
+    private float mSample = 1;
     private Rect mDrawBounds = new Rect();
-    private ImageSourceCallback mImageSourceCallback;
     private int mIntrinsicWidth = -1;
     private int mIntrinsicHeight = -1;
     private DrawBlockLoader mBlockLoader;
 
-    public LargeImageDrawable(Context context, File imageFile) {
+    public LargeImageDrawable(Context context, File imageFile, int width, int height) {
+        mIntrinsicWidth = width;
+        mIntrinsicHeight = height;
+
         FileImageBlockSource source = new FileImageBlockSource(imageFile);
-        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-        final int blockSize = Math.min(metrics.widthPixels, metrics.heightPixels)/2;
+        Size screenSize = UIUtils.getScreenSize(context);
+        final int blockSize = Math.min(screenSize.width, screenSize.height)/2;
         mBlockLoader = new DrawBlockLoader(context,
                 this,
                 source,
@@ -52,10 +56,6 @@ public class LargeImageDrawable extends Drawable implements ImageBlockTarget {
         mSample = sample;
     }
 
-    public void setImageSourceCallback(ImageSourceCallback callback) {
-        mImageSourceCallback = callback;
-    }
-
     @Override
     public void draw(@NonNull Canvas canvas) {
         if (mDrawBounds.width() > 0 && mDrawBounds.height() > 0) {
@@ -67,14 +67,10 @@ public class LargeImageDrawable extends Drawable implements ImageBlockTarget {
     }
 
     @Override
-    public void setAlpha(@IntRange(from = 0, to = 255) int alpha) {
-
-    }
+    public void setAlpha(@IntRange(from = 0, to = 255) int alpha) {}
 
     @Override
-    public void setColorFilter(@Nullable ColorFilter colorFilter) {
-
-    }
+    public void setColorFilter(@Nullable ColorFilter colorFilter) {}
 
     @Override
     public int getOpacity() {
@@ -92,9 +88,7 @@ public class LargeImageDrawable extends Drawable implements ImageBlockTarget {
     }
 
     @Override
-    public void onLoadFail() {
-
-    }
+    public void onLoadFail() {}
 
     @Override
     public void onDecodeBlockSuccess() {
@@ -103,14 +97,6 @@ public class LargeImageDrawable extends Drawable implements ImageBlockTarget {
 
     @Override
     public void onImageSizeReady(int width, int height) {
-        mIntrinsicWidth = width;
-        mIntrinsicHeight = height;
-        if (mImageSourceCallback != null) {
-            mImageSourceCallback.onImageSizeReady(width, height);
-        }
-    }
-
-    public interface ImageSourceCallback {
-        void onImageSizeReady(int width, int height);
+        invalidateSelf();
     }
 }

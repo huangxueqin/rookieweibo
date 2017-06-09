@@ -7,7 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.huangxueqin.rookieweibo.R;
-import com.huangxueqin.rookieweibo.common.utils.StatusUtils;
+import com.huangxueqin.rookieweibo.common.StatusUtils;
 import com.huangxueqin.rookieweibo.interfaces.StatusLinkHandler;
 import com.huangxueqin.rookieweibo.interfaces.StatusListener;
 import com.sina.weibo.sdk.openapi.models.Status;

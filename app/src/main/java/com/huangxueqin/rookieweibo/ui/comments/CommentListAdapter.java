@@ -11,7 +11,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.huangxueqin.rookieweibo.common.list.EndlessAdapter;
 import com.huangxueqin.rookieweibo.R;
-import com.huangxueqin.rookieweibo.common.utils.StatusUtils;
+import com.huangxueqin.rookieweibo.common.StatusUtils;
 import com.huangxueqin.rookieweibo.ui.widget.StatusTextView;
 import com.sina.weibo.sdk.openapi.models.Comment;
 

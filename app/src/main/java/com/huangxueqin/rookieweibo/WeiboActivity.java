@@ -13,10 +13,11 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
+import com.huangxueqin.rookieweibo.common.Logger;
 import com.huangxueqin.rookieweibo.ui.comments.CommentListFragment;
 import com.huangxueqin.rookieweibo.cons.Cons;
 import com.huangxueqin.rookieweibo.cons.StatusType;
-import com.huangxueqin.rookieweibo.common.utils.StatusUtils;
+import com.huangxueqin.rookieweibo.common.StatusUtils;
 import com.huangxueqin.rookieweibo.ui.repost.RepostListFragment;
 import com.huangxueqin.rookieweibo.ui.widget.StatusTextView;
 import com.huangxueqin.rookieweibo.ui.widget.WeiboImageGrid;
@@ -71,7 +72,7 @@ public class WeiboActivity extends BaseActivity {
 
         String statusStr = getIntent().getStringExtra(Cons.IntentKey.STATUS);
         mStatus = new Gson().fromJson(statusStr, Status.class);
-
+        Logger.d("TAG", "status is: " + statusStr);
 
         final int statusType = StatusUtils.getStatusType(mStatus);
         int viewStubId = -1;
