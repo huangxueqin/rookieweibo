@@ -9,4 +9,11 @@
         <item name="android:layout_alignParentTop">true</item>
         <item name="android:background">@color/white</item>
     </style>
+
+    <!-- gallery activity -->
+    <style name="GalleryTheme" parent="AppTheme">
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowAnimationStyle">@style/ActivityFade</item>
+    </style>
+
 </resources>

@@ -8,15 +8,16 @@ import android.graphics.drawable.Drawable;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.view.ViewConfigurationCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.widget.Scroller;
 
 import com.huangxueqin.ultimateimageview.utils.MathUtils;
 import com.huangxueqin.ultimateimageview.utils.RectPool;
@@ -28,13 +29,14 @@ import java.io.File;
  * currently can only support nested in horizontal view pager
  */
 
-public class RwImageView extends android.support.v7.widget.AppCompatImageView {
+public class RWImageView extends android.support.v7.widget.AppCompatImageView {
 
     private static final String TAG = "RwImageView";
 
     private static final int INVALID_POINTER_ID = -1;
 
     private GestureDetector mGestureDetector;
+    private ScaleGestureDetector mScaleGestureDetector;
     private Matrix mTempMatrix = new Matrix();
     private float[] mTempValues = new float[9];
 
@@ -44,23 +46,30 @@ public class RwImageView extends android.support.v7.widget.AppCompatImageView {
     private int mLastMotionY;
     private boolean mIsBeingDraggedX;
     private boolean mIsBeingDraggedY;
+    private boolean mIsScaling;
     private int mTouchSlop;
 
-    public RwImageView(Context context) {
+    private Scroller mScroller;
+    private FlingRunnable mFlingRunnable;
+
+
+    public RWImageView(Context context) {
         this(context, null);
     }
 
-    public RwImageView(Context context, @Nullable AttributeSet attrs) {
+    public RWImageView(Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public RwImageView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public RWImageView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mGestureDetector = new GestureDetector(context, mGestureListener);
+        mScaleGestureDetector = new ScaleGestureDetector(context, mScaleGestureListener);
         setOnTouchListener(mOnTouchListener);
         setScaleType(ScaleType.MATRIX);
         setClickable(true);
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+        mScroller = new Scroller(context);
     }
 
     @Override
@@ -170,9 +179,16 @@ public class RwImageView extends android.support.v7.widget.AppCompatImageView {
                 mActivePointerId = event.getPointerId(0);
                 mLastMotionX = (int) event.getX();
                 mLastMotionY = (int) event.getY();
-//                if (v.getParent() != null) {
+                if (canDrag()) {
+                    if (v.getParent() != null) {
+                        v.getParent().requestDisallowInterceptTouchEvent(true);
+                    }
+                }
+                break;
+            case MotionEvent.ACTION_POINTER_DOWN:
+                if (v.getParent() != null) {
                     v.getParent().requestDisallowInterceptTouchEvent(true);
-//                }
+                }
                 break;
             case MotionEvent.ACTION_MOVE:
                 final int pointerId = mActivePointerId;
@@ -187,7 +203,7 @@ public class RwImageView extends android.support.v7.widget.AppCompatImageView {
                 final int y = (int) event.getY(pointerIndex);
                 final int xDiff = x - mLastMotionX;
                 final int yDiff = y - mLastMotionY;
-                if (detectNestedScroll(-xDiff)) {
+                if (!mIsScaling && detectNestedScroll(-xDiff)) {
                     if (mIsBeingDraggedX && !canDragHorizontally(xDiff)) {
                         if (!canDragVertically(yDiff) || !mIsBeingDraggedY) {
                             v.getParent().requestDisallowInterceptTouchEvent(false);
@@ -221,16 +237,25 @@ public class RwImageView extends android.support.v7.widget.AppCompatImageView {
         }
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        Log.d(TAG, "onTouchEvent: event = " + event);
-        return super.onTouchEvent(event);
-    }
-
     private OnTouchListener mOnTouchListener = new OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             Log.d(TAG, "onTouchListener: event = " + event);
+
+            if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                if (mFlingRunnable != null) {
+                    mScroller.abortAnimation();
+                    removeCallbacks(mFlingRunnable);
+                    mFlingRunnable = null;
+                }
+            }
+
+            mScaleGestureDetector.onTouchEvent(event);
+
+            if (mIsScaling) {
+                return true;
+            }
+
             handleNestedScroll(v, event);
             return mGestureDetector.onTouchEvent(event);
         }
@@ -240,7 +265,9 @@ public class RwImageView extends android.support.v7.widget.AppCompatImageView {
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             Log.d(TAG, "onScroll distanceX = " + distanceX + ", distanceY = " + distanceY);
-            offsetDrawable(-distanceX, -distanceY);
+            if (!mIsScaling) {
+                offsetDrawable(-distanceX, -distanceY);
+            }
             return true;
         }
 
@@ -260,8 +287,58 @@ public class RwImageView extends android.support.v7.widget.AppCompatImageView {
             Log.d(TAG, "onSingleTapUp");
             return super.onSingleTapUp(e);
         }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            Log.d(TAG, "onFling running");
+            Log.d(TAG, "onFling, velocityX = " + velocityX + ", velocityY = " + velocityY);
+
+            if (!canDragVertically((int) velocityY) && !canDragHorizontally((int) velocityX)) {
+                return false;
+            }
+
+            if (mFlingRunnable != null) {
+                removeCallbacks(mFlingRunnable);
+                mFlingRunnable = null;
+            }
+            mScroller.fling(0, 0, (int) velocityX, (int) velocityY, Integer.MIN_VALUE, Integer.MAX_VALUE, Integer.MIN_VALUE, Integer.MAX_VALUE);
+            if (mScroller.computeScrollOffset()) {
+                mFlingRunnable = new FlingRunnable();
+                postOnAnimation(mFlingRunnable);
+            }
+            return true;
+        }
     };
 
+    private ScaleGestureDetector.OnScaleGestureListener mScaleGestureListener = new ScaleGestureDetector.OnScaleGestureListener() {
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            Log.d(TAG, "onScale");
+            if (!mIsScaling) {
+                return false;
+            }
+            final float scale = getCurrentScale() * mScaleGestureDetector.getScaleFactor();
+            Log.d(TAG, "target scale = " + scale);
+            zoomDrawable(scale, mScaleGestureDetector.getFocusX(), mScaleGestureDetector.getFocusY(), ZOOM_DURATION, false);
+            return true;
+        }
+
+        @Override
+        public boolean onScaleBegin(ScaleGestureDetector detector) {
+            Log.d(TAG, "onScaleBegin");
+            mIsScaling = true;
+            return true;
+        }
+
+        @Override
+        public void onScaleEnd(ScaleGestureDetector detector) {
+            Log.d(TAG, "onScaleEnd");
+            mIsScaling = false;
+        }
+    };
+
+
+    // Handle drawable Transform
     private static final int ZOOM_DURATION = 200;
 
     private int mDrawableWidth;
@@ -419,6 +496,30 @@ public class RwImageView extends android.support.v7.widget.AppCompatImageView {
             post(new ZoomRunnable(toScale, targetTx, targetTy, duration));
         } else {
             setDrawableTranslation(toScale, targetTx, targetTy);
+        }
+    }
+
+    // Fling
+    private class FlingRunnable implements Runnable {
+        private int mLastX = 0;
+        private int mLastY = 0;
+
+        @Override
+        public void run() {
+            Log.d(TAG, "start computer mScroller");
+            if (mScroller.computeScrollOffset()) {
+                Log.d(TAG, "fling, currY = " + mScroller.getCurrY());
+                final int currY = mScroller.getCurrY();
+                final int dy = currY-mLastY;
+                final int currX = mScroller.getCurrX();
+                final int dx = currX-mLastX;
+
+                offsetDrawable(dx, dy);
+                postOnAnimation(this);
+
+                mLastY = currY;
+                mLastX = currX;
+            }
         }
     }
 }

@@ -15,7 +15,7 @@
 
     <LinearLayout
         android:id="@+id/toolbar"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="24dp"
         style="@style/Toolbar"
         android:background="@android:color/transparent">
         <include android:id="@+id/close"

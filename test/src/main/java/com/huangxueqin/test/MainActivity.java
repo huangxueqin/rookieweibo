@@ -1,6 +1,5 @@
 package com.huangxueqin.test;
 
-import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,16 +7,10 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.ResourceDecoder;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
-import com.huangxueqin.ultimateimageview.RwImageView;
-
-import java.io.File;
+import com.huangxueqin.ultimateimageview.RWImageView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,7 +18,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        final RwImageView imageView = (RwImageView) findViewById(R.id.image);
+        final RWImageView imageView = (RWImageView) findViewById(R.id.image);
         final ImageView imageView2 = (ImageView) findViewById(R.id.imageView2);
 //        imageView.setVisibility(View.GONE);
         imageView2.setVisibility(View.GONE);

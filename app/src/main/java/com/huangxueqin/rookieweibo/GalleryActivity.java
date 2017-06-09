@@ -1,17 +1,11 @@
 package com.huangxueqin.rookieweibo;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.BitmapRegionDecoder;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.util.LruCache;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,15 +19,10 @@ import com.huangxueqin.rookieweibo.common.ImageUtils;
 import com.huangxueqin.rookieweibo.common.Logger;
 import com.huangxueqin.rookieweibo.common.Size;
 import com.huangxueqin.rookieweibo.cons.Cons;
-import com.huangxueqin.ultimateimageview.RwImageView;
-import com.huangxueqin.ultimateimageview.UltimateImageView;
+import com.huangxueqin.ultimateimageview.RWImageView;
 import com.lsjwzh.widget.recyclerviewpager.RecyclerViewPager;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -77,7 +66,7 @@ public class GalleryActivity extends BaseActivity {
             return new ViewHolder(itemView);
         }
 
-        private void showGif(RwImageView imageView, String url) {
+        private void showGif(RWImageView imageView, String url) {
             Glide.with(GalleryActivity.this)
                     .load(url)
                     .asGif()
@@ -85,7 +74,7 @@ public class GalleryActivity extends BaseActivity {
                     .into(imageView);
         }
 
-        private void showStaticImage(final RwImageView imageView, final String url) {
+        private void showStaticImage(final RWImageView imageView, final String url) {
             Glide.with(GalleryActivity.this)
                     .load(url)
                     .downloadOnly(new SimpleTarget<File>() {
@@ -117,7 +106,7 @@ public class GalleryActivity extends BaseActivity {
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
             final String imageURL = mImageUrls[position];
-            final RwImageView imageView = holder.image;
+            final RWImageView imageView = holder.image;
             mDisplayMap.put(imageView, imageURL);
             if (imageURL.endsWith(".gif")) {
                 Logger.d(TAG, "position " + position + " is a gif");
@@ -126,14 +115,6 @@ public class GalleryActivity extends BaseActivity {
                 Logger.d(TAG, "position " + position + " is a static image");
                 showStaticImage(imageView, imageURL);
             }
-
-//            Glide.with(GalleryActivity.this).load(imageURL)
-//                    .downloadOnly(new SimpleTarget<File>() {
-//                        @Override
-//                        public void onResourceReady(File resource, GlideAnimation<? super File> glideAnimation) {
-//                            holder.image.setImage(resource);
-//                        }
-//                    });
         }
 
         @Override
@@ -142,26 +123,12 @@ public class GalleryActivity extends BaseActivity {
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
-            RwImageView image;
-//            UltimateImageView image;
+            RWImageView image;
             public ViewHolder(View itemView) {
                 super(itemView);
-                image = (RwImageView) itemView.findViewById(R.id.image);
-//                image = (UltimateImageView) itemView.findViewById(R.id.image);
+                image = (RWImageView) itemView.findViewById(R.id.image);
             }
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        enterImmersiveMode();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        exitImmersiveMode();
     }
 
     @Override
@@ -176,13 +143,7 @@ public class GalleryActivity extends BaseActivity {
         overridePendingTransition(R.anim.activity_fade_in, R.anim.activity_fade_out);
     }
 
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            enterImmersiveMode();
-        }
-    }
+
 
     private void enterImmersiveMode() {
         getWindow().getDecorView()
@@ -191,8 +152,8 @@ public class GalleryActivity extends BaseActivity {
                                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                                 | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
-//                                | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
-//                                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                                | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+                                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                 );
     }
 
