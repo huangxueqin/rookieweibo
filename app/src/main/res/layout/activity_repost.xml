@@ -23,7 +23,7 @@
     </RelativeLayout>
 
     <LinearLayout
-        android:id="@+id/input_view"
+        android:id="@+id/content_view"
         android:orientation="vertical"
         android:background="@color/white"
         android:layout_width="match_parent"
@@ -49,14 +49,14 @@
 
         <LinearLayout
             android:id="@+id/edit_toolbar"
-            android:background="@color/white"
+            android:background="@color/grey0"
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="40dp">
+            android:layout_height="@dimen/toolbar_height">
             <ImageView
-                android:id="@+id/emotion_picker"
-                android:layout_width="40dp"
-                android:layout_height="match_parent"
+                android:id="@+id/emoji_pick_button"
+                android:layout_width="@dimen/toolbar_height"
+                android:layout_height="@dimen/toolbar_height"
                 android:src="@drawable/open_emotion_panel_icon"
                 android:scaleType="center"/>
         </LinearLayout>

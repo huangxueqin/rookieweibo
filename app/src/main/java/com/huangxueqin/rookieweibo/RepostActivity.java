@@ -2,9 +2,7 @@ package com.huangxueqin.rookieweibo;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -33,7 +31,7 @@ public class RepostActivity extends KeyboardPanelActivity implements EmoticonFra
 
     @BindView(R.id.content_editor)
     EditText mContentEditor;
-    @BindView(R.id.emotion_picker)
+    @BindView(R.id.emoji_pick_button)
     View mBtnEmotionPick;
 
     // toolbar views
@@ -143,7 +141,7 @@ public class RepostActivity extends KeyboardPanelActivity implements EmoticonFra
     // KeyboardPanelActivity interfaces
     @Override
     protected int getContentViewId() {
-        return R.id.input_view;
+        return R.id.content_view;
     }
 
     @Override

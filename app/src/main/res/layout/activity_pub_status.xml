@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_view"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout style="@style/Toolbar"
+        android:id="@+id/toolbar">
+
+        <include layout="@layout/view_toolbar_back_button"
+            android:id="@+id/back"/>
+
+        <TextView
+            style="@style/Toolbar.Center"
+            android:text="@string/pub_status_title"/>
+
+        <TextView
+            android:id="@+id/send_status_button"
+            style="@style/ToolbarTextMenu.Right"
+            android:textColor="@color/green3"
+            android:text="@string/send"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/content_view"
+        android:background="@color/white"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <EditText
+            android:id="@+id/content_editor"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/weibo_input"
+            android:padding="10dp"
+            android:textSize="@dimen/text2"
+            android:textColor="@color/black"
+            android:gravity="top|left"
+            android:inputType="text|textMultiLine|textNoSuggestions"
+            android:scrollbars="vertical"/>
+
+        <LinearLayout
+            android:id="@+id/bottom_toolbar"
+            android:background="@color/grey0"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/toolbar_height"
+            android:layout_alignParentBottom="true">
+            <FrameLayout
+                android:id="@+id/emoji_pick_button"
+                android:foreground="?attr/selectableItemBackground"
+                android:layout_width="@dimen/toolbar_height"
+                android:layout_height="@dimen/toolbar_height">
+                <com.mikepenz.iconics.view.IconicsImageView
+                    xmlns:app="http://schemas.android.com/apk/res-auto"
+                    android:layout_gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:iiv_icon="ion-happy-outline"
+                    app:iiv_size="24dp"
+                    app:iiv_color="@color/grey2" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/image_pick_button"
+                android:foreground="?attr/selectableItemBackground"
+                android:layout_width="@dimen/toolbar_height"
+                android:layout_height="@dimen/toolbar_height"
+                android:layout_marginLeft="15dp">
+                <com.mikepenz.iconics.view.IconicsImageView
+                    xmlns:app="http://schemas.android.com/apk/res-auto"
+                    android:layout_gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:iiv_icon="ion-image"
+                    app:iiv_size="24dp"
+                    app:iiv_color="@color/grey2" />
+            </FrameLayout>
+
+        </LinearLayout>
+
+        <View
+            android:layout_above="@id/bottom_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="@color/grey1" />
+
+        <FrameLayout
+            android:id="@+id/update_image_area"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_above="@id/bottom_toolbar"
+            android:layout_alignParentLeft="true"
+            android:layout_marginBottom="20dp"
+            android:layout_marginLeft="10dp">
+
+            <com.huangxueqin.rookieweibo.ui.widget.WeiboStatusImageView
+                android:id="@+id/upload_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <com.mikepenz.iconics.view.IconicsImageView
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/delete_image"
+                android:layout_gravity="right|top"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="5dp"
+                app:iiv_size="13dp"
+                app:iiv_icon="ion-ios-close"
+                app:iiv_color="@color/grey2"/>
+        </FrameLayout>
+
+
+    </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/bottom_panel"
+        android:layout_width="match_parent"
+        android:layout_weight="1"
+        android:layout_height="0dp">
+    </FrameLayout>
+
+</LinearLayout>

@@ -1,10 +1,12 @@
 package com.huangxueqin.rookieweibo;
 
+import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.view.View;
 
 import com.huangxueqin.rookieweibo.interfaces.IFragmentCallback;
 import com.huangxueqin.rookieweibo.ui.message.MessageFragment;
@@ -22,8 +24,11 @@ public class MainActivity extends BaseActivity implements
         SlideTabLayout.TabSelectListener,
         IFragmentCallback {
 
+    private static final int REQUEST_PUB_STATUS = 100;
+
     @BindView(R.id.slide_tab_nav) SlideTabLayout mSlideTabNav;
     @BindView(R.id.view_pager) ViewPager mFragmentPager;
+    @BindView(R.id.send_button) View mSendButton;
 
     Fragment[] mFragments;
 
@@ -38,6 +43,8 @@ public class MainActivity extends BaseActivity implements
         mSlideTabNav.setAdapter(mSlideTabAdapter);
         mSlideTabNav.setTabSelectListener(this);
         mSlideTabNav.setCurrentItem(AppConfiguration.Main.PrimaryTabNdx);
+
+        mSendButton.setOnClickListener(mToolbarActionListener);
     }
 
     private void createMainFragments() {
@@ -71,6 +78,30 @@ public class MainActivity extends BaseActivity implements
     }
 
     @Override
+    protected void onToolbarButtonPress(View v) {
+        if (v.getId() == R.id.send_button) {
+            Intent intent = new Intent(this, PubStatusActivity.class);
+            startActivityForResult(intent, REQUEST_PUB_STATUS);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_PUB_STATUS) {
+            if (resultCode == RESULT_OK) {
+                final int currentItem = mFragmentPager.getCurrentItem();
+                if (currentItem == AppConfiguration.Main.TabWeiboFlow) {
+                    WeiboFlowFragment fragment = (WeiboFlowFragment) mFragments[currentItem];
+                    fragment.setNeedRefresh();
+                }
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    // SlideTabLayout
+    @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
         mSlideTabNav.onPageScrolled(position, positionOffset, positionOffsetPixels);
     }
@@ -85,21 +116,6 @@ public class MainActivity extends BaseActivity implements
         mSlideTabNav.onPageScrollStateChanged(state);
     }
 
-    @Override
-    public void onTabSelected(int tabNdx) {
-        mFragmentPager.setCurrentItem(tabNdx);
-    }
-
-    @Override
-    public User getUser() {
-        return mUser;
-    }
-
-    @Override
-    public Oauth2AccessToken getAccessToken() {
-        return mAccessToken;
-    }
-
     private SlideTabLayout.Adapter mSlideTabAdapter = new SlideTabLayout.Adapter() {
         @Override
         public int getTabCount() {
@@ -111,4 +127,22 @@ public class MainActivity extends BaseActivity implements
             return AppConfiguration.Main.TabNavTitles[tabNdx];
         }
     };
+
+    @Override
+    public void onTabSelected(int tabNdx) {
+        mFragmentPager.setCurrentItem(tabNdx);
+    }
+
+    // pub interfaces
+    @Override
+    public User getUser() {
+        return mUser;
+    }
+
+    @Override
+    public Oauth2AccessToken getAccessToken() {
+        return mAccessToken;
+    }
+
+
 }

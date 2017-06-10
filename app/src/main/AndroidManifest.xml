@@ -40,7 +40,11 @@
 
         <activity android:name=".WeiboActivity" />
 
-        <activity android:name=".RepostActivity"/>
+        <activity android:name=".RepostActivity" />
+
+        <activity android:name=".PubStatusActivity" />
+
+        <activity android:name=".WeiboUserActivity" />
 
         <activity android:name="com.sina.weibo.sdk.component.WeiboSdkBrowser"
             android:configChanges="keyboardHidden|orientation"

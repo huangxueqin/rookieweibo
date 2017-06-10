@@ -10,6 +10,7 @@ import com.huangxueqin.rookieweibo.AppConfiguration;
 import com.huangxueqin.rookieweibo.GalleryActivity;
 import com.huangxueqin.rookieweibo.RepostActivity;
 import com.huangxueqin.rookieweibo.WeiboActivity;
+import com.huangxueqin.rookieweibo.WeiboUserActivity;
 import com.huangxueqin.rookieweibo.cons.Cons;
 import com.sina.weibo.sdk.openapi.models.Status;
 import com.sina.weibo.sdk.openapi.models.User;
@@ -21,7 +22,9 @@ import com.sina.weibo.sdk.openapi.models.User;
 public final class StatusActionHelper {
 
     public static void goUserPage(Context context, User user) {
-        Toast.makeText(context, "Go User Page", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(context, WeiboUserActivity.class);
+        intent.putExtra(Cons.IntentKey.USER_ID, Long.parseLong(user.id));
+        context.startActivity(intent);
     }
 
     public static void goStatusPage(Context context, Status status) {

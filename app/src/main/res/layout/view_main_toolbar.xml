@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/toolbar_height"
+    android:background="@color/colorPrimary"
+    android:elevation="@dimen/toolbar_elevation">
+
+    <com.huangxueqin.rookieweibo.ui.widget.SlideTabLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/slide_tab_nav"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        app:tab_mode="fix_width"
+        app:tab_width="80dp"
+        app:tab_gravity="center"
+        app:tab_style="plain_text">
+    </com.huangxueqin.rookieweibo.ui.widget.SlideTabLayout>
+
+    <FrameLayout
+        android:id="@+id/send_button"
+        android:foreground="?attr/selectableItemBackgroundBorderless"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10dp"
+        android:layout_width="@dimen/toolbar_height"
+        android:layout_height="@dimen/toolbar_height">
+        <com.mikepenz.iconics.view.IconicsImageView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            app:iiv_icon="ion-ios-plus-empty"
+            app:iiv_color="@color/grey2"
+            app:iiv_size="14dp"/>
+    </FrameLayout>
+    
+</RelativeLayout>

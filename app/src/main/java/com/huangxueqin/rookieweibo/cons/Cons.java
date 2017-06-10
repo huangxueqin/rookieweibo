@@ -11,5 +11,7 @@ public class Cons {
         String SELECT_INDEX = "select-index";
         String STATUS = "key-status";
         String STATUS_ID = "key-status-id";
+        String USER_ID = "key-user-id";
+        String USER_NAME = "key-user-name";
     }
 }

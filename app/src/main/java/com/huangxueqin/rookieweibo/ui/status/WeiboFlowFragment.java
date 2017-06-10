@@ -3,6 +3,7 @@ package com.huangxueqin.rookieweibo.ui.status;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,6 +17,8 @@ import com.huangxueqin.rookieweibo.BrowserActivity;
 import com.huangxueqin.rookieweibo.LceFragment;
 import com.huangxueqin.rookieweibo.R;
 import com.huangxueqin.rookieweibo.RepostActivity;
+import com.huangxueqin.rookieweibo.WeiboUserActivity;
+import com.huangxueqin.rookieweibo.common.Logger;
 import com.huangxueqin.rookieweibo.common.list.LoadingListener;
 import com.huangxueqin.rookieweibo.WeiboApiWrapper;
 import com.huangxueqin.rookieweibo.cons.Cons;
@@ -41,8 +44,9 @@ import static android.app.Activity.RESULT_OK;
  */
 
 public class WeiboFlowFragment extends LceFragment implements SwipeRefreshLayout.OnRefreshListener {
-    private static final int REQUEST_REPOST = 0x1000;
+    private static final String TAG = "WeiboFlowFragment";
 
+    private static final int REQUEST_REPOST = 0x1000;
 
     @BindView(R.id.swipe_refresh_layout) SwipeRefreshLayout mSwipeRefreshLayout;
     @BindView(R.id.weibo_flow_list) RecyclerView mWeiboFlowList;
@@ -53,6 +57,7 @@ public class WeiboFlowFragment extends LceFragment implements SwipeRefreshLayout
     StatusAPIWrapper mStatusRequest;
     int mCurrentPage = 0;
     boolean mLoadingComplete = false;
+    boolean mRefreshPending = false;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -90,6 +95,37 @@ public class WeiboFlowFragment extends LceFragment implements SwipeRefreshLayout
 
     @Override
     public void onRefresh() {
+        refreshFlow();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mRefreshPending) {
+            Logger.d(TAG, "onResume: need refreshing");
+            mRefreshPending = false;
+            refreshFlow(true);
+        }
+    }
+
+    public void setNeedRefresh() {
+        if (getUserVisibleHint()) {
+            Logger.d(TAG, "setNeedRefresh: currently visible");
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    refreshFlow(true);
+                }
+            });
+        } else {
+            mRefreshPending = true;
+        }
+    }
+
+    private void refreshFlow(boolean userHint) {
+        if (userHint) {
+            mSwipeRefreshLayout.setRefreshing(true);
+        }
         refreshFlow();
     }
 
@@ -222,8 +258,7 @@ public class WeiboFlowFragment extends LceFragment implements SwipeRefreshLayout
             case REQUEST_REPOST:
                 if (resultCode == RESULT_OK) {
                     Toast.makeText(getContext(), "转发成功", Toast.LENGTH_SHORT).show();
-                    mSwipeRefreshLayout.setRefreshing(true);
-                    refreshFlow();
+                    setNeedRefresh();
                     return;
                 }
                 break;
@@ -280,7 +315,9 @@ public class WeiboFlowFragment extends LceFragment implements SwipeRefreshLayout
 
         @Override
         public void handleAt(StatusTextView view, String at) {
-
+            Intent intent = new Intent(getActivity(), WeiboUserActivity.class);
+            intent.putExtra(Cons.IntentKey.USER_NAME, at);
+            startActivity(intent);
         }
 
         @Override
