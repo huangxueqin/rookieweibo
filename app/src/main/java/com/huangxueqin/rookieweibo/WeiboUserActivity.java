@@ -57,6 +57,7 @@ public class WeiboUserActivity extends BaseActivity {
     UsersAPI mUserApi;
     StatusesAPI mStatusApi;
     WeiboFlowAdapter mWeiboFlowAdapter;
+    boolean mDataComplete;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -114,7 +115,7 @@ public class WeiboUserActivity extends BaseActivity {
         mUserInfoList.addOnScrollListener(new LoadingListener() {
             @Override
             public boolean allowLoading() {
-                return !mUserStatusApi.isExecuting() && mUserStatusApi.isValid();
+                return !mDataComplete && !mUserStatusApi.isExecuting() && mUserStatusApi.isValid();
             }
 
             @Override
@@ -145,6 +146,7 @@ public class WeiboUserActivity extends BaseActivity {
             }
             if (statuses == null || statuses.size() < 20) {
                 mWeiboFlowAdapter.setDataComplete();
+                mDataComplete = true;
             }
         }
     };
