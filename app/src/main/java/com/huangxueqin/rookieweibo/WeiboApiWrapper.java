@@ -10,6 +10,7 @@ import java.lang.ref.WeakReference;
  */
 
 public abstract class WeiboApiWrapper implements RequestListener {
+    private boolean isExecuting;
     private boolean mCancel;
 
     @Override
@@ -38,8 +39,20 @@ public abstract class WeiboApiWrapper implements RequestListener {
         return mCancel == false;
     }
 
-    abstract public void execute();
-    protected void onRequestCancel() {}
-    protected void onRequestException(WeiboException e) {}
-    protected void onRequestComplete(String s) {}
+    public boolean isExecuting() {
+        return isExecuting;
+    }
+
+    public void execute() {
+        isExecuting = true;
+    }
+    protected void onRequestCancel() {
+        isExecuting = false;
+    }
+    protected void onRequestException(WeiboException e) {
+        isExecuting = false;
+    }
+    protected void onRequestComplete(String s) {
+        isExecuting = false;
+    }
 }
