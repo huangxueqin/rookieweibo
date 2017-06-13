@@ -241,7 +241,7 @@ public class WeiboFlowFragment extends LceFragment implements SwipeRefreshLayout
                 mLoadingComplete = false;
                 updateUIAfterRefresh();
             }
-            if (statuses == null || statuses.size() < AppConfiguration.Status.COUNT) {
+            if (statuses == null || statuses.size() == 0) {
                 mLoadingComplete = true;
                 updateUIOnEndOfStatus();
             }
