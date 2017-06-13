@@ -19,8 +19,8 @@
 
 <div>
     <img src="https://github.com/huangxueqin/rookieweibo/raw/master/pics/weibo1.jpeg" width="40%" styles="float:left"/>
-    <img src="https://github.com/huangxueqin/rookieweibo/raw/master/pics/weibo2.jpeg" width="50%" styles="float:left"/>
-    <img src="https://github.com/huangxueqin/rookieweibo/raw/master/pics/weibo3.jpeg" width="50%" styles="float:left"/>
-    <img src="https://github.com/huangxueqin/rookieweibo/raw/master/pics/weibo4.png" width="50%" styles="float:left"/>
+    <img src="https://github.com/huangxueqin/rookieweibo/raw/master/pics/weibo2.jpeg" width="40%" styles="float:left"/>
+    <img src="https://github.com/huangxueqin/rookieweibo/raw/master/pics/weibo3.jpeg" width="40%" styles="float:left"/>
+    <img src="https://github.com/huangxueqin/rookieweibo/raw/master/pics/weibo4.png" width="40%" styles="float:left"/>
 </div>
 
