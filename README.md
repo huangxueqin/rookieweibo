@@ -17,11 +17,11 @@
 
 ### APP截图
 
-![](https://github.com/huangxueqin/rookieweibo/raw/master/pics/weibo2.jpeg =540x960)
+![](https://github.com/huangxueqin/rookieweibo/raw/master/pics/weibo2.jpeg)
 
-![](https://github.com/huangxueqin/rookieweibo/raw/master/pics/weibo2.jpeg =540x960)
+![](https://github.com/huangxueqin/rookieweibo/raw/master/pics/weibo2.jpeg)
 
-![](https://github.com/huangxueqin/rookieweibo/raw/master/pics/weibo3.jpeg =540x960)
+![](https://github.com/huangxueqin/rookieweibo/raw/master/pics/weibo3.jpeg)
 
-![](https://github.com/huangxueqin/rookieweibo/raw/master/pics/weibo4.png =540x960)
+![](https://github.com/huangxueqin/rookieweibo/raw/master/pics/weibo4.png)
 
