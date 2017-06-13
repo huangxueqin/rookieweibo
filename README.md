@@ -10,14 +10,18 @@
 
 ### 技术点：
 - 微博流高效展示
-- 图片手势操作和长图展示
+- 图片手势操作和长图分块展示(位于UltimateImageView包内）
 - 表情键盘的实现
 - ScrollableLayout的实现（解决Header-ViewPager-ListView组合的滑动问题）
 - Glide库的高级用法（本项目所有的图片加载都是通过Glide配合全局Cache实现的）
 
 ### APP截图
-![](https://github.com/huangxueqin/rookieweibo/blob/master/pics/weibo2.jpeg =540x960)
-![](https://github.com/huangxueqin/rookieweibo/blob/master/pics/weibo2.jpeg =540x960)
-![](https://github.com/huangxueqin/rookieweibo/blob/master/pics/weibo3.jpeg =540x960)
-![](https://github.com/huangxueqin/rookieweibo/blob/master/pics/weibo4.png =540x960)
+
+![](https://github.com/huangxueqin/rookieweibo/raw/master/pics/weibo2.jpeg =540x960)
+
+![](https://github.com/huangxueqin/rookieweibo/raw/master/pics/weibo2.jpeg =540x960)
+
+![](https://github.com/huangxueqin/rookieweibo/raw/master/pics/weibo3.jpeg =540x960)
+
+![](https://github.com/huangxueqin/rookieweibo/raw/master/pics/weibo4.png =540x960)
 
