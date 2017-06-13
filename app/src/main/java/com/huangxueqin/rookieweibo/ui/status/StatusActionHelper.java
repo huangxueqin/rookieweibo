@@ -23,7 +23,7 @@ public final class StatusActionHelper {
 
     public static void goUserPage(Context context, User user) {
         Intent intent = new Intent(context, WeiboUserActivity.class);
-        intent.putExtra(Cons.IntentKey.USER_ID, Long.parseLong(user.id));
+        intent.putExtra(Cons.IntentKey.USER, new Gson().toJson(user));
         context.startActivity(intent);
     }
 

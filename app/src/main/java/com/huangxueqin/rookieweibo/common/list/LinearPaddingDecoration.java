@@ -40,7 +40,7 @@ public class LinearPaddingDecoration extends RecyclerView.ItemDecoration {
             outRect.bottom = paddingBetweenItem/2;
         } else {
             outRect.top = paddingBetweenItem/2;
-            outRect.bottom = paddingBetweenItem/2;
+            outRect.bottom = paddingAround.top;
         }
     }
 }

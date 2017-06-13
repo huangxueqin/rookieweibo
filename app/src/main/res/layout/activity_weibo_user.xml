@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -12,51 +12,18 @@
         <include
             android:id="@+id/back"
             layout="@layout/view_toolbar_back_button" />
+
+        <TextView
+            style="@style/Toolbar.Center"
+            android:id="@+id/title"
+            android:text="@string/pub_status_title"/>
     </RelativeLayout>
 
-    <FrameLayout
-        android:id="@+id/header_view"
-        android:layout_width="match_parent"
-        android:layout_height="200dp">
-
-        <ImageView
-            android:id="@+id/user_bg"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
-
-            <FrameLayout
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_marginTop="80dp"
-                android:background="@color/white"
-                android:padding="5dp">
-
-                <ImageView
-                    android:id="@+id/user_avatar"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-            </FrameLayout>
-
-            <TextView
-                android:id="@+id/user_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/text1" />
-
-        </LinearLayout>
-    </FrameLayout>
-
-    
     <android.support.v7.widget.RecyclerView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/status_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layoutManager="LinearLayoutManager" />
 
-</android.support.design.widget.CoordinatorLayout>
+</LinearLayout>

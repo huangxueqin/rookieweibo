@@ -3,7 +3,6 @@ package com.huangxueqin.rookieweibo.ui.status;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.TabLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,7 +19,7 @@ import com.huangxueqin.rookieweibo.RepostActivity;
 import com.huangxueqin.rookieweibo.WeiboUserActivity;
 import com.huangxueqin.rookieweibo.common.Logger;
 import com.huangxueqin.rookieweibo.common.list.LoadingListener;
-import com.huangxueqin.rookieweibo.WeiboApiWrapper;
+import com.huangxueqin.rookieweibo.WeiboRequestApiWrapper;
 import com.huangxueqin.rookieweibo.cons.Cons;
 import com.huangxueqin.rookieweibo.cons.StatusAction;
 import com.huangxueqin.rookieweibo.interfaces.StatusLinkHandler;
@@ -182,7 +181,7 @@ public class WeiboFlowFragment extends LceFragment implements SwipeRefreshLayout
         }
     };
 
-    private class StatusAPIWrapper extends WeiboApiWrapper {
+    private class StatusAPIWrapper extends WeiboRequestApiWrapper {
         int RETRY;
         final int PAGE;
         boolean mFinish;

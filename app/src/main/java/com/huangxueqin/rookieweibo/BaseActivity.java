@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.TextView;
 
 import com.huangxueqin.rookieweibo.auth.AccessTokenKeeper;
 import com.huangxueqin.rookieweibo.auth.UserKeeper;
@@ -27,6 +28,10 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Nullable
     @BindView(R.id.close)
     View mCloseButton;
+
+    @Nullable
+    @BindView(R.id.title)
+    TextView mTitle;
 
     protected User mUser;
     protected Oauth2AccessToken mAccessToken;

@@ -145,4 +145,17 @@ public class StatusUtils {
     public static String parseCreateTime(Status status) {
         return parseCreateTime(status.created_at);
     }
+
+    public static String parseNum(int num) {
+        if (num < 10000) {
+            return "" + num;
+        }
+        int quotient = num / 10000;
+        int reminder = num % 10000;
+        if (reminder < 1000) {
+            return "" + quotient + "万";
+        } else {
+            return "" + quotient + "." + reminder/1000 + "万";
+        }
+    }
 }

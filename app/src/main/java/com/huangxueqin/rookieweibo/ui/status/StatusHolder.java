@@ -123,7 +123,7 @@ public class StatusHolder extends RecyclerView.ViewHolder implements View.OnClic
     })
     @Override
     public void onClick(View v) {
-        if (status == null) return;
+        if (status == null || listener == null) return;
 
         switch (v.getId()) {
             case R.id.user_avatar:

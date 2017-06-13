@@ -49,6 +49,9 @@ public class User {
     public String profile_image_url;
     /** 用户的微博统一URL地址 */
     public String profile_url;
+    /** 用户背景图 **/
+    public String cover_image;
+    public String cover_image_phone;
     /** 用户的个性化域名 */
     public String domain;
     /** 用户的微号 */
@@ -130,6 +133,8 @@ public class User {
         user.url                = jsonObject.optString("url", "");
         user.profile_image_url  = jsonObject.optString("profile_image_url", "");
         user.profile_url        = jsonObject.optString("profile_url", "");
+        user.cover_image        = jsonObject.optString("cover_image", "");
+        user.cover_image_phone  = jsonObject.optString("cover_image_phone", "");
         user.domain             = jsonObject.optString("domain", "");
         user.weihao             = jsonObject.optString("weihao", "");
         user.gender             = jsonObject.optString("gender", "");
