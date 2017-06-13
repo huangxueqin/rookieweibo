@@ -16,8 +16,8 @@
 - Glide库的高级用法（本项目所有的图片加载都是通过Glide配合全局Cache实现的）
 
 ###APP截图
-![](https://github.com/huangxueqin/rookieweibo/pics/weibo2.jpeg)
-![](./pics/weibo2.jpeg =540x960)
-![](./pics/weibo3.jpeg =540x960)
-![](./pics/weibo4.png =540x960)
+![](https://github.com/huangxueqin/rookieweibo/blob/master/pics/weibo2.jpeg =540x960)
+![](https://github.com/huangxueqin/rookieweibo/blob/master/pics/weibo2.jpeg =540x960)
+![](https://github.com/huangxueqin/rookieweibo/blob/master/pics/weibo3.jpeg =540x960)
+![](https://github.com/huangxueqin/rookieweibo/blob/master/pics/weibo4.png =540x960)
 
