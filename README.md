@@ -16,7 +16,7 @@
 - Glide库的高级用法（本项目所有的图片加载都是通过Glide配合全局Cache实现的）
 
 ###APP截图
-![](./pics/weibo1.jpeg =540x960)
+![](http://upload-images.jianshu.io/upload_images/259-90ac0f366310f464.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 ![](./pics/weibo2.jpeg =540x960)
 ![](./pics/weibo3.jpeg =540x960)
 ![](./pics/weibo4.png =540x960)
